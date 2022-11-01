@@ -5,7 +5,7 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
-tauri-sys = { path = "../../" }
+tauri-sys = { path = "../../", features = ["all"] }
 serde = { version = "1.0.140", features = ["derive"] }
 sycamore = { git = "https://github.com/sycamore-rs/sycamore", rev = "abd556cbc02047042dad2ebd04405e455a9b11b2", features = ["suspense", "hydrate"] }
 sycamore-router = { git = "https://github.com/sycamore-rs/sycamore", rev = "abd556cbc02047042dad2ebd04405e455a9b11b2" }

@@ -16,11 +16,10 @@ thiserror = "1.0.37"
 semver = { version = "1.0.14", optional = true }
 
 [dev-dependencies]
-tokio-test = "0.4.2"
 wasm-bindgen-test = "0.3.33"
+tauri-sys = { path = ".", features = ["all"] }
 
 [features]
-default = ["all"]
 all = ["app", "clipboard", "event", "mocks", "tauri"]
 app = ["dep:semver"]
 clipboard = []
