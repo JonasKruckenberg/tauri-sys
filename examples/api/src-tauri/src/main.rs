@@ -3,7 +3,6 @@
     windows_subsystem = "windows"
 )]
 
-use serde::Deserialize;
 use shared::{Reply, RequestBody};
 
 #[tauri::command]
