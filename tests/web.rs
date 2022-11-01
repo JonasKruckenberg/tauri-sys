@@ -10,7 +10,7 @@ fn main() {
 }
 
 #[wasm_bindgen_test]
-async fn testinvoke() -> Result<(), Box<dyn std::error::Error>> {
+async fn test_invoke() -> Result<(), Box<dyn std::error::Error>> {
     #[derive(Serialize, Deserialize)]
     struct AddPayload {
         a: u32,
