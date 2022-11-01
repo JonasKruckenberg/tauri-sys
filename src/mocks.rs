@@ -1,16 +1,13 @@
 use js_sys::Array;
-use wasm_bindgen::JsValue;
+use wasm_bindgen::{prelude::Closure, JsValue};
 
 /// Mocks the current window label
 /// In non-tauri context it is required to call this function///before* using the `@tauri-apps/api/window` module.
-/// 
+///
 /// This function only mocks the *presence* of a window,
 /// window properties (e.g. width and height) can be mocked like regular IPC calls using the `mockIPC` function.
 pub fn mock_window(current: &str) {
-    inner::mockWindows(
-        current,
-        JsValue::UNDEFINED,
-    )
+    inner::mockWindows(current, JsValue::UNDEFINED)
 }
 
 /// Mocks many window labels.
@@ -31,8 +28,19 @@ pub fn mock_windows(current: &str, additional_windows: &[&str]) {
 /// Intercepts all IPC requests with the given mock handler.
 ///
 /// This function can be used when testing tauri frontend applications or when running the frontend in a Node.js context during static site generation.
-pub fn mock_ipc(handler: &dyn Fn(JsValue)) {
-    inner::mockIPC(handler);
+pub fn mock_ipc<H, R, E>(mut handler: H)
+where
+    H: FnMut(String, JsValue) -> Result<R, E> + 'static,
+    R: Into<JsValue>,
+    E: Into<JsValue>,
+{
+    let closure = Closure::<dyn FnMut(String, JsValue) -> Result<JsValue, JsValue>>::new(
+        move |cmd, payload| (handler)(cmd, payload).map(Into::into).map_err(Into::into),
+    );
+
+    inner::mockIPC(&closure);
+
+    closure.forget();
 }
 
 /// Clears mocked functions/data injected by the other functions in this module.
@@ -42,13 +50,16 @@ pub fn clear_mocks() {
 }
 
 mod inner {
-    use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
+    use wasm_bindgen::{
+        prelude::{wasm_bindgen, Closure},
+        JsValue,
+    };
 
     #[wasm_bindgen(module = "/dist/mocks.js")]
     extern "C" {
         #[wasm_bindgen(variadic)]
         pub fn mockWindows(current: &str, rest: JsValue);
-        pub fn mockIPC(handler: &dyn Fn(JsValue));
+        pub fn mockIPC(handler: &Closure<dyn FnMut(String, JsValue) -> Result<JsValue, JsValue>>);
         pub fn clearMocks();
     }
 }

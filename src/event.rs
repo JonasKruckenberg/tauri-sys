@@ -1,6 +1,7 @@
 use std::fmt::Debug;
 
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use wasm_bindgen::{prelude::Closure, JsValue};
 
 #[derive(Deserialize)]
 pub struct Event<T> {
@@ -69,11 +70,18 @@ pub async fn emit<T: Serialize>(event: &str, payload: &T) {
 ///
 /// Note that removing the listener is required if your listener goes out of scope e.g. the component is unmounted.
 #[inline(always)]
-pub async fn listen<T: DeserializeOwned>(event: &str, handler: &dyn Fn(Event<T>)) -> impl FnOnce() {
-    let unlisten = inner::listen(event, &|raw| {
-        handler(serde_wasm_bindgen::from_value(raw).unwrap())
-    })
-    .await;
+pub async fn listen<T, H>(event: &str, mut handler: H) -> impl FnOnce()
+where
+    T: DeserializeOwned,
+    H: FnMut(Event<T>) + 'static,
+{
+    let closure = Closure::<dyn FnMut(JsValue)>::new(move |raw| {
+        (handler)(serde_wasm_bindgen::from_value(raw).unwrap())
+    });
+
+    let unlisten = inner::listen(event, &closure).await;
+
+    closure.forget();
 
     let unlisten = js_sys::Function::from(unlisten);
     move || {
@@ -107,14 +115,18 @@ pub async fn listen<T: DeserializeOwned>(event: &str, handler: &dyn Fn(Event<T>)
 ///
 /// Note that removing the listener is required if your listener goes out of scope e.g. the component is unmounted.
 #[inline(always)]
-pub async fn once<T: DeserializeOwned>(
-    event: &str,
-    handler: &mut dyn FnMut(Event<T>),
-) -> impl FnOnce() {
-    let unlisten = inner::once(event, &mut |raw| {
-        handler(serde_wasm_bindgen::from_value(raw).unwrap())
-    })
-    .await;
+pub async fn once<T, H>(event: &str, mut handler: H) -> impl FnOnce()
+where
+    T: DeserializeOwned,
+    H: FnMut(Event<T>) + 'static,
+{
+    let closure = Closure::<dyn FnMut(JsValue)>::new(move |raw| {
+        (handler)(serde_wasm_bindgen::from_value(raw).unwrap())
+    });
+
+    let unlisten = inner::once(event, &closure).await;
+
+    closure.forget();
 
     let unlisten = js_sys::Function::from(unlisten);
     move || {
@@ -123,12 +135,15 @@ pub async fn once<T: DeserializeOwned>(
 }
 
 mod inner {
-    use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
+    use wasm_bindgen::{
+        prelude::{wasm_bindgen, Closure},
+        JsValue,
+    };
 
     #[wasm_bindgen(module = "/dist/event.js")]
     extern "C" {
         pub async fn emit(event: &str, payload: JsValue);
-        pub async fn listen(event: &str, handler: &dyn Fn(JsValue)) -> JsValue;
-        pub async fn once(event: &str, handler: &mut dyn FnMut(JsValue)) -> JsValue;
+        pub async fn listen(event: &str, handler: &Closure<dyn FnMut(JsValue)>) -> JsValue;
+        pub async fn once(event: &str, handler: &Closure<dyn FnMut(JsValue)>) -> JsValue;
     }
 }
