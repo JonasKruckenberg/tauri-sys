@@ -1,11 +1,16 @@
-# tauri-sys
-
-Bindings to the [Tauri API] for projects using [wasm-bindgen]
+<div align="center">
+  <h1>
+    <code>tauri-sys</code>
+  </h1>
+  <p>
+    <strong>Raw bindings to the <a href="https://tauri.app/v1/api/js/"><code>Tauri API</code></a>
+      for projects using <a href="https://github.com/rustwasm/wasm-bindgen"><code>wasm-bindgen</code></a></strong>
+  </p>
+</div>
 
 ## Installation
 
-This crate is not yet published to crates.io, so you need to use it from git.
-You also need a global installation of [`esbuild`].
+This crate is not yet published to crates.io, so you need to use it from git. You also need a global installation of [`esbuild`].
 
 ```toml
 tauri-sys = { git = "https://github.com/JonasKruckenberg/tauri-sys" }
@@ -66,7 +71,6 @@ These API bindings are not completely on-par with `@tauri-apps/api` yet, but her
 
 The current API also very closely mirrors the JS API even though that might not be the most ergonomic choice, ideas for improving the API with quality-of-life features beyond the regular JS API interface are very welcome.
 
-[Tauri API]: https://tauri.app/v1/api/js/
 [wasm-bindgen]: https://github.com/rustwasm/wasm-bindgen
-[Tauri Allowlist]: https://tauri.app/v1/api/config#allowlistconfig
+[tauri allowlist]: https://tauri.app/v1/api/config#allowlistconfig
 [`esbuild`]: https://esbuild.github.io/getting-started/#install-esbuild
