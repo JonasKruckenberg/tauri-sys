@@ -10,7 +10,7 @@ fn main() {
             "tauri/tooling/api/src/clipboard.ts",
             "tauri/tooling/api/src/tauri.ts",
             "tauri/tooling/api/src/event.ts",
-            "tauri/tooling/api/src/mocks.ts"
+            "tauri/tooling/api/src/mocks.ts",
         ])
         .output()
         .unwrap();

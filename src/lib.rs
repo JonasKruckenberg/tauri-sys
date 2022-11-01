@@ -16,7 +16,7 @@ pub enum Error {
     #[error(transparent)]
     Serde(#[from] serde_wasm_bindgen::Error),
     #[error("{0:?}")]
-    Other(JsValue)
+    Other(JsValue),
 }
 
 pub(crate) type Result<T> = std::result::Result<T, Error>;

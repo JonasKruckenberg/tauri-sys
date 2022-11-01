@@ -1,9 +1,9 @@
 use semver::Version;
 
 /// Gets the application name.
-/// 
+///
 /// # Example
-/// 
+///
 /// ```typescript
 /// import { getName } from '@tauri-apps/api/app';
 /// const appName = await getName();
@@ -14,9 +14,9 @@ pub async fn get_name() -> String {
 }
 
 /// Gets the application version.
-/// 
+///
 /// # Example
-/// 
+///
 /// ```rust,no_run
 /// use tauri_api::app::get_version;
 ///     
@@ -30,10 +30,10 @@ pub async fn get_version() -> Version {
 /// Gets the Tauri version.
 ///
 /// # Example
-/// 
+///
 /// ```rust,no_run
 /// use tauri_app::app:get_tauri_version;
-/// 
+///
 /// let version = get_tauri_version().await;
 /// ```
 #[inline(always)]
@@ -44,10 +44,10 @@ pub async fn get_tauri_version() -> Version {
 /// Shows the application on macOS. This function does not automatically focuses any app window.
 ///
 /// # Example
-/// 
+///
 /// ```rust,no_run
 /// use tauri_api::app::show;
-/// 
+///
 /// show().await;
 /// ```
 #[inline(always)]
@@ -58,10 +58,10 @@ pub async fn show() {
 /// Hides the application on macOS.
 ///
 /// # Example
-/// 
+///
 /// ```rust,no_run
 /// use tauri_api::app::hide;
-/// 
+///
 /// hide().await;
 /// ```
 #[inline(always)]
@@ -71,7 +71,7 @@ pub async fn hide() {
 
 mod inner {
     use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
-    
+
     #[wasm_bindgen(module = "/dist/app.js")]
     extern "C" {
         pub async fn getName() -> JsValue;
