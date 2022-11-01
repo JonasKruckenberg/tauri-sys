@@ -2,7 +2,7 @@ use std::process::Command;
 
 fn main() {
     /* Shared arguments */
-    let sargs: [&str; 8] = [
+    let sargs: [&str; 9] = [
         "--outdir=dist",
         "--format=esm",
         "--bundle",
@@ -11,6 +11,7 @@ fn main() {
         "tauri/tooling/api/src/tauri.ts",
         "tauri/tooling/api/src/event.ts",
         "tauri/tooling/api/src/mocks.ts",
+        "tauri/tooling/api/src/updater.ts",
     ];
 
     if cfg!(windows) {
