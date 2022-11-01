@@ -13,17 +13,19 @@ fn main() {
         "tauri/tooling/api/src/mocks.ts",
     ];
 
-    if cfg!(target_os = "windows") {
+    if cfg!(windows) {
         /* Use cmd if the target is windows */
         Command::new("cmd")
             .args(&["/C", "esbuild"])
             .args(&sargs)
             .output()
             .unwrap();
-    } else {
+    } else if cfg!(unix) {
         Command::new("esbuild")
             .args(&sargs)
             .output()
             .unwrap();
-    };
+    } else {
+        panic!("Unsupported build target");
+    }
 }
