@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use sycamore::prelude::*;
-use tauri_api::event::{emit, listen};
-use tauri_api::tauri::invoke;
+use tauri_sys::event::{emit, listen};
+use tauri_sys::tauri::invoke;
 use shared::RequestBody;
 
 #[component]

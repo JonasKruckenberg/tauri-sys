@@ -1,6 +1,6 @@
 use gloo_timers::callback::Timeout;
 use sycamore::prelude::*;
-use tauri_api::app;
+use tauri_sys::app;
 
 #[component]
 pub fn App<G: Html>(cx: Scope) -> View<G> {

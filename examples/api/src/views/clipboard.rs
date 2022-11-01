@@ -1,5 +1,5 @@
 use sycamore::prelude::*;
-use tauri_api::clipboard::{read_text, write_text};
+use tauri_sys::clipboard::{read_text, write_text};
 
 #[component]
 pub fn Clipboard<G: Html>(cx: Scope) -> View<G> {
