@@ -20,9 +20,10 @@ wasm-bindgen-test = "0.3.33"
 tauri-sys = { path = ".", features = ["all"] }
 
 [features]
-all = ["app", "clipboard", "event", "mocks", "tauri"]
+all = ["app", "clipboard", "event", "mocks", "tauri", "updater"]
 app = ["dep:semver"]
 clipboard = []
 event = []
 mocks = []
 tauri = ["dep:url"]
+updater = []

@@ -10,6 +10,8 @@ pub mod event;
 pub mod mocks;
 #[cfg(feature = "tauri")]
 pub mod tauri;
+#[cfg(feature = "updater")]
+pub mod updater;
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
