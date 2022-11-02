@@ -1,6 +1,7 @@
 mod app;
 mod clipboard;
 mod communication;
+mod updater;
 mod welcome;
 
 use sycamore::view::View;
@@ -15,6 +16,8 @@ pub enum Page {
     Clipboard,
     #[to("/communication")]
     Communication,
+    #[to("/updater")]
+    Updater,
     #[not_found]
     NotFound
 }
@@ -24,6 +27,7 @@ pub fn switch<G: Html>(cx: Scope, route: &ReadSignal<Page>) -> View<G> {
         Page::App => app::App(cx),
         Page::Clipboard => clipboard::Clipboard(cx),
         Page::Communication => communication::Communication(cx),
+        Page::Updater => updater::Updater(cx),
         Page::NotFound => welcome::Welcome(cx)
     }
 }

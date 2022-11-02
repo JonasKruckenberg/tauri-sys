@@ -18,7 +18,7 @@ fn Header<G: Html>(cx: Scope) -> View<G> {
                 "Clipboard"
             }
             a(href="/updater") {
-              "Updater"
+                "Updater"
             }
             a(href="/communication") {
                 "Communication"
