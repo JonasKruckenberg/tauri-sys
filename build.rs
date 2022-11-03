@@ -11,7 +11,8 @@ fn main() {
         "tauri/tooling/api/src/tauri.ts",
         "tauri/tooling/api/src/event.ts",
         "tauri/tooling/api/src/mocks.ts",
-        "tauri/tooling/api/src/window.ts"
+        "tauri/tooling/api/src/window.ts",
+        "tauri/tooling/api/src/process.ts"
     ];
 
     if cfg!(windows) {

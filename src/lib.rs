@@ -12,6 +12,8 @@ pub mod mocks;
 pub mod tauri;
 #[cfg(feature = "window")]
 pub mod window;
+#[cfg(feature = "process")]
+pub mod process;
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
