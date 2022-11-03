@@ -1,6 +1,7 @@
 name: Test
 
-push:
+on:
+  push:
     branches:
       - main
     paths:
