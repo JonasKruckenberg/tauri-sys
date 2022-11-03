@@ -18,20 +18,11 @@ semver = { version = "1.0.14", optional = true }
 [dev-dependencies]
 wasm-bindgen-test = "0.3.33"
 tauri-sys = { path = ".", features = ["all"] }
-tauri = "1.1.1"
-
-[package.metadata.docs.rs]
-all-features = true
 
 [features]
-all = ["app", "clipboard", "event", "mocks", "tauri", "window", "process"]
+all = ["app", "clipboard", "event", "mocks", "tauri"]
 app = ["dep:semver"]
 clipboard = []
 event = []
 mocks = []
 tauri = ["dep:url"]
-window = []
-process = []
-
-[workspace]
-members = ["examples/test", "examples/test/src-tauri"]

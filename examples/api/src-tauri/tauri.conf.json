@@ -7,7 +7,7 @@
     "withGlobalTauri": true
   },
   "package": {
-    "productName": "tauri-sys-test",
+    "productName": "tauri-app",
     "version": "0.0.0"
   },
   "tauri": {
