@@ -1,13 +1,17 @@
 use sycamore::prelude::*;
-use tauri_sys::clipboard::{read_text, write_text};
+use tauri_sys::updater::check_update;
 
 #[component]
 pub fn Updater<G: Html>(cx: Scope) -> View<G> {
-    let text = create_signal(cx, "clipboard message".to_string());
+    let text = create_signal(cx, "...".to_string());
 
-    let write = move |_| {
+    let check = move |_| {
         sycamore::futures::spawn_local_scoped(cx, async move {
-            write_text(&text.get()).await
+            log::info!("Test");
+
+            let text = format!("{:?}", check_update().await);
+
+            log::info!("Update info {:?}", text);
             //   .then(() => {
             //     onMessage('Wrote to the clipboard')
             //   })
@@ -15,27 +19,24 @@ pub fn Updater<G: Html>(cx: Scope) -> View<G> {
         });
     };
 
-    let read = |_| {
-        sycamore::futures::spawn_local(async move {
-            let text = read_text().await;
+    // let read = |_| {
+    //     sycamore::futures::spawn_local(async move {
+    //         let text = read_text().await;
 
-            log::info!("Read text from clipboard {:?}", text);
-            // readText()
-            //   .then((contents) => {
-            //     onMessage(`Clipboard contents: ${contents}`)
-            //   })
-            //   .catch(onMessage)
-        });
-    };
+    //         log::info!("Read text from clipboard {:?}", text);
+    //         // readText()
+    //         //   .then((contents) => {
+    //         //     onMessage(`Clipboard contents: ${contents}`)
+    //         //   })
+    //         //   .catch(onMessage)
+    //     });
+    // };
 
     view! { cx,
         div(class="flex gap-1") {
-            input(class="grow input",placeholder="Text to write to the clipboard",bind:value=text)
-            button(class="btn",type="button",on:click=write) {
-                "Write"
-            }
-            button(class="btn",type="button",on:click=read) {
-                "Read"
+            p(class="grow input",bind:value=text)
+            button(class="btn",type="button",on:click=check) {
+                "Check"
             }
         }
     }
