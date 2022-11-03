@@ -40,4 +40,4 @@ jobs:
     - name: Run test app
       run: |
         cd examples/test
-        cargo tauri dev --exit-on-panic --config ./src-tauri/ci.tauri.conf.json
+        cargo-tauri dev --exit-on-panic --config ./src-tauri/ci.tauri.conf.json
