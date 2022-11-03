@@ -131,6 +131,10 @@ impl WebviewWindow {
         inner::WebviewWindow::getByLabel(label).map(Self)
     }
 
+    pub fn label(&self) -> String {
+        self.0.label()
+    }
+
     pub async fn scale_factor(&self) -> f64 {
         self.0.scaleFactor().await.as_f64().unwrap()
     }
@@ -632,6 +636,8 @@ mod inner {
         pub type WindowManager;
         #[wasm_bindgen(constructor)]
         pub fn new(label: &str) -> WindowManager;
+        #[wasm_bindgen(method, getter)]
+        pub fn label(this: &WindowManager) -> String;
         #[wasm_bindgen(method)]
         pub async fn scaleFactor(this: &WindowManager) -> JsValue;
         #[wasm_bindgen(method)]
