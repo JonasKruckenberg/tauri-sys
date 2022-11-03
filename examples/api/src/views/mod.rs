@@ -2,6 +2,7 @@ mod app;
 mod clipboard;
 mod communication;
 mod welcome;
+mod window;
 
 use sycamore::view::View;
 use sycamore_router::Route;
@@ -15,6 +16,8 @@ pub enum Page {
     Clipboard,
     #[to("/communication")]
     Communication,
+    #[to("/window")]
+    Window,
     #[not_found]
     NotFound
 }
@@ -24,6 +27,7 @@ pub fn switch<G: Html>(cx: Scope, route: &ReadSignal<Page>) -> View<G> {
         Page::App => app::App(cx),
         Page::Clipboard => clipboard::Clipboard(cx),
         Page::Communication => communication::Communication(cx),
+        Page::Window => window::Window(cx),
         Page::NotFound => welcome::Welcome(cx)
     }
 }

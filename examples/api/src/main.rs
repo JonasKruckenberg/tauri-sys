@@ -20,6 +20,9 @@ fn Header<G: Html>(cx: Scope) -> View<G> {
             a(href="/communication") {
                 "Communication"
             }
+            a(href="/window") {
+                "Window"
+            }
         }
     }
 }
