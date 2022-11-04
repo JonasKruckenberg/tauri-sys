@@ -39,13 +39,13 @@ jobs:
     - name: Install Tauri CLI
       run: |
         cd examples/test
-        wget -qO- https://github.com/tauri-apps/tauri/releases/download/cli.rs-v1.1.1/cargo-tauri-x86_64-unknown-linux-gnu.tgz | tar -xzf-
+        wget -qO- https://github.com/tauri-apps/tauri/releases/download/cli.rs-v1.1.1/cargo-tauri-x86_64-unknown-linux-gnu.tgz | tar -xzf- -C ~/.cargo/bin
     - name: Install Trunk
       run: |
         cd examples/test
-        wget -qO- https://github.com/thedodd/trunk/releases/download/v0.16.0/trunk-x86_64-unknown-linux-gnu.tar.gz | tar -xzf-
+        wget -qO- https://github.com/thedodd/trunk/releases/download/v0.16.0/trunk-x86_64-unknown-linux-gnu.tar.gz | tar -xzf- -C ~/.cargo/bin
     - name: Run test app
       run: |
         cd examples/test
         export CARGO_UNSTABLE_SPARSE_REGISTRY=true
-        ./cargo-tauri dev --exit-on-panic --config ./src-tauri/ci.tauri.conf.json
+        cargo tauri dev --exit-on-panic --config ./src-tauri/ci.tauri.conf.json
