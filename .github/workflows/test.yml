@@ -43,7 +43,7 @@ jobs:
     - name: Install Trunk
       run: |
         cd examples/test
-        wget -qO- https://github.com/thedodd/trunk/releases/download/0.16.0/trunk-x86_64-unknown-linux-gnu.tar.gz | tar -xzf-
+        wget -qO- https://github.com/thedodd/trunk/releases/download/v0.16.0/trunk-x86_64-unknown-linux-gnu.tar.gz | tar -xzf-
     - name: Run test app
       run: |
         cd examples/test
