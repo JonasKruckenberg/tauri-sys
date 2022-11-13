@@ -44,6 +44,7 @@ pub struct MessageDialogOptions {
     pub title: Option<String>,
 
     /// The type of the dialog. Defaults to MessageDialogType::Info.
+    #[serde(rename(serialize = "type"))]
     pub kind: MessageDialogType,
 }
 
