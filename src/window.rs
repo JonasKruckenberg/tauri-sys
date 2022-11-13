@@ -331,7 +331,7 @@ impl WebviewWindow {
     pub async fn set_cursor_position(&self, position: Position) -> crate::Result<()> {
         match position {
             Position::Physical(pos) => self.0.setCursorPositionPhysical(pos.0).await?,
-            Position::Logical(pos) => self.0.setCursorPositionLogical(pos.0).await?
+            Position::Logical(pos) => self.0.setCursorPositionLogical(pos.0).await?,
         }
 
         Ok(())

@@ -1,5 +1,5 @@
-use std::fmt::Debug;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use std::fmt::Debug;
 use wasm_bindgen::{prelude::Closure, JsValue};
 
 #[derive(Deserialize)]
@@ -45,8 +45,7 @@ impl<T: Debug> Debug for Event<T> {
 /// @param event Event name. Must include only alphanumeric characters, `-`, `/`, `:` and `_`.
 #[inline(always)]
 pub async fn emit<T: Serialize>(event: &str, payload: &T) -> crate::Result<()> {
-    inner::emit(event, serde_wasm_bindgen::to_value(payload)?)
-        .await?;
+    inner::emit(event, serde_wasm_bindgen::to_value(payload)?).await?;
 
     Ok(())
 }
