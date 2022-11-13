@@ -4,6 +4,8 @@ use wasm_bindgen::JsValue;
 pub mod app;
 #[cfg(feature = "clipboard")]
 pub mod clipboard;
+#[cfg(feature = "dialog")]
+pub mod dialog;
 #[cfg(feature = "event")]
 pub mod event;
 #[cfg(feature = "mocks")]
