@@ -189,6 +189,10 @@ pub async fn message(message: &str, options: Option<MessageDialogOptions>) {
 /// use tauri_api::dialog::{open, OpenDialogOptions};
 ///
 /// let file = open(None).await;
+///
+/// let mut opts = OpenDialogOptions::new();
+/// opts.directory = true;
+/// let dir = open(Some(opts)).await;
 /// ```
 /// @param options Dialog options.
 /// @returns List of file paths, or `None` if user cancelled the dialog.
@@ -214,6 +218,11 @@ pub async fn open(options: Option<OpenDialogOptions>) -> Option<PathBuf> {
 /// use tauri_api::dialog::{open, OpenDialogOptions};
 ///
 /// let files = open_multiple(None).await;
+///
+/// let mut opts = OpenDialogOptions::new();
+/// opts.multiple = true;
+/// opts.directory = true;
+/// let dirs = open(Some(opts)).await;
 /// ```
 /// @param options Dialog options.
 /// @returns List of file paths, or `None` if user cancelled the dialog.
