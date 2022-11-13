@@ -36,7 +36,7 @@ pub async fn write_text(text: &str) -> crate::Result<()> {
 mod inner {
     use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
 
-    #[wasm_bindgen(module = "/dist/clipboard.js")]
+    #[wasm_bindgen(module = "/src/clipboard.js")]
     extern "C" {
         #[wasm_bindgen(catch)]
         pub async fn readText() -> Result<JsValue, JsValue>;

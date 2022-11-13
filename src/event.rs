@@ -144,7 +144,7 @@ mod inner {
         JsValue,
     };
 
-    #[wasm_bindgen(module = "/dist/event.js")]
+    #[wasm_bindgen(module = "/src/event.js")]
     extern "C" {
         #[wasm_bindgen(catch)]
         pub async fn emit(event: &str, payload: JsValue) -> Result<(), JsValue>;

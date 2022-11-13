@@ -95,7 +95,7 @@ pub async fn transform_callback<T: DeserializeOwned>(
 mod inner {
     use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
 
-    #[wasm_bindgen(module = "/dist/tauri.js")]
+    #[wasm_bindgen(module = "/src/tauri.js")]
     extern "C" {
         #[wasm_bindgen(catch)]
         pub async fn convertFileSrc(

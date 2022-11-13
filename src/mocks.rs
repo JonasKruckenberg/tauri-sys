@@ -55,7 +55,7 @@ mod inner {
         JsValue,
     };
 
-    #[wasm_bindgen(module = "/dist/mocks.js")]
+    #[wasm_bindgen(module = "/src/mocks.js")]
     extern "C" {
         #[wasm_bindgen(variadic)]
         pub fn mockWindows(current: &str, rest: JsValue);

@@ -626,7 +626,7 @@ mod inner {
         JsValue,
     };
 
-    #[wasm_bindgen(module = "/dist/window.js")]
+    #[wasm_bindgen(module = "/src/window.js")]
     extern "C" {
         #[derive(Debug, Clone, PartialEq)]
         pub type LogicalPosition;
@@ -642,7 +642,7 @@ mod inner {
         pub fn set_y(this: &LogicalPosition, y: u32);
     }
 
-    #[wasm_bindgen(module = "/dist/window.js")]
+    #[wasm_bindgen(module = "/src/window.js")]
     extern "C" {
         #[derive(Debug, Clone, PartialEq)]
         pub type PhysicalPosition;
@@ -660,7 +660,7 @@ mod inner {
         pub fn set_y(this: &PhysicalPosition, y: u32);
     }
 
-    #[wasm_bindgen(module = "/dist/window.js")]
+    #[wasm_bindgen(module = "/src/window.js")]
     extern "C" {
         #[derive(Debug, Clone, PartialEq)]
         pub type LogicalSize;
@@ -676,7 +676,7 @@ mod inner {
         pub fn set_height(this: &LogicalSize, height: u32);
     }
 
-    #[wasm_bindgen(module = "/dist/window.js")]
+    #[wasm_bindgen(module = "/src/window.js")]
     extern "C" {
         #[derive(Debug, Clone, PartialEq)]
         pub type PhysicalSize;
@@ -694,7 +694,7 @@ mod inner {
         pub fn set_height(this: &PhysicalSize, height: u32);
     }
 
-    #[wasm_bindgen(module = "/dist/window.js")]
+    #[wasm_bindgen(module = "/src/window.js")]
     extern "C" {
         #[derive(Debug, Clone, PartialEq)]
         pub type WebviewWindowHandle;
@@ -720,7 +720,7 @@ mod inner {
         ) -> Result<(), JsValue>;
     }
 
-    #[wasm_bindgen(module = "/dist/window.js")]
+    #[wasm_bindgen(module = "/src/window.js")]
     extern "C" {
         #[wasm_bindgen(extends = WebviewWindowHandle)]
         #[derive(Debug, Clone, PartialEq)]
@@ -855,7 +855,7 @@ mod inner {
         pub async fn startDragging(this: &WindowManager) -> Result<(), JsValue>;
     }
 
-    #[wasm_bindgen(module = "/dist/window.js")]
+    #[wasm_bindgen(module = "/src/window.js")]
     extern "C" {
         #[wasm_bindgen(extends = WindowManager)]
         #[derive(Debug, Clone, PartialEq)]
@@ -866,7 +866,7 @@ mod inner {
         pub fn getByLabel(label: &str) -> Option<WebviewWindow>;
     }
 
-    #[wasm_bindgen(module = "/dist/window.js")]
+    #[wasm_bindgen(module = "/src/window.js")]
     extern "C" {
         pub fn getCurrent() -> WebviewWindow;
         pub fn getAll() -> Vec<WebviewWindow>;

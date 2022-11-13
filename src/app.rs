@@ -80,7 +80,7 @@ pub async fn hide() -> crate::Result<()> {
 mod inner {
     use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
 
-    #[wasm_bindgen(module = "/dist/app.js")]
+    #[wasm_bindgen(module = "/src/app.js")]
     extern "C" {
         #[wasm_bindgen(catch)]
         pub async fn getName() -> Result<JsValue, JsValue>;
