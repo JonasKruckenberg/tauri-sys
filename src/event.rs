@@ -1,9 +1,6 @@
 use std::fmt::Debug;
-
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use wasm_bindgen::{prelude::Closure, JsValue};
-
-use crate::Error;
 
 #[derive(Deserialize)]
 pub struct Event<T> {
@@ -49,8 +46,9 @@ impl<T: Debug> Debug for Event<T> {
 #[inline(always)]
 pub async fn emit<T: Serialize>(event: &str, payload: &T) -> crate::Result<()> {
     inner::emit(event, serde_wasm_bindgen::to_value(payload)?)
-        .await
-        .map_err(Error::Other)
+        .await?;
+
+    Ok(())
 }
 
 /// Listen to an event from the backend.
@@ -83,7 +81,7 @@ where
         (handler)(serde_wasm_bindgen::from_value(raw).unwrap())
     });
 
-    let unlisten = inner::listen(event, &closure).await.map_err(Error::Other)?;
+    let unlisten = inner::listen(event, &closure).await?;
 
     closure.forget();
 
@@ -128,7 +126,7 @@ where
         (handler)(serde_wasm_bindgen::from_value(raw).unwrap())
     });
 
-    let unlisten = inner::once(event, &closure).await.map_err(Error::Other)?;
+    let unlisten = inner::once(event, &closure).await?;
 
     closure.forget();
 

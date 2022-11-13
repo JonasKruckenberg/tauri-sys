@@ -136,83 +136,63 @@ impl WebviewWindow {
     }
 
     pub async fn scale_factor(&self) -> crate::Result<f64> {
-        let js_val = self.0.scaleFactor().await.map_err(Error::Other)?;
+        let js_val = self.0.scaleFactor().await?;
 
         Ok(serde_wasm_bindgen::from_value(js_val)?)
     }
 
     pub async fn inner_position(&self) -> crate::Result<PhysicalPosition> {
         Ok(PhysicalPosition(
-            self.0
-                .innerPosition()
-                .await
-                .map_err(Error::Other)?
-                .unchecked_into(),
+            self.0.innerPosition().await?.unchecked_into(),
         ))
     }
 
     pub async fn outer_position(&self) -> crate::Result<PhysicalPosition> {
         Ok(PhysicalPosition(
-            self.0
-                .outerPosition()
-                .await
-                .map_err(Error::Other)?
-                .unchecked_into(),
+            self.0.outerPosition().await?.unchecked_into(),
         ))
     }
 
     pub async fn inner_size(&self) -> crate::Result<PhysicalSize> {
-        Ok(PhysicalSize(
-            self.0
-                .innerSize()
-                .await
-                .map_err(Error::Other)?
-                .unchecked_into(),
-        ))
+        Ok(PhysicalSize(self.0.innerSize().await?.unchecked_into()))
     }
 
     pub async fn outer_size(&self) -> crate::Result<PhysicalSize> {
-        Ok(PhysicalSize(
-            self.0
-                .outerSize()
-                .await
-                .map_err(Error::Other)?
-                .unchecked_into(),
-        ))
+        Ok(PhysicalSize(self.0.outerSize().await?.unchecked_into()))
     }
 
     pub async fn is_fullscreen(&self) -> crate::Result<bool> {
-        let js_val = self.0.isFullscreen().await.map_err(Error::Other)?;
+        let js_val = self.0.isFullscreen().await?;
 
         Ok(serde_wasm_bindgen::from_value(js_val)?)
     }
 
     pub async fn is_maximized(&self) -> crate::Result<bool> {
-        let js_val = self.0.isMaximized().await.map_err(Error::Other)?;
+        let js_val = self.0.isMaximized().await?;
 
         Ok(serde_wasm_bindgen::from_value(js_val)?)
     }
 
     pub async fn is_decorated(&self) -> crate::Result<bool> {
-        let js_val = self.0.isDecorated().await.map_err(Error::Other)?;
+        let js_val = self.0.isDecorated().await?;
 
         Ok(serde_wasm_bindgen::from_value(js_val)?)
     }
 
     pub async fn is_resizable(&self) -> crate::Result<bool> {
-        let js_val = self.0.isResizable().await.map_err(Error::Other)?;
+        let js_val = self.0.isResizable().await?;
 
         Ok(serde_wasm_bindgen::from_value(js_val)?)
     }
 
     pub async fn is_visible(&self) -> crate::Result<bool> {
-        let js_val = self.0.isVisible().await.map_err(Error::Other)?;
+        let js_val = self.0.isVisible().await?;
 
         Ok(serde_wasm_bindgen::from_value(js_val)?)
     }
 
     pub async fn theme(&self) -> crate::Result<Theme> {
-        let js_val = self.0.theme().await.map_err(Error::Other)?;
+        let js_val = self.0.theme().await?;
 
         let str = serde_wasm_bindgen::from_value::<String>(js_val)?;
 
@@ -224,186 +204,154 @@ impl WebviewWindow {
     }
 
     pub async fn center(&self) -> crate::Result<()> {
-        self.0.center().await.map_err(Error::Other)
+        Ok(self.0.center().await?)
     }
 
     pub async fn request_user_attention(
         &self,
         request_type: UserAttentionType,
     ) -> crate::Result<()> {
-        self.0
-            .requestUserAttention(request_type as u32)
-            .await
-            .map_err(Error::Other)
+        Ok(self.0.requestUserAttention(request_type as u32).await?)
     }
 
     pub async fn set_resizable(&self, resizable: bool) -> crate::Result<()> {
-        self.0.setResizable(resizable).await.map_err(Error::Other)
+        Ok(self.0.setResizable(resizable).await?)
     }
 
     pub async fn set_title(&self, title: impl AsRef<str>) -> crate::Result<()> {
-        self.0.setTitle(title.as_ref()).await.map_err(Error::Other)
+        Ok(self.0.setTitle(title.as_ref()).await?)
     }
 
     pub async fn maximize(&self) -> crate::Result<()> {
-        self.0.maximize().await.map_err(Error::Other)
+        Ok(self.0.maximize().await?)
     }
 
     pub async fn unmaximize(&self) -> crate::Result<()> {
-        self.0.unmaximize().await.map_err(Error::Other)
+        Ok(self.0.unmaximize().await?)
     }
 
     pub async fn toggle_maximize(&self) -> crate::Result<()> {
-        self.0.toggleMaximize().await.map_err(Error::Other)
+        Ok(self.0.toggleMaximize().await?)
     }
 
     pub async fn minimize(&self) -> crate::Result<()> {
-        self.0.minimize().await.map_err(Error::Other)
+        Ok(self.0.minimize().await?)
     }
 
     pub async fn unminimize(&self) -> crate::Result<()> {
-        self.0.unminimize().await.map_err(Error::Other)
+        Ok(self.0.unminimize().await?)
     }
 
     pub async fn show(&self) -> crate::Result<()> {
-        self.0.show().await.map_err(Error::Other)
+        Ok(self.0.show().await?)
     }
 
     pub async fn hide(&self) -> crate::Result<()> {
-        self.0.hide().await.map_err(Error::Other)
+        Ok(self.0.hide().await?)
     }
 
     pub async fn close(&self) -> crate::Result<()> {
-        self.0.close().await.map_err(Error::Other)
+        Ok(self.0.close().await?)
     }
 
     pub async fn set_decorations(&self, decorations: bool) -> crate::Result<()> {
-        self.0
-            .setDecorations(decorations)
-            .await
-            .map_err(Error::Other)
+        Ok(self.0.setDecorations(decorations).await?)
     }
 
     pub async fn set_always_on_top(&self, always_on_top: bool) -> crate::Result<()> {
-        self.0
-            .setAlwaysOnTop(always_on_top)
-            .await
-            .map_err(Error::Other)
+        Ok(self.0.setAlwaysOnTop(always_on_top).await?)
     }
 
     pub async fn set_size(&self, size: Size) -> crate::Result<()> {
         match size {
-            Size::Physical(size) => self.0.setSizePhysical(size.0).await.map_err(Error::Other),
-            Size::Logical(size) => self.0.setSizeLogical(size.0).await.map_err(Error::Other),
+            Size::Physical(size) => self.0.setSizePhysical(size.0).await?,
+            Size::Logical(size) => self.0.setSizeLogical(size.0).await?,
         }
+
+        Ok(())
     }
 
     pub async fn set_min_size(&self, size: Option<Size>) -> crate::Result<()> {
         match size {
-            None => self.0.setMinSizePhysical(None).await.map_err(Error::Other),
-            Some(Size::Physical(size)) => self
-                .0
-                .setMinSizePhysical(Some(size.0))
-                .await
-                .map_err(Error::Other),
-            Some(Size::Logical(size)) => self
-                .0
-                .setMinSizeLogical(Some(size.0))
-                .await
-                .map_err(Error::Other),
+            None => self.0.setMinSizePhysical(None).await?,
+            Some(Size::Physical(size)) => self.0.setMinSizePhysical(Some(size.0)).await?,
+            Some(Size::Logical(size)) => self.0.setMinSizeLogical(Some(size.0)).await?,
         }
+
+        Ok(())
     }
 
     pub async fn set_max_size(&self, size: Option<Size>) -> crate::Result<()> {
         match size {
-            None => self.0.setMaxSizePhysical(None).await.map_err(Error::Other),
-            Some(Size::Physical(size)) => self
-                .0
-                .setMaxSizePhysical(Some(size.0))
-                .await
-                .map_err(Error::Other),
-            Some(Size::Logical(size)) => self
-                .0
-                .setMaxSizeLogical(Some(size.0))
-                .await
-                .map_err(Error::Other),
+            None => self.0.setMaxSizePhysical(None).await?,
+            Some(Size::Physical(size)) => self.0.setMaxSizePhysical(Some(size.0)).await?,
+            Some(Size::Logical(size)) => self.0.setMaxSizeLogical(Some(size.0)).await?,
         }
+
+        Ok(())
     }
 
     pub async fn set_position(&self, position: Position) -> crate::Result<()> {
         match position {
-            Position::Physical(pos) => self
-                .0
-                .setPositionPhysical(pos.0)
-                .await
-                .map_err(Error::Other),
-            Position::Logical(pos) => self.0.setPositionLogical(pos.0).await.map_err(Error::Other),
+            Position::Physical(pos) => self.0.setPositionPhysical(pos.0).await?,
+            Position::Logical(pos) => self.0.setPositionLogical(pos.0).await?,
         }
+
+        Ok(())
     }
 
     pub async fn set_fullscreen(&self, fullscreen: bool) -> crate::Result<()> {
-        self.0.setFullscreen(fullscreen).await.map_err(Error::Other)
+        Ok(self.0.setFullscreen(fullscreen).await?)
     }
 
     pub async fn set_focus(&self) -> crate::Result<()> {
-        self.0.setFocus().await.map_err(Error::Other)
+        Ok(self.0.setFocus().await?)
     }
 
     pub async fn set_icon(&self, icon: &[u8]) -> crate::Result<()> {
-        self.0.setIcon(icon).await.map_err(Error::Other)
+        Ok(self.0.setIcon(icon).await?)
     }
 
     pub async fn set_skip_taskbar(&self, skip: bool) -> crate::Result<()> {
-        self.0.setSkipTaskbar(skip).await.map_err(Error::Other)
+        Ok(self.0.setSkipTaskbar(skip).await?)
     }
 
     pub async fn set_cursor_grab(&self, grab: bool) -> crate::Result<()> {
-        self.0.setCursorGrab(grab).await.map_err(Error::Other)
+        Ok(self.0.setCursorGrab(grab).await?)
     }
 
     pub async fn set_cursor_visible(&self, visible: bool) -> crate::Result<()> {
-        self.0.setCursorVisible(visible).await.map_err(Error::Other)
+        Ok(self.0.setCursorVisible(visible).await?)
     }
 
     pub async fn set_cursor_icon(&self, icon: CursorIcon) -> crate::Result<()> {
-        self.0
-            .setCursorIcon(&icon.to_string())
-            .await
-            .map_err(Error::Other)
+        Ok(self.0.setCursorIcon(&icon.to_string()).await?)
     }
 
     pub async fn set_cursor_position(&self, position: Position) -> crate::Result<()> {
         match position {
-            Position::Physical(pos) => self
-                .0
-                .setCursorPositionPhysical(pos.0)
-                .await
-                .map_err(Error::Other),
-            Position::Logical(pos) => self
-                .0
-                .setCursorPositionLogical(pos.0)
-                .await
-                .map_err(Error::Other),
+            Position::Physical(pos) => self.0.setCursorPositionPhysical(pos.0).await?,
+            Position::Logical(pos) => self.0.setCursorPositionLogical(pos.0).await?
         }
+
+        Ok(())
     }
 
     pub async fn set_ignore_cursor_events(&self, ignore: bool) -> crate::Result<()> {
-        self.0
-            .setIgnoreCursorEvents(ignore)
-            .await
-            .map_err(Error::Other)
+        Ok(self.0.setIgnoreCursorEvents(ignore).await?)
     }
 
     pub async fn start_dragging(&self) -> crate::Result<()> {
-        self.0.startDragging().await.map_err(Error::Other)
+        Ok(self.0.startDragging().await?)
     }
 
     #[inline(always)]
     pub async fn emit<T: Serialize>(&self, event: &str, payload: &T) -> crate::Result<()> {
         self.0
             .emit(event, serde_wasm_bindgen::to_value(payload).unwrap())
-            .await
-            .map_err(Error::Other)
+            .await?;
+
+        Ok(())
     }
 
     #[inline(always)]
@@ -416,7 +364,7 @@ impl WebviewWindow {
             (handler)(serde_wasm_bindgen::from_value(raw).unwrap())
         });
 
-        let unlisten = self.0.listen(event, &closure).await.map_err(Error::Other)?;
+        let unlisten = self.0.listen(event, &closure).await?;
 
         closure.forget();
 
@@ -436,7 +384,7 @@ impl WebviewWindow {
             (handler)(serde_wasm_bindgen::from_value(raw).unwrap())
         });
 
-        let unlisten = self.0.once(event, &closure).await.map_err(Error::Other)?;
+        let unlisten = self.0.once(event, &closure).await?;
 
         closure.forget();
 

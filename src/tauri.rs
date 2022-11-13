@@ -1,8 +1,6 @@
 use serde::{de::DeserializeOwned, Serialize};
 use url::Url;
 
-use crate::Error;
-
 /// Convert a device file path to an URL that can be loaded by the webview.
 /// Note that `asset:` and `https://asset.localhost` must be added to [`tauri.security.csp`](https://tauri.app/v1/api/config/#securityconfig.csp) in `tauri.conf.json`.
 /// Example CSP value: `"csp": "default-src 'self'; img-src 'self' asset: https://asset.localhost"` to use the asset protocol on image sources.
@@ -39,9 +37,7 @@ use crate::Error;
 /// @return the URL that can be used as source on the webview.
 #[inline(always)]
 pub async fn convert_file_src(file_path: &str, protocol: Option<&str>) -> crate::Result<Url> {
-    let js_val = inner::convertFileSrc(file_path, protocol)
-        .await
-        .map_err(Error::Other)?;
+    let js_val = inner::convertFileSrc(file_path, protocol).await?;
 
     Ok(serde_wasm_bindgen::from_value(js_val)?)
 }
@@ -66,9 +62,7 @@ pub async fn convert_file_src(file_path: &str, protocol: Option<&str>) -> crate:
 /// @return A promise resolving or rejecting to the backend response.
 #[inline(always)]
 pub async fn invoke<A: Serialize, R: DeserializeOwned>(cmd: &str, args: &A) -> crate::Result<R> {
-    let raw = inner::invoke(cmd, serde_wasm_bindgen::to_value(args)?)
-        .await
-        .map_err(crate::Error::Other)?;
+    let raw = inner::invoke(cmd, serde_wasm_bindgen::to_value(args)?).await?;
 
     serde_wasm_bindgen::from_value(raw).map_err(Into::into)
 }
@@ -86,8 +80,7 @@ pub async fn transform_callback<T: DeserializeOwned>(
         &|raw| callback(serde_wasm_bindgen::from_value(raw).unwrap()),
         once,
     )
-    .await
-    .map_err(Error::Other)?;
+    .await?;
 
     Ok(serde_wasm_bindgen::from_value(js_val)?)
 }

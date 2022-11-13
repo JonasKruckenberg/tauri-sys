@@ -1,5 +1,3 @@
-use crate::Error;
-
 /// Gets the clipboard content as plain text.
 ///
 /// # Example
@@ -11,7 +9,7 @@ use crate::Error;
 /// ```
 #[inline(always)]
 pub async fn read_text() -> crate::Result<String> {
-    let js_val = inner::readText().await.map_err(Error::Other)?;
+    let js_val = inner::readText().await?;
 
     Ok(serde_wasm_bindgen::from_value(js_val)?)
 }
@@ -30,7 +28,7 @@ pub async fn read_text() -> crate::Result<String> {
 /// @returns A promise indicating the success or failure of the operation.
 #[inline(always)]
 pub async fn write_text(text: &str) -> crate::Result<()> {
-    inner::writeText(text).await.map_err(Error::Other)
+    Ok(inner::writeText(text).await?)
 }
 
 mod inner {

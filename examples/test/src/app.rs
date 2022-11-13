@@ -10,7 +10,7 @@ pub async fn get_name() -> anyhow::Result<()> {
 }
 
 pub async fn get_version() -> anyhow::Result<()> {
-    let version = app::get_version().await;
+    let version = app::get_version().await?;
 
     ensure!(version.major == 0);
     ensure!(version.minor == 0);
