@@ -1,4 +1,4 @@
-use crate::event::Event;
+use crate::{event::Event, Error};
 use serde::{de::DeserializeOwned, Serialize};
 use std::fmt::Display;
 use wasm_bindgen::{prelude::Closure, JsCast, JsValue};
@@ -135,192 +135,279 @@ impl WebviewWindow {
         self.0.label()
     }
 
-    pub async fn scale_factor(&self) -> f64 {
-        self.0.scaleFactor().await.as_f64().unwrap()
+    pub async fn scale_factor(&self) -> crate::Result<f64> {
+        let js_val = self.0.scaleFactor().await.map_err(Error::Other)?;
+
+        Ok(serde_wasm_bindgen::from_value(js_val)?)
     }
 
-    pub async fn inner_position(&self) -> PhysicalPosition {
-        PhysicalPosition(self.0.innerPosition().await.unchecked_into())
+    pub async fn inner_position(&self) -> crate::Result<PhysicalPosition> {
+        Ok(PhysicalPosition(
+            self.0
+                .innerPosition()
+                .await
+                .map_err(Error::Other)?
+                .unchecked_into(),
+        ))
     }
 
-    pub async fn outer_position(&self) -> PhysicalPosition {
-        PhysicalPosition(self.0.outerPosition().await.unchecked_into())
+    pub async fn outer_position(&self) -> crate::Result<PhysicalPosition> {
+        Ok(PhysicalPosition(
+            self.0
+                .outerPosition()
+                .await
+                .map_err(Error::Other)?
+                .unchecked_into(),
+        ))
     }
 
-    pub async fn inner_size(&self) -> PhysicalSize {
-        PhysicalSize(self.0.innerSize().await.unchecked_into())
+    pub async fn inner_size(&self) -> crate::Result<PhysicalSize> {
+        Ok(PhysicalSize(
+            self.0
+                .innerSize()
+                .await
+                .map_err(Error::Other)?
+                .unchecked_into(),
+        ))
     }
 
-    pub async fn outer_size(&self) -> PhysicalSize {
-        PhysicalSize(self.0.outerSize().await.unchecked_into())
+    pub async fn outer_size(&self) -> crate::Result<PhysicalSize> {
+        Ok(PhysicalSize(
+            self.0
+                .outerSize()
+                .await
+                .map_err(Error::Other)?
+                .unchecked_into(),
+        ))
     }
 
-    pub async fn is_fullscreen(&self) -> bool {
-        self.0.isFullscreen().await.as_bool().unwrap()
+    pub async fn is_fullscreen(&self) -> crate::Result<bool> {
+        let js_val = self.0.isFullscreen().await.map_err(Error::Other)?;
+
+        Ok(serde_wasm_bindgen::from_value(js_val)?)
     }
 
-    pub async fn is_maximized(&self) -> bool {
-        self.0.isMaximized().await.as_bool().unwrap()
+    pub async fn is_maximized(&self) -> crate::Result<bool> {
+        let js_val = self.0.isMaximized().await.map_err(Error::Other)?;
+
+        Ok(serde_wasm_bindgen::from_value(js_val)?)
     }
 
-    pub async fn is_decorated(&self) -> bool {
-        self.0.isDecorated().await.as_bool().unwrap()
+    pub async fn is_decorated(&self) -> crate::Result<bool> {
+        let js_val = self.0.isDecorated().await.map_err(Error::Other)?;
+
+        Ok(serde_wasm_bindgen::from_value(js_val)?)
     }
 
-    pub async fn is_resizable(&self) -> bool {
-        self.0.isResizable().await.as_bool().unwrap()
+    pub async fn is_resizable(&self) -> crate::Result<bool> {
+        let js_val = self.0.isResizable().await.map_err(Error::Other)?;
+
+        Ok(serde_wasm_bindgen::from_value(js_val)?)
     }
 
-    pub async fn is_visible(&self) -> bool {
-        self.0.isVisible().await.as_bool().unwrap()
+    pub async fn is_visible(&self) -> crate::Result<bool> {
+        let js_val = self.0.isVisible().await.map_err(Error::Other)?;
+
+        Ok(serde_wasm_bindgen::from_value(js_val)?)
     }
 
-    pub async fn theme(&self) -> Theme {
-        match self.0.theme().await.as_string().unwrap().as_str() {
-            "light" => Theme::Light,
-            "dark" => Theme::Dark,
-            _ => panic!("Unknown theme"),
+    pub async fn theme(&self) -> crate::Result<Theme> {
+        let js_val = self.0.theme().await.map_err(Error::Other)?;
+
+        let str = serde_wasm_bindgen::from_value::<String>(js_val)?;
+
+        match str.as_str() {
+            "light" => Ok(Theme::Light),
+            "dark" => Ok(Theme::Dark),
+            _ => Err(Error::UnknownTheme(str)),
         }
     }
 
-    pub async fn center(&self) {
-        self.0.center().await;
+    pub async fn center(&self) -> crate::Result<()> {
+        self.0.center().await.map_err(Error::Other)
     }
 
-    pub async fn request_user_attention(&self, request_type: UserAttentionType) {
-        self.0.requestUserAttention(request_type as u32).await;
+    pub async fn request_user_attention(
+        &self,
+        request_type: UserAttentionType,
+    ) -> crate::Result<()> {
+        self.0
+            .requestUserAttention(request_type as u32)
+            .await
+            .map_err(Error::Other)
     }
 
-    pub async fn set_resizable(&self, resizable: bool) {
-        self.0.setResizable(resizable).await;
+    pub async fn set_resizable(&self, resizable: bool) -> crate::Result<()> {
+        self.0.setResizable(resizable).await.map_err(Error::Other)
     }
 
-    pub async fn set_title(&self, title: impl AsRef<str>) {
-        self.0.setTitle(title.as_ref()).await;
+    pub async fn set_title(&self, title: impl AsRef<str>) -> crate::Result<()> {
+        self.0.setTitle(title.as_ref()).await.map_err(Error::Other)
     }
 
-    pub async fn maximize(&self) {
-        self.0.maximize().await;
+    pub async fn maximize(&self) -> crate::Result<()> {
+        self.0.maximize().await.map_err(Error::Other)
     }
 
-    pub async fn unmaximize(&self) {
-        self.0.unmaximize().await;
+    pub async fn unmaximize(&self) -> crate::Result<()> {
+        self.0.unmaximize().await.map_err(Error::Other)
     }
 
-    pub async fn toggle_maximize(&self) {
-        self.0.toggleMaximize().await;
+    pub async fn toggle_maximize(&self) -> crate::Result<()> {
+        self.0.toggleMaximize().await.map_err(Error::Other)
     }
 
-    pub async fn minimize(&self) {
-        self.0.minimize().await;
+    pub async fn minimize(&self) -> crate::Result<()> {
+        self.0.minimize().await.map_err(Error::Other)
     }
 
-    pub async fn unminimize(&self) {
-        self.0.unminimize().await;
+    pub async fn unminimize(&self) -> crate::Result<()> {
+        self.0.unminimize().await.map_err(Error::Other)
     }
 
-    pub async fn show(&self) {
-        self.0.show().await;
+    pub async fn show(&self) -> crate::Result<()> {
+        self.0.show().await.map_err(Error::Other)
     }
 
-    pub async fn hide(&self) {
-        self.0.hide().await;
+    pub async fn hide(&self) -> crate::Result<()> {
+        self.0.hide().await.map_err(Error::Other)
     }
 
-    pub async fn close(&self) {
-        self.0.close().await;
+    pub async fn close(&self) -> crate::Result<()> {
+        self.0.close().await.map_err(Error::Other)
     }
 
-    pub async fn set_decorations(&self, decorations: bool) {
-        self.0.setDecorations(decorations).await;
+    pub async fn set_decorations(&self, decorations: bool) -> crate::Result<()> {
+        self.0
+            .setDecorations(decorations)
+            .await
+            .map_err(Error::Other)
     }
 
-    pub async fn set_always_on_top(&self, always_on_top: bool) {
-        self.0.setAlwaysOnTop(always_on_top).await;
+    pub async fn set_always_on_top(&self, always_on_top: bool) -> crate::Result<()> {
+        self.0
+            .setAlwaysOnTop(always_on_top)
+            .await
+            .map_err(Error::Other)
     }
 
-    pub async fn set_size(&self, size: Size) {
+    pub async fn set_size(&self, size: Size) -> crate::Result<()> {
         match size {
-            Size::Physical(size) => self.0.setSizePhysical(size.0).await,
-            Size::Logical(size) => self.0.setSizeLogical(size.0).await,
-        };
-    }
-
-    pub async fn set_min_size(&self, size: Option<Size>) {
-        match size {
-            None => self.0.setMinSizePhysical(None).await,
-            Some(Size::Physical(size)) => self.0.setMinSizePhysical(Some(size.0)).await,
-            Some(Size::Logical(size)) => self.0.setMinSizeLogical(Some(size.0)).await,
+            Size::Physical(size) => self.0.setSizePhysical(size.0).await.map_err(Error::Other),
+            Size::Logical(size) => self.0.setSizeLogical(size.0).await.map_err(Error::Other),
         }
     }
 
-    pub async fn set_max_size(&self, size: Option<Size>) {
+    pub async fn set_min_size(&self, size: Option<Size>) -> crate::Result<()> {
         match size {
-            None => self.0.setMaxSizePhysical(None).await,
-            Some(Size::Physical(size)) => self.0.setMaxSizePhysical(Some(size.0)).await,
-            Some(Size::Logical(size)) => self.0.setMaxSizeLogical(Some(size.0)).await,
+            None => self.0.setMinSizePhysical(None).await.map_err(Error::Other),
+            Some(Size::Physical(size)) => self
+                .0
+                .setMinSizePhysical(Some(size.0))
+                .await
+                .map_err(Error::Other),
+            Some(Size::Logical(size)) => self
+                .0
+                .setMinSizeLogical(Some(size.0))
+                .await
+                .map_err(Error::Other),
         }
     }
 
-    pub async fn set_position(&self, position: Position) {
+    pub async fn set_max_size(&self, size: Option<Size>) -> crate::Result<()> {
+        match size {
+            None => self.0.setMaxSizePhysical(None).await.map_err(Error::Other),
+            Some(Size::Physical(size)) => self
+                .0
+                .setMaxSizePhysical(Some(size.0))
+                .await
+                .map_err(Error::Other),
+            Some(Size::Logical(size)) => self
+                .0
+                .setMaxSizeLogical(Some(size.0))
+                .await
+                .map_err(Error::Other),
+        }
+    }
+
+    pub async fn set_position(&self, position: Position) -> crate::Result<()> {
         match position {
-            Position::Physical(pos) => self.0.setPositionPhysical(pos.0).await,
-            Position::Logical(pos) => self.0.setPositionLogical(pos.0).await,
+            Position::Physical(pos) => self
+                .0
+                .setPositionPhysical(pos.0)
+                .await
+                .map_err(Error::Other),
+            Position::Logical(pos) => self.0.setPositionLogical(pos.0).await.map_err(Error::Other),
         }
     }
 
-    pub async fn set_fullscreen(&self, fullscreen: bool) {
-        self.0.setFullscreen(fullscreen).await;
+    pub async fn set_fullscreen(&self, fullscreen: bool) -> crate::Result<()> {
+        self.0.setFullscreen(fullscreen).await.map_err(Error::Other)
     }
 
-    pub async fn set_focus(&self) {
-        self.0.setFocus().await;
+    pub async fn set_focus(&self) -> crate::Result<()> {
+        self.0.setFocus().await.map_err(Error::Other)
     }
 
-    pub async fn set_icon(&self, icon: &[u8]) {
-        self.0.setIcon(icon).await;
+    pub async fn set_icon(&self, icon: &[u8]) -> crate::Result<()> {
+        self.0.setIcon(icon).await.map_err(Error::Other)
     }
 
-    pub async fn set_skip_taskbar(&self, skip: bool) {
-        self.0.setSkipTaskbar(skip).await;
+    pub async fn set_skip_taskbar(&self, skip: bool) -> crate::Result<()> {
+        self.0.setSkipTaskbar(skip).await.map_err(Error::Other)
     }
 
-    pub async fn set_cursor_grab(&self, grab: bool) {
-        self.0.setCursorGrab(grab).await;
+    pub async fn set_cursor_grab(&self, grab: bool) -> crate::Result<()> {
+        self.0.setCursorGrab(grab).await.map_err(Error::Other)
     }
 
-    pub async fn set_cursor_visible(&self, visible: bool) {
-        self.0.setCursorVisible(visible).await;
+    pub async fn set_cursor_visible(&self, visible: bool) -> crate::Result<()> {
+        self.0.setCursorVisible(visible).await.map_err(Error::Other)
     }
 
-    pub async fn set_cursor_icon(&self, icon: CursorIcon) {
-        self.0.setCursorIcon(&icon.to_string()).await;
+    pub async fn set_cursor_icon(&self, icon: CursorIcon) -> crate::Result<()> {
+        self.0
+            .setCursorIcon(&icon.to_string())
+            .await
+            .map_err(Error::Other)
     }
 
-    pub async fn set_cursor_position(&self, position: Position) {
+    pub async fn set_cursor_position(&self, position: Position) -> crate::Result<()> {
         match position {
-            Position::Physical(pos) => self.0.setCursorPositionPhysical(pos.0).await,
-            Position::Logical(pos) => self.0.setCursorPositionLogical(pos.0).await,
+            Position::Physical(pos) => self
+                .0
+                .setCursorPositionPhysical(pos.0)
+                .await
+                .map_err(Error::Other),
+            Position::Logical(pos) => self
+                .0
+                .setCursorPositionLogical(pos.0)
+                .await
+                .map_err(Error::Other),
         }
     }
 
-    pub async fn set_ignore_cursor_events(&self, ignore: bool) {
-        self.0.setIgnoreCursorEvents(ignore).await;
+    pub async fn set_ignore_cursor_events(&self, ignore: bool) -> crate::Result<()> {
+        self.0
+            .setIgnoreCursorEvents(ignore)
+            .await
+            .map_err(Error::Other)
     }
 
-    pub async fn start_dragging(&self) {
-        self.0.startDragging().await;
+    pub async fn start_dragging(&self) -> crate::Result<()> {
+        self.0.startDragging().await.map_err(Error::Other)
     }
 
     #[inline(always)]
-    pub async fn emit<T: Serialize>(&self, event: &str, payload: &T) {
+    pub async fn emit<T: Serialize>(&self, event: &str, payload: &T) -> crate::Result<()> {
         self.0
             .emit(event, serde_wasm_bindgen::to_value(payload).unwrap())
-            .await;
+            .await
+            .map_err(Error::Other)
     }
 
     #[inline(always)]
-    pub async fn listen<T, H>(&self, event: &str, mut handler: H) -> impl FnOnce()
+    pub async fn listen<T, H>(&self, event: &str, mut handler: H) -> crate::Result<impl FnOnce()>
     where
         T: DeserializeOwned,
         H: FnMut(Event<T>) + 'static,
@@ -329,18 +416,18 @@ impl WebviewWindow {
             (handler)(serde_wasm_bindgen::from_value(raw).unwrap())
         });
 
-        let unlisten = self.0.listen(event, &closure).await;
+        let unlisten = self.0.listen(event, &closure).await.map_err(Error::Other)?;
 
         closure.forget();
 
         let unlisten = js_sys::Function::from(unlisten);
-        move || {
+        Ok(move || {
             unlisten.call0(&wasm_bindgen::JsValue::NULL).unwrap();
-        }
+        })
     }
 
     #[inline(always)]
-    pub async fn once<T, H>(&self, event: &str, mut handler: H) -> impl FnOnce()
+    pub async fn once<T, H>(&self, event: &str, mut handler: H) -> crate::Result<impl FnOnce()>
     where
         T: DeserializeOwned,
         H: FnMut(Event<T>) + 'static,
@@ -349,14 +436,14 @@ impl WebviewWindow {
             (handler)(serde_wasm_bindgen::from_value(raw).unwrap())
         });
 
-        let unlisten = self.0.once(event, &closure).await;
+        let unlisten = self.0.once(event, &closure).await.map_err(Error::Other)?;
 
         closure.forget();
 
         let unlisten = js_sys::Function::from(unlisten);
-        move || {
+        Ok(move || {
             unlisten.call0(&wasm_bindgen::JsValue::NULL).unwrap();
-        }
+        })
     }
 }
 
@@ -529,7 +616,7 @@ impl Iterator for AvailableMonitors {
 pub async fn available_monitors() -> AvailableMonitors {
     AvailableMonitors {
         idx: 0,
-        array: inner::availableMonitors().await.unchecked_into()
+        array: inner::availableMonitors().await.unchecked_into(),
     }
 }
 
@@ -613,20 +700,24 @@ mod inner {
         pub type WebviewWindowHandle;
         #[wasm_bindgen(constructor)]
         pub fn new(label: &str) -> WebviewWindowHandle;
-        #[wasm_bindgen(method)]
+        #[wasm_bindgen(method, catch)]
         pub async fn listen(
             this: &WebviewWindowHandle,
             event: &str,
             handler: &Closure<dyn FnMut(JsValue)>,
-        ) -> JsValue;
-        #[wasm_bindgen(method)]
+        ) -> Result<JsValue, JsValue>;
+        #[wasm_bindgen(method, catch)]
         pub async fn once(
             this: &WebviewWindowHandle,
             event: &str,
             handler: &Closure<dyn FnMut(JsValue)>,
-        ) -> JsValue;
-        #[wasm_bindgen(method)]
-        pub async fn emit(this: &WebviewWindowHandle, event: &str, payload: JsValue);
+        ) -> Result<JsValue, JsValue>;
+        #[wasm_bindgen(method, catch)]
+        pub async fn emit(
+            this: &WebviewWindowHandle,
+            event: &str,
+            payload: JsValue,
+        ) -> Result<(), JsValue>;
     }
 
     #[wasm_bindgen(module = "/dist/window.js")]
@@ -638,94 +729,130 @@ mod inner {
         pub fn new(label: &str) -> WindowManager;
         #[wasm_bindgen(method, getter)]
         pub fn label(this: &WindowManager) -> String;
-        #[wasm_bindgen(method)]
-        pub async fn scaleFactor(this: &WindowManager) -> JsValue;
-        #[wasm_bindgen(method)]
-        pub async fn innerPosition(this: &WindowManager) -> JsValue;
-        #[wasm_bindgen(method)]
-        pub async fn outerPosition(this: &WindowManager) -> JsValue;
-        #[wasm_bindgen(method)]
-        pub async fn innerSize(this: &WindowManager) -> JsValue;
-        #[wasm_bindgen(method)]
-        pub async fn outerSize(this: &WindowManager) -> JsValue;
-        #[wasm_bindgen(method)]
-        pub async fn isFullscreen(this: &WindowManager) -> JsValue;
-        #[wasm_bindgen(method)]
-        pub async fn isMaximized(this: &WindowManager) -> JsValue;
-        #[wasm_bindgen(method)]
-        pub async fn isDecorated(this: &WindowManager) -> JsValue;
-        #[wasm_bindgen(method)]
-        pub async fn isResizable(this: &WindowManager) -> JsValue;
-        #[wasm_bindgen(method)]
-        pub async fn isVisible(this: &WindowManager) -> JsValue;
-        #[wasm_bindgen(method)]
-        pub async fn theme(this: &WindowManager) -> JsValue;
-        #[wasm_bindgen(method)]
-        pub async fn center(this: &WindowManager);
-        #[wasm_bindgen(method)]
-        pub async fn requestUserAttention(this: &WindowManager, requestType: u32);
-        #[wasm_bindgen(method)]
-        pub async fn setResizable(this: &WindowManager, resizable: bool);
-        #[wasm_bindgen(method)]
-        pub async fn setTitle(this: &WindowManager, title: &str);
-        #[wasm_bindgen(method)]
-        pub async fn maximize(this: &WindowManager);
-        #[wasm_bindgen(method)]
-        pub async fn unmaximize(this: &WindowManager);
-        #[wasm_bindgen(method)]
-        pub async fn toggleMaximize(this: &WindowManager);
-        #[wasm_bindgen(method)]
-        pub async fn minimize(this: &WindowManager);
-        #[wasm_bindgen(method)]
-        pub async fn unminimize(this: &WindowManager);
-        #[wasm_bindgen(method)]
-        pub async fn show(this: &WindowManager);
-        #[wasm_bindgen(method)]
-        pub async fn hide(this: &WindowManager);
-        #[wasm_bindgen(method)]
-        pub async fn close(this: &WindowManager);
-        #[wasm_bindgen(method)]
-        pub async fn setDecorations(this: &WindowManager, decorations: bool);
-        #[wasm_bindgen(method)]
-        pub async fn setAlwaysOnTop(this: &WindowManager, alwaysOnTop: bool);
-        #[wasm_bindgen(method, js_name = setSize)]
-        pub async fn setSizePhysical(this: &WindowManager, size: PhysicalSize);
-        #[wasm_bindgen(method, js_name = setSize)]
-        pub async fn setSizeLogical(this: &WindowManager, size: LogicalSize);
-        #[wasm_bindgen(method, js_name = setMinSize)]
-        pub async fn setMinSizePhysical(this: &WindowManager, size: Option<PhysicalSize>);
-        #[wasm_bindgen(method, js_name = setMinSize)]
-        pub async fn setMinSizeLogical(this: &WindowManager, size: Option<LogicalSize>);
-        #[wasm_bindgen(method, js_name = setMaxSize)]
-        pub async fn setMaxSizePhysical(this: &WindowManager, size: Option<PhysicalSize>);
-        #[wasm_bindgen(method, js_name = setMinSize)]
-        pub async fn setMaxSizeLogical(this: &WindowManager, size: Option<LogicalSize>);
-        #[wasm_bindgen(method, js_name = setPosition)]
-        pub async fn setPositionPhysical(this: &WindowManager, position: PhysicalPosition);
-        #[wasm_bindgen(method, js_name = setPosition)]
-        pub async fn setPositionLogical(this: &WindowManager, position: LogicalPosition);
-        #[wasm_bindgen(method)]
-        pub async fn setFullscreen(this: &WindowManager, fullscreen: bool);
-        #[wasm_bindgen(method)]
-        pub async fn setFocus(this: &WindowManager);
-        #[wasm_bindgen(method)]
-        pub async fn setIcon(this: &WindowManager, icon: &[u8]);
-        #[wasm_bindgen(method)]
-        pub async fn setSkipTaskbar(this: &WindowManager, skip: bool);
-        #[wasm_bindgen(method)]
-        pub async fn setCursorGrab(this: &WindowManager, grab: bool);
-        #[wasm_bindgen(method)]
-        pub async fn setCursorVisible(this: &WindowManager, visible: bool);
-        #[wasm_bindgen(method)]
-        pub async fn setCursorIcon(this: &WindowManager, icon: &str);
-        #[wasm_bindgen(method, js_name = setCursorPosition)]
-        pub async fn setCursorPositionPhysical(this: &WindowManager, position: PhysicalPosition);
-        #[wasm_bindgen(method, js_name = setCursorPosition)]
-        pub async fn setCursorPositionLogical(this: &WindowManager, position: LogicalPosition);
-        #[wasm_bindgen(method)]
-        pub async fn setIgnoreCursorEvents(this: &WindowManager, ignore: bool);
-        #[wasm_bindgen(method)]
-        pub async fn startDragging(this: &WindowManager);
+        #[wasm_bindgen(method, catch)]
+        pub async fn scaleFactor(this: &WindowManager) -> Result<JsValue, JsValue>;
+        #[wasm_bindgen(method, catch)]
+        pub async fn innerPosition(this: &WindowManager) -> Result<JsValue, JsValue>;
+        #[wasm_bindgen(method, catch)]
+        pub async fn outerPosition(this: &WindowManager) -> Result<JsValue, JsValue>;
+        #[wasm_bindgen(method, catch)]
+        pub async fn innerSize(this: &WindowManager) -> Result<JsValue, JsValue>;
+        #[wasm_bindgen(method, catch)]
+        pub async fn outerSize(this: &WindowManager) -> Result<JsValue, JsValue>;
+        #[wasm_bindgen(method, catch)]
+        pub async fn isFullscreen(this: &WindowManager) -> Result<JsValue, JsValue>;
+        #[wasm_bindgen(method, catch)]
+        pub async fn isMaximized(this: &WindowManager) -> Result<JsValue, JsValue>;
+        #[wasm_bindgen(method, catch)]
+        pub async fn isDecorated(this: &WindowManager) -> Result<JsValue, JsValue>;
+        #[wasm_bindgen(method, catch)]
+        pub async fn isResizable(this: &WindowManager) -> Result<JsValue, JsValue>;
+        #[wasm_bindgen(method, catch)]
+        pub async fn isVisible(this: &WindowManager) -> Result<JsValue, JsValue>;
+        #[wasm_bindgen(method, catch)]
+        pub async fn theme(this: &WindowManager) -> Result<JsValue, JsValue>;
+        #[wasm_bindgen(method, catch)]
+        pub async fn center(this: &WindowManager) -> Result<(), JsValue>;
+        #[wasm_bindgen(method, catch)]
+        pub async fn requestUserAttention(
+            this: &WindowManager,
+            requestType: u32,
+        ) -> Result<(), JsValue>;
+        #[wasm_bindgen(method, catch)]
+        pub async fn setResizable(this: &WindowManager, resizable: bool) -> Result<(), JsValue>;
+        #[wasm_bindgen(method, catch)]
+        pub async fn setTitle(this: &WindowManager, title: &str) -> Result<(), JsValue>;
+        #[wasm_bindgen(method, catch)]
+        pub async fn maximize(this: &WindowManager) -> Result<(), JsValue>;
+        #[wasm_bindgen(method, catch)]
+        pub async fn unmaximize(this: &WindowManager) -> Result<(), JsValue>;
+        #[wasm_bindgen(method, catch)]
+        pub async fn toggleMaximize(this: &WindowManager) -> Result<(), JsValue>;
+        #[wasm_bindgen(method, catch)]
+        pub async fn minimize(this: &WindowManager) -> Result<(), JsValue>;
+        #[wasm_bindgen(method, catch)]
+        pub async fn unminimize(this: &WindowManager) -> Result<(), JsValue>;
+        #[wasm_bindgen(method, catch)]
+        pub async fn show(this: &WindowManager) -> Result<(), JsValue>;
+        #[wasm_bindgen(method, catch)]
+        pub async fn hide(this: &WindowManager) -> Result<(), JsValue>;
+        #[wasm_bindgen(method, catch)]
+        pub async fn close(this: &WindowManager) -> Result<(), JsValue>;
+        #[wasm_bindgen(method, catch)]
+        pub async fn setDecorations(this: &WindowManager, decorations: bool)
+            -> Result<(), JsValue>;
+        #[wasm_bindgen(method, catch)]
+        pub async fn setAlwaysOnTop(this: &WindowManager, alwaysOnTop: bool)
+            -> Result<(), JsValue>;
+        #[wasm_bindgen(method, js_name = setSize, catch)]
+        pub async fn setSizePhysical(
+            this: &WindowManager,
+            size: PhysicalSize,
+        ) -> Result<(), JsValue>;
+        #[wasm_bindgen(method, js_name = setSize, catch)]
+        pub async fn setSizeLogical(this: &WindowManager, size: LogicalSize)
+            -> Result<(), JsValue>;
+        #[wasm_bindgen(method, js_name = setMinSize, catch)]
+        pub async fn setMinSizePhysical(
+            this: &WindowManager,
+            size: Option<PhysicalSize>,
+        ) -> Result<(), JsValue>;
+        #[wasm_bindgen(method, js_name = setMinSize, catch)]
+        pub async fn setMinSizeLogical(
+            this: &WindowManager,
+            size: Option<LogicalSize>,
+        ) -> Result<(), JsValue>;
+        #[wasm_bindgen(method, js_name = setMaxSize, catch)]
+        pub async fn setMaxSizePhysical(
+            this: &WindowManager,
+            size: Option<PhysicalSize>,
+        ) -> Result<(), JsValue>;
+        #[wasm_bindgen(method, js_name = setMinSize, catch)]
+        pub async fn setMaxSizeLogical(
+            this: &WindowManager,
+            size: Option<LogicalSize>,
+        ) -> Result<(), JsValue>;
+        #[wasm_bindgen(method, js_name = setPosition, catch)]
+        pub async fn setPositionPhysical(
+            this: &WindowManager,
+            position: PhysicalPosition,
+        ) -> Result<(), JsValue>;
+        #[wasm_bindgen(method, js_name = setPosition, catch)]
+        pub async fn setPositionLogical(
+            this: &WindowManager,
+            position: LogicalPosition,
+        ) -> Result<(), JsValue>;
+        #[wasm_bindgen(method, catch)]
+        pub async fn setFullscreen(this: &WindowManager, fullscreen: bool) -> Result<(), JsValue>;
+        #[wasm_bindgen(method, catch)]
+        pub async fn setFocus(this: &WindowManager) -> Result<(), JsValue>;
+        #[wasm_bindgen(method, catch)]
+        pub async fn setIcon(this: &WindowManager, icon: &[u8]) -> Result<(), JsValue>;
+        #[wasm_bindgen(method, catch)]
+        pub async fn setSkipTaskbar(this: &WindowManager, skip: bool) -> Result<(), JsValue>;
+        #[wasm_bindgen(method, catch)]
+        pub async fn setCursorGrab(this: &WindowManager, grab: bool) -> Result<(), JsValue>;
+        #[wasm_bindgen(method, catch)]
+        pub async fn setCursorVisible(this: &WindowManager, visible: bool) -> Result<(), JsValue>;
+        #[wasm_bindgen(method, catch)]
+        pub async fn setCursorIcon(this: &WindowManager, icon: &str) -> Result<(), JsValue>;
+        #[wasm_bindgen(method, js_name = setCursorPosition, catch)]
+        pub async fn setCursorPositionPhysical(
+            this: &WindowManager,
+            position: PhysicalPosition,
+        ) -> Result<(), JsValue>;
+        #[wasm_bindgen(method, js_name = setCursorPosition, catch)]
+        pub async fn setCursorPositionLogical(
+            this: &WindowManager,
+            position: LogicalPosition,
+        ) -> Result<(), JsValue>;
+        #[wasm_bindgen(method, catch)]
+        pub async fn setIgnoreCursorEvents(
+            this: &WindowManager,
+            ignore: bool,
+        ) -> Result<(), JsValue>;
+        #[wasm_bindgen(method, catch)]
+        pub async fn startDragging(this: &WindowManager) -> Result<(), JsValue>;
     }
 
     #[wasm_bindgen(module = "/dist/window.js")]

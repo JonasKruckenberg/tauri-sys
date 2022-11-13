@@ -18,7 +18,9 @@ async fn exit_with_error(e: String) {
         e: String,
     }
 
-    tauri_sys::tauri::invoke::<_, ()>("exit_with_error", &Args { e }).await.unwrap();
+    tauri_sys::tauri::invoke::<_, ()>("exit_with_error", &Args { e })
+        .await
+        .unwrap();
 }
 
 #[derive(Props)]

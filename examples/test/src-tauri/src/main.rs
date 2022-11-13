@@ -5,7 +5,7 @@
 
 use std::sync::atomic::{AtomicBool, Ordering};
 
-use tauri::{State, Manager};
+use tauri::{Manager, State};
 
 struct Received(AtomicBool);
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
@@ -28,7 +28,10 @@ fn main() {
 
             let app_handle = app.handle();
             app.listen_global("foo", move |_| {
-                app_handle.state::<Received>().0.store(true, Ordering::Relaxed);
+                app_handle
+                    .state::<Received>()
+                    .0
+                    .store(true, Ordering::Relaxed);
             });
 
             Ok(())
