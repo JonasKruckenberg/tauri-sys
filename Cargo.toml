@@ -24,9 +24,10 @@ tauri = "1.1.1"
 all-features = true
 
 [features]
-all = ["app", "clipboard", "event", "mocks", "tauri", "window", "process"]
+all = ["app", "clipboard", "event", "mocks", "tauri", "window", "process", "dialog"]
 app = ["dep:semver"]
 clipboard = []
+dialog = []
 event = []
 mocks = []
 tauri = ["dep:url"]
