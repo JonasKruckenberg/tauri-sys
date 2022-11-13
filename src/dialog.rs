@@ -5,7 +5,7 @@
 //! ```rust,no_run
 //! use tauri_api::dialog::open;
 //!
-//! let path = open.await;
+//! let path = open(None).await;
 //! ```
 use serde::Serialize;
 use std::path::PathBuf;
@@ -61,6 +61,7 @@ impl MessageDialogOptions {
 #[derive(Serialize)]
 pub struct OpenDialogOptions {
     /// Initial directory or file path.
+    #[serde(rename(serialize = "defaultPath"))]
     pub default_path: Option<PathBuf>,
 
     /// Whether the dialog is a directory selection or not.
@@ -101,6 +102,7 @@ pub struct SaveDialogOptions {
     /// If it's not a directory path, the dialog interface will change to that folder.
     /// If it's not an existing directory, the file name will be set to the dialog's
     /// file name input and the dialog will be set to the parent folder.
+    #[serde(rename(serialize = "defaultPath"))]
     pub default_path: Option<PathBuf>,
 
     /// The filters of the dialog.
