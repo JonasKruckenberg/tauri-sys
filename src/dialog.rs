@@ -136,10 +136,10 @@ impl SaveDialogOptions {
 /// @param options Dialog options.
 /// @returns Whether the user selected `Yes` or `No`.
 #[inline(always)]
-pub async fn ask(message: &str, options: Option<MessageDialogOptions>) -> Option<bool> {
-    inner::ask(message, serde_wasm_bindgen::to_value(&options).unwrap())
-        .await
-        .as_bool()
+pub async fn ask(message: &str, options: Option<MessageDialogOptions>) -> crate::Result<bool> {
+    let js_val = inner::ask(message, serde_wasm_bindgen::to_value(&options)?).await?;
+
+    Ok(serde_wasm_bindgen::from_value(js_val)?)
 }
 
 /// Shows a question dialog with `Ok` and `Cancel` buttons.
@@ -152,10 +152,10 @@ pub async fn ask(message: &str, options: Option<MessageDialogOptions>) -> Option
 /// let confirmed = confirm("Are you sure?", None).await;
 /// ```
 /// @returns Whether the user selelced `Ok` or `Cancel`.
-pub async fn confirm(message: &str, options: Option<MessageDialogOptions>) -> Option<bool> {
-    inner::confirm(message, serde_wasm_bindgen::to_value(&options).unwrap())
-        .await
-        .as_bool()
+pub async fn confirm(message: &str, options: Option<MessageDialogOptions>) -> crate::Result<bool> {
+    let js_val = inner::confirm(message, serde_wasm_bindgen::to_value(&options)?).await?;
+
+    Ok(serde_wasm_bindgen::from_value(js_val)?)
 }
 
 /// Shows a message dialog with an `Ok` button.
@@ -170,8 +170,8 @@ pub async fn confirm(message: &str, options: Option<MessageDialogOptions>) -> Op
 /// @param message Message to display.
 /// @param options Dialog options.
 /// @returns Promise resolved when user closes the dialog.
-pub async fn message(message: &str, options: Option<MessageDialogOptions>) {
-    inner::message(message, serde_wasm_bindgen::to_value(&options).unwrap()).await
+pub async fn message(message: &str, options: Option<MessageDialogOptions>) -> crate::Result<()> {
+    Ok(inner::message(message, serde_wasm_bindgen::to_value(&options)?).await?)
 }
 
 /// Opens a file/directory selection dialog for a single file.
@@ -198,9 +198,10 @@ pub async fn message(message: &str, options: Option<MessageDialogOptions>) {
 /// ```
 /// @param options Dialog options.
 /// @returns List of file paths, or `None` if user cancelled the dialog.
-pub async fn open(options: Option<OpenDialogOptions>) -> Option<PathBuf> {
-    let file = inner::open(serde_wasm_bindgen::to_value(&options).unwrap()).await;
-    serde_wasm_bindgen::from_value(file).unwrap()
+pub async fn open(options: Option<OpenDialogOptions>) -> crate::Result<Option<PathBuf>> {
+    let file = inner::open(serde_wasm_bindgen::to_value(&options)?).await?;
+
+    Ok(serde_wasm_bindgen::from_value(file)?)
 }
 
 /// Opens a file/directory selection dialog for multiple files.
@@ -228,9 +229,12 @@ pub async fn open(options: Option<OpenDialogOptions>) -> Option<PathBuf> {
 /// ```
 /// @param options Dialog options.
 /// @returns List of file paths, or `None` if user cancelled the dialog.
-pub async fn open_multiple(options: Option<OpenDialogOptions>) -> Option<Vec<PathBuf>> {
-    let files = inner::open_multiple(serde_wasm_bindgen::to_value(&options).unwrap()).await;
-    serde_wasm_bindgen::from_value(files).unwrap()
+pub async fn open_multiple(
+    options: Option<OpenDialogOptions>,
+) -> crate::Result<Option<Vec<PathBuf>>> {
+    let files = inner::open_multiple(serde_wasm_bindgen::to_value(&options)?).await?;
+
+    Ok(serde_wasm_bindgen::from_value(files)?)
 }
 
 /// Opens a file/directory save dialog.
@@ -252,21 +256,28 @@ pub async fn open_multiple(options: Option<OpenDialogOptions>) -> Option<Vec<Pat
 /// ```
 /// @param options Dialog options.
 /// @returns File path, or `None` if user cancelled the dialog.
-pub async fn save(options: Option<SaveDialogOptions>) -> Option<PathBuf> {
-    let path = inner::save(serde_wasm_bindgen::to_value(&options).unwrap()).await;
-    serde_wasm_bindgen::from_value(path).unwrap()
+pub async fn save(options: Option<SaveDialogOptions>) -> crate::Result<Option<PathBuf>> {
+    let path = inner::save(serde_wasm_bindgen::to_value(&options)?).await?;
+    
+    Ok(serde_wasm_bindgen::from_value(path)?)
 }
 
 mod inner {
     use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
 
-    #[wasm_bindgen(module = "/dist/dialog.js")]
+    #[wasm_bindgen(module = "/src/dialog.js")]
     extern "C" {
-        pub async fn ask(message: &str, options: JsValue) -> JsValue;
-        pub async fn confirm(message: &str, options: JsValue) -> JsValue;
-        pub async fn open(options: JsValue) -> JsValue;
-        pub async fn open_multiple(options: JsValue) -> JsValue;
-        pub async fn message(message: &str, option: JsValue);
-        pub async fn save(options: JsValue) -> JsValue;
+        #[wasm_bindgen(catch)]
+        pub async fn ask(message: &str, options: JsValue) -> Result<JsValue, JsValue>;
+        #[wasm_bindgen(catch)]
+        pub async fn confirm(message: &str, options: JsValue) -> Result<JsValue, JsValue>;
+        #[wasm_bindgen(catch)]
+        pub async fn open(options: JsValue) -> Result<JsValue, JsValue>;
+        #[wasm_bindgen(catch)]
+        pub async fn open_multiple(options: JsValue) -> Result<JsValue, JsValue>;
+        #[wasm_bindgen(catch)]
+        pub async fn message(message: &str, option: JsValue) -> Result<(), JsValue>;
+        #[wasm_bindgen(catch)]
+        pub async fn save(options: JsValue) -> Result<JsValue, JsValue>;
     }
 }

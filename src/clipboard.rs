@@ -1,7 +1,3 @@
-use wasm_bindgen_futures::JsFuture;
-
-use crate::Error;
-
 /// Gets the clipboard content as plain text.
 ///
 /// # Example
