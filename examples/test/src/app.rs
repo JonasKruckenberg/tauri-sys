@@ -1,4 +1,5 @@
 use anyhow::ensure;
+use log::debug;
 use tauri_sys::app;
 
 pub async fn get_name() -> anyhow::Result<()> {
@@ -24,6 +25,8 @@ pub async fn get_version() -> anyhow::Result<()> {
 pub async fn get_tauri_version() -> anyhow::Result<()> {
     let version = app::get_tauri_version().await?;
 
+    debug!("version {}", version);
+    
     ensure!(version.major == 1);
     ensure!(version.minor == 1);
     ensure!(version.patch == 0);

@@ -2991,10 +2991,12 @@ dependencies = [
  "anyhow",
  "console_error_panic_hook",
  "futures-util",
+ "log",
  "serde",
  "sycamore",
  "tauri-sys",
  "wasm-bindgen-futures",
+ "wasm-logger",
 ]
 
 [[package]]
@@ -3453,6 +3455,17 @@ checksum = "4683da3dfc016f704c9f82cf401520c4f1cb3ee440f7f52b3d6ac29506a49ca7"
 dependencies = [
  "proc-macro2",
  "quote",
+]
+
+[[package]]
+name = "wasm-logger"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "074649a66bb306c8f2068c9016395fa65d8e08d2affcbf95acf3c24c3ab19718"
+dependencies = [
+ "log",
+ "wasm-bindgen",
+ "web-sys",
 ]
 
 [[package]]

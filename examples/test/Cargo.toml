@@ -12,6 +12,8 @@ console_error_panic_hook = "0.1.7"
 wasm-bindgen-futures = "0.4.32"
 futures-util = "0.3.25"
 serde = { version = "1.0.147", features = ["derive"] }
+wasm-logger = "0.2.0"
+log = "0.4.17"
 
 [features]
 ci = []

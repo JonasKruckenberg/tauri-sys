@@ -59,6 +59,8 @@ where
 }
 
 fn main() {
+    wasm_logger::init(wasm_logger::Config::default());
+
     panic::set_hook(Box::new(|info| {
         console_error_panic_hook::hook(info);
 
@@ -67,6 +69,11 @@ fn main() {
     }));
 
     sycamore::render(|cx| {
+        #[cfg(feature = "ci")]
+        sycamore::suspense::await_suspense(cx, async {
+            tauri_sys::process::exit(0).await;
+        });
+
         view! { cx,
             table {
                 tbody {
@@ -82,7 +89,4 @@ fn main() {
             }
         }
     });
-
-    #[cfg(feature = "ci")]
-    wasm_bindgen_futures::spawn_local(async { tauri_sys::process::exit(0).await; });
 }
