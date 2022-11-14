@@ -84,5 +84,5 @@ fn main() {
     });
 
     #[cfg(feature = "ci")]
-    tauri_sys::process::exit(0);
+    wasm_bindgen_futures::spawn_local(async { tauri_sys::process::exit(0).await; });
 }

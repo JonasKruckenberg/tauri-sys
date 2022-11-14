@@ -1,5 +1,5 @@
-pub fn exit(exit_code: u32) -> ! {
-    inner::exit(exit_code);
+pub async fn exit(exit_code: u32) -> ! {
+    inner::exit(exit_code).await;
     unreachable!()
 }
 
@@ -8,11 +8,11 @@ pub fn relaunch() {
 }
 
 mod inner {
-    use wasm_bindgen::prelude::wasm_bindgen;
+    use wasm_bindgen::prelude::*;
 
     #[wasm_bindgen(module = "/src/process.js")]
     extern "C" {
-        pub fn exit(exitCode: u32);
+        pub async fn exit(exitCode: u32);
         pub fn relaunch();
     }
 }

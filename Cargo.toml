@@ -18,7 +18,7 @@ semver = { version = "1.0.14", optional = true, features = ["serde"] }
 [dev-dependencies]
 wasm-bindgen-test = "0.3.33"
 tauri-sys = { path = ".", features = ["all"] }
-tauri = "1.1.1"
+# tauri = "1.1.1"
 
 [package.metadata.docs.rs]
 all-features = true

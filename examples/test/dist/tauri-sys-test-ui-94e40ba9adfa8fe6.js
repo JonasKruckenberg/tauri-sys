@@ -1,6 +1,7 @@
 import { getName, getTauriVersion, getVersion } from './snippets/tauri-sys-91bd50ded94e0ed7/src/app.js';
 import { readText, writeText } from './snippets/tauri-sys-91bd50ded94e0ed7/src/clipboard.js';
 import { emit } from './snippets/tauri-sys-91bd50ded94e0ed7/src/event.js';
+import { exit } from './snippets/tauri-sys-91bd50ded94e0ed7/src/process.js';
 import { invoke } from './snippets/tauri-sys-91bd50ded94e0ed7/src/tauri.js';
 
 let wasm;
@@ -271,6 +272,20 @@ async function load(module, imports) {
 function getImports() {
     const imports = {};
     imports.wbg = {};
+    imports.wbg.__wbg_readText_94a6e8d9907e78cc = function() { return handleError(function () {
+        const ret = readText();
+        return addHeapObject(ret);
+    }, arguments) };
+    imports.wbg.__wbg_writeText_f97e44754fa0ff39 = function() { return handleError(function (arg0, arg1) {
+        var v0 = getCachedStringFromWasm0(arg0, arg1);
+        const ret = writeText(v0);
+        return addHeapObject(ret);
+    }, arguments) };
+    imports.wbg.__wbg_invoke_9b778281ea803eaa = function() { return handleError(function (arg0, arg1, arg2) {
+        var v0 = getCachedStringFromWasm0(arg0, arg1);
+        const ret = invoke(v0, takeObject(arg2));
+        return addHeapObject(ret);
+    }, arguments) };
     imports.wbg.__wbg_getVersion_ffafb063403bc617 = function() { return handleError(function () {
         const ret = getVersion();
         return addHeapObject(ret);
@@ -281,16 +296,6 @@ function getImports() {
     }, arguments) };
     imports.wbg.__wbg_getName_68a59771155ee2ce = function() { return handleError(function () {
         const ret = getName();
-        return addHeapObject(ret);
-    }, arguments) };
-    imports.wbg.__wbg_invoke_9b778281ea803eaa = function() { return handleError(function (arg0, arg1, arg2) {
-        var v0 = getCachedStringFromWasm0(arg0, arg1);
-        const ret = invoke(v0, takeObject(arg2));
-        return addHeapObject(ret);
-    }, arguments) };
-    imports.wbg.__wbg_emit_d58da538f5751592 = function() { return handleError(function (arg0, arg1, arg2) {
-        var v0 = getCachedStringFromWasm0(arg0, arg1);
-        const ret = emit(v0, takeObject(arg2));
         return addHeapObject(ret);
     }, arguments) };
     imports.wbg.__wbindgen_error_new = function(arg0, arg1) {
@@ -314,15 +319,15 @@ function getImports() {
         const ret = getObject(arg0);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbg_readText_94a6e8d9907e78cc = function() { return handleError(function () {
-        const ret = readText();
-        return addHeapObject(ret);
-    }, arguments) };
-    imports.wbg.__wbg_writeText_f97e44754fa0ff39 = function() { return handleError(function (arg0, arg1) {
+    imports.wbg.__wbg_emit_d58da538f5751592 = function() { return handleError(function (arg0, arg1, arg2) {
         var v0 = getCachedStringFromWasm0(arg0, arg1);
-        const ret = writeText(v0);
+        const ret = emit(v0, takeObject(arg2));
         return addHeapObject(ret);
     }, arguments) };
+    imports.wbg.__wbg_exit_20b0b9ccb0860063 = function(arg0) {
+        const ret = exit(arg0 >>> 0);
+        return addHeapObject(ret);
+    };
     imports.wbg.__wbindgen_string_new = function(arg0, arg1) {
         const ret = getStringFromWasm0(arg0, arg1);
         return addHeapObject(ret);
@@ -473,6 +478,9 @@ function getImports() {
         const ret = getObject(arg0) == getObject(arg1);
         return ret;
     };
+    imports.wbg.__wbg_set_20cbc34131e76824 = function(arg0, arg1, arg2) {
+        getObject(arg0)[takeObject(arg1)] = takeObject(arg2);
+    };
     imports.wbg.__wbg_instanceof_ArrayBuffer_e5e48f4762c5610b = function(arg0) {
         let result;
         try {
@@ -495,6 +503,10 @@ function getImports() {
     imports.wbg.__wbg_is_40a66842732708e7 = function(arg0, arg1) {
         const ret = Object.is(getObject(arg0), getObject(arg1));
         return ret;
+    };
+    imports.wbg.__wbg_new_0b9bfdd97583284e = function() {
+        const ret = new Object();
+        return addHeapObject(ret);
     };
     imports.wbg.__wbg_toString_7be108a12ef03bc2 = function(arg0) {
         const ret = getObject(arg0).toString();
@@ -586,8 +598,8 @@ imports.wbg.__wbindgen_memory = function() {
     const ret = wasm.memory;
     return addHeapObject(ret);
 };
-imports.wbg.__wbindgen_closure_wrapper5093 = function(arg0, arg1, arg2) {
-    const ret = makeMutClosure(arg0, arg1, 316, __wbg_adapter_28);
+imports.wbg.__wbindgen_closure_wrapper5161 = function(arg0, arg1, arg2) {
+    const ret = makeMutClosure(arg0, arg1, 322, __wbg_adapter_28);
     return addHeapObject(ret);
 };
 
@@ -625,7 +637,7 @@ function initSync(module) {
 
 async function init(input) {
     if (typeof input === 'undefined') {
-        input = new URL('tauri-sys-test-ui-f3731bf7a986379f_bg.wasm', import.meta.url);
+        input = new URL('tauri-sys-test-ui-94e40ba9adfa8fe6_bg.wasm', import.meta.url);
     }
     const imports = getImports();
 
