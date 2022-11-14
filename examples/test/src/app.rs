@@ -2,7 +2,7 @@ use anyhow::ensure;
 use tauri_sys::app;
 
 pub async fn get_name() -> anyhow::Result<()> {
-    let name = app::get_name().await;
+    let name = app::get_name().await?;
 
     ensure!(name == "tauri-sys-test");
 
@@ -22,7 +22,7 @@ pub async fn get_version() -> anyhow::Result<()> {
 }
 
 pub async fn get_tauri_version() -> anyhow::Result<()> {
-    let version = app::get_tauri_version().await;
+    let version = app::get_tauri_version().await?;
 
     ensure!(version.major == 1);
     ensure!(version.minor == 1);
