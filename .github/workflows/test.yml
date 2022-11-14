@@ -36,7 +36,7 @@ jobs:
     - name: Install native deps
       run: |
         sudo apt-get update
-        sudo apt-get install -y webkit2gtk-4.0
+        sudo apt-get install -y webkit2gtk-4.0 at-spi2-core
     - name: Install Tauri CLI
       run: |
         cd examples/test
@@ -49,5 +49,4 @@ jobs:
       run: |
         cd examples/test
         export CARGO_UNSTABLE_SPARSE_REGISTRY=true
-        export NO_AT_BRIDGE=1
         xvfb-run cargo tauri dev --exit-on-panic --config ./src-tauri/ci.tauri.conf.json
