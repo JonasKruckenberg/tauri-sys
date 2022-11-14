@@ -583,19 +583,31 @@ var Body = class {
   }
   static form(data) {
     const form = {};
-    for (const key in data) {
-      const v = data[key];
-      let r;
-      if (typeof v === "string") {
-        r = v;
-      } else if (v instanceof Uint8Array || Array.isArray(v)) {
-        r = Array.from(v);
-      } else if (typeof v.file === "string") {
-        r = { file: v.file, mime: v.mime, fileName: v.fileName };
-      } else {
-        r = { file: Array.from(v.file), mime: v.mime, fileName: v.fileName };
+    const append = (key, v) => {
+      if (v !== null) {
+        let r;
+        if (typeof v === "string") {
+          r = v;
+        } else if (v instanceof Uint8Array || Array.isArray(v)) {
+          r = Array.from(v);
+        } else if (v instanceof File) {
+          r = { file: v.name, mime: v.type, fileName: v.name };
+        } else if (typeof v.file === "string") {
+          r = { file: v.file, mime: v.mime, fileName: v.fileName };
+        } else {
+          r = { file: Array.from(v.file), mime: v.mime, fileName: v.fileName };
+        }
+        form[String(key)] = r;
       }
-      form[key] = r;
+    };
+    if (data instanceof FormData) {
+      for (const [key, value] of data) {
+        append(key, value);
+      }
+    } else {
+      for (const [key, value] of Object.entries(data)) {
+        append(key, value);
+      }
     }
     return new Body("Form", form);
   }
