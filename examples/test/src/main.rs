@@ -4,6 +4,7 @@ mod event;
 mod window;
 mod dialog;
 mod notification;
+mod os;
 
 extern crate console_error_panic_hook;
 use std::future::Future;
@@ -154,6 +155,11 @@ fn main() {
                         InteractiveTest(name="dialog::pick_folder",test=dialog::pick_folder())
                         InteractiveTest(name="dialog::pick_folders",test=dialog::pick_folders())
                         InteractiveTest(name="dialog::save",test=dialog::save())
+                        Test(name="os::arch",test=os::arch())
+                        Test(name="os::platform",test=os::platform())
+                        Test(name="os::tempdir",test=os::tempdir())
+                        Test(name="os::kind",test=os::kind())
+                        Test(name="os::version",test=os::version())
                         Test(name="notification::is_permission_granted",test=notification::is_permission_granted())
                         Test(name="notification::request_permission",test=notification::request_permission())
                         InteractiveTest(name="notification::show_notification",test=notification::show_notification())
