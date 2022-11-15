@@ -16,6 +16,8 @@ pub mod process;
 pub mod tauri;
 #[cfg(feature = "window")]
 pub mod window;
+#[cfg(feature = "os")]
+pub mod os;
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {

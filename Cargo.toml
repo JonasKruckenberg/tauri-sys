@@ -24,7 +24,7 @@ tauri-sys = { path = ".", features = ["all"] }
 all-features = true
 
 [features]
-all = ["app", "clipboard", "event", "mocks", "tauri", "window", "process", "dialog"]
+all = ["app", "clipboard", "event", "mocks", "tauri", "window", "process", "dialog", "os"]
 app = ["dep:semver"]
 clipboard = []
 dialog = []
@@ -33,6 +33,7 @@ mocks = []
 tauri = ["dep:url"]
 window = []
 process = []
+os = ["dep:semver"]
 
 [workspace]
 members = ["examples/test", "examples/test/src-tauri"]
