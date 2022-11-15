@@ -5,7 +5,7 @@
 
 use std::sync::atomic::{AtomicBool, Ordering};
 
-use tauri::{Manager, State};
+use tauri::{Manager, State, api::notification::Notification};
 
 struct Received(AtomicBool);
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command

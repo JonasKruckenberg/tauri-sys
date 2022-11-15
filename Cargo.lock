@@ -2963,6 +2963,7 @@ name = "tauri-sys"
 version = "0.1.0"
 dependencies = [
  "js-sys",
+ "log",
  "semver 1.0.14",
  "serde",
  "serde-wasm-bindgen",

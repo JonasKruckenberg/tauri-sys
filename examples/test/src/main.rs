@@ -3,6 +3,7 @@ mod clipboard;
 mod event;
 mod window;
 mod dialog;
+mod notification;
 mod os;
 
 extern crate console_error_panic_hook;
@@ -159,7 +160,10 @@ fn main() {
                         Test(name="os::tempdir",test=os::tempdir())
                         Test(name="os::kind",test=os::kind())
                         Test(name="os::version",test=os::version())
-
+                        Test(name="notification::is_permission_granted",test=notification::is_permission_granted())
+                        Test(name="notification::request_permission",test=notification::request_permission())
+                        InteractiveTest(name="notification::show_notification",test=notification::show_notification())
+                        
                         // Test(name="window::WebviewWindow::new",test=window::create_window())
 
                         Terminate

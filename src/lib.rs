@@ -16,6 +16,8 @@ pub mod process;
 pub mod tauri;
 #[cfg(feature = "window")]
 pub mod window;
+#[cfg(feature = "notification")]
+pub mod notification;
 #[cfg(feature = "os")]
 pub mod os;
 
