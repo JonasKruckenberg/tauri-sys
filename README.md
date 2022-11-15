@@ -62,7 +62,7 @@ These API bindings are not completely on-par with `@tauri-apps/api` yet, but her
 - [ ] `http`
 - [x] `mocks`
 - [ ] `notification`
-- [ ] `os`
+- [x] `os`
 - [ ] `path`
 - [ ] `process`
 - [ ] `shell`

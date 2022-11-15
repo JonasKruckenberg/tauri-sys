@@ -58,7 +58,7 @@
         "fullscreen": false,
         "height": 600,
         "resizable": true,
-        "title": "tauri-app",
+        "title": "tauri-sys testing suite",
         "width": 800
       }
     ]
