@@ -1,7 +1,3 @@
-use wasm_bindgen_futures::JsFuture;
-
-use crate::Error;
-
 /// Gets the clipboard content as plain text.
 ///
 /// # Example
@@ -12,11 +8,10 @@ use crate::Error;
 /// let clipboard_text = read_text().await;
 /// ```
 #[inline(always)]
-pub async fn read_text() -> crate::Result<Option<String>> {
-    JsFuture::from(inner::readText())
-        .await
-        .map(|v| v.as_string())
-        .map_err(Error::Other)
+pub async fn read_text() -> crate::Result<String> {
+    let js_val = inner::readText().await?;
+
+    Ok(serde_wasm_bindgen::from_value(js_val)?)
 }
 
 /// Writes plain text to the clipboard.
@@ -33,19 +28,17 @@ pub async fn read_text() -> crate::Result<Option<String>> {
 /// @returns A promise indicating the success or failure of the operation.
 #[inline(always)]
 pub async fn write_text(text: &str) -> crate::Result<()> {
-    JsFuture::from(inner::writeText(text))
-        .await
-        .map_err(Error::Other)?;
-
-    Ok(())
+    Ok(inner::writeText(text).await?)
 }
 
 mod inner {
-    use wasm_bindgen::{prelude::wasm_bindgen};
+    use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
 
-    #[wasm_bindgen(module = "/dist/clipboard.js")]
+    #[wasm_bindgen(module = "/src/clipboard.js")]
     extern "C" {
-        pub fn readText() -> js_sys::Promise;
-        pub fn writeText(text: &str) -> js_sys::Promise;
+        #[wasm_bindgen(catch)]
+        pub async fn readText() -> Result<JsValue, JsValue>;
+        #[wasm_bindgen(catch)]
+        pub async fn writeText(text: &str) -> Result<(), JsValue>;
     }
 }

@@ -1,0 +1,15 @@
+{
+  "name": "tauri-sys",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "esbuild --outdir=src --format=esm --bundle tauri/tooling/api/src/*.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "esbuild": "^0.15.13"
+  }
+}

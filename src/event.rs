@@ -1,10 +1,6 @@
-use std::fmt::Debug;
-
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use std::fmt::Debug;
 use wasm_bindgen::{prelude::Closure, JsValue};
-use wasm_bindgen_futures::JsFuture;
-
-use crate::Error;
 
 #[derive(Deserialize)]
 pub struct Event<T> {
@@ -49,9 +45,7 @@ impl<T: Debug> Debug for Event<T> {
 /// @param event Event name. Must include only alphanumeric characters, `-`, `/`, `:` and `_`.
 #[inline(always)]
 pub async fn emit<T: Serialize>(event: &str, payload: &T) -> crate::Result<()> {
-    JsFuture::from(inner::emit(event, serde_wasm_bindgen::to_value(payload)?))
-        .await
-        .map_err(Error::Other)?;
+    inner::emit(event, serde_wasm_bindgen::to_value(payload)?).await?;
 
     Ok(())
 }
@@ -86,9 +80,7 @@ where
         (handler)(serde_wasm_bindgen::from_value(raw).unwrap())
     });
 
-    let unlisten = JsFuture::from(inner::listen(event, &closure))
-        .await
-        .map_err(Error::Other)?;
+    let unlisten = inner::listen(event, &closure).await?;
 
     closure.forget();
 
@@ -133,9 +125,7 @@ where
         (handler)(serde_wasm_bindgen::from_value(raw).unwrap())
     });
 
-    let unlisten = JsFuture::from(inner::once(event, &closure))
-        .await
-        .map_err(Error::Other)?;
+    let unlisten = inner::once(event, &closure).await?;
 
     closure.forget();
 
@@ -151,10 +141,19 @@ mod inner {
         JsValue,
     };
 
-    #[wasm_bindgen(module = "/dist/event.js")]
+    #[wasm_bindgen(module = "/src/event.js")]
     extern "C" {
-        pub fn emit(event: &str, payload: JsValue) -> js_sys::Promise;
-        pub fn listen(event: &str, handler: &Closure<dyn FnMut(JsValue)>) -> js_sys::Promise;
-        pub fn once(event: &str, handler: &Closure<dyn FnMut(JsValue)>) -> js_sys::Promise;
+        #[wasm_bindgen(catch)]
+        pub async fn emit(event: &str, payload: JsValue) -> Result<(), JsValue>;
+        #[wasm_bindgen(catch)]
+        pub async fn listen(
+            event: &str,
+            handler: &Closure<dyn FnMut(JsValue)>,
+        ) -> Result<JsValue, JsValue>;
+        #[wasm_bindgen(catch)]
+        pub async fn once(
+            event: &str,
+            handler: &Closure<dyn FnMut(JsValue)>,
+        ) -> Result<JsValue, JsValue>;
     }
 }

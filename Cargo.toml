@@ -11,19 +11,28 @@ js-sys = "0.3.59"
 serde = { version = "1.0.140", features = ["derive"] }
 wasm-bindgen = { version = "0.2.82", features = ["serde_json"] }
 wasm-bindgen-futures = "0.4.32"
-url = { version = "2.3.1", optional = true }
+url = { version = "2.3.1", optional = true, features = ["serde"] }
 thiserror = "1.0.37"
-semver = { version = "1.0.14", optional = true }
+semver = { version = "1.0.14", optional = true, features = ["serde"] }
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.33"
 tauri-sys = { path = ".", features = ["all"] }
+# tauri = "1.1.1"
+
+[package.metadata.docs.rs]
+all-features = true
 
 [features]
-all = ["app", "clipboard", "dialog", "event", "mocks", "tauri"]
+all = ["app", "clipboard", "event", "mocks", "tauri", "window", "process", "dialog"]
 app = ["dep:semver"]
 clipboard = []
 dialog = []
 event = []
 mocks = []
 tauri = ["dep:url"]
+window = []
+process = []
+
+[workspace]
+members = ["examples/test", "examples/test/src-tauri"]
