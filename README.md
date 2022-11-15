@@ -61,7 +61,7 @@ These API bindings are not completely on-par with `@tauri-apps/api` yet, but her
 - [ ] `global_shortcut`
 - [ ] `http`
 - [x] `mocks`
-- [ ] `notification`
+- [x] `notification`
 - [ ] `os`
 - [ ] `path`
 - [x] `process`
