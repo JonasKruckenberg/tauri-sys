@@ -43,6 +43,7 @@ All modules are gated by accordingly named Cargo features. It is recommended you
 - **all**: Enables all modules.
 - **app**: Enables the `app` module.
 - **clipboard**: Enables the `clipboard` module.
+- **dialog**: Enables the `dialog` module.
 - **event**: Enables the `event` module.
 - **mocks**: Enables the `mocks` module.
 - **tauri**: Enables the `tauri` module.
@@ -54,20 +55,20 @@ These API bindings are not completely on-par with `@tauri-apps/api` yet, but her
 - [x] `app`
 - [ ] `cli`
 - [x] `clipboard`
-- [ ] `dialog`
+- [x] `dialog`
 - [x] `event`
 - [ ] `fs`
 - [ ] `global_shortcut`
 - [ ] `http`
 - [x] `mocks`
-- [ ] `notification`
-- [ ] `os`
+- [x] `notification`
+- [x] `os`
 - [ ] `path`
-- [ ] `process`
+- [x] `process`
 - [ ] `shell`
 - [x] `tauri`
 - [ ] `updater`
-- [ ] `window`
+- [x] `window`
 
 The current API also very closely mirrors the JS API even though that might not be the most ergonomic choice, ideas for improving the API with quality-of-life features beyond the regular JS API interface are very welcome.
 

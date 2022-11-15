@@ -1,6 +1,5 @@
-use std::fmt::Debug;
-
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use std::fmt::Debug;
 use wasm_bindgen::{prelude::Closure, JsValue};
 
 #[derive(Deserialize)]
@@ -45,8 +44,10 @@ impl<T: Debug> Debug for Event<T> {
 ///
 /// @param event Event name. Must include only alphanumeric characters, `-`, `/`, `:` and `_`.
 #[inline(always)]
-pub async fn emit<T: Serialize>(event: &str, payload: &T) {
-    inner::emit(event, serde_wasm_bindgen::to_value(payload).unwrap()).await
+pub async fn emit<T: Serialize>(event: &str, payload: &T) -> crate::Result<()> {
+    inner::emit(event, serde_wasm_bindgen::to_value(payload)?).await?;
+
+    Ok(())
 }
 
 /// Listen to an event from the backend.
@@ -70,7 +71,7 @@ pub async fn emit<T: Serialize>(event: &str, payload: &T) {
 ///
 /// Note that removing the listener is required if your listener goes out of scope e.g. the component is unmounted.
 #[inline(always)]
-pub async fn listen<T, H>(event: &str, mut handler: H) -> impl FnOnce()
+pub async fn listen<T, H>(event: &str, mut handler: H) -> crate::Result<impl FnOnce()>
 where
     T: DeserializeOwned,
     H: FnMut(Event<T>) + 'static,
@@ -79,14 +80,14 @@ where
         (handler)(serde_wasm_bindgen::from_value(raw).unwrap())
     });
 
-    let unlisten = inner::listen(event, &closure).await;
+    let unlisten = inner::listen(event, &closure).await?;
 
     closure.forget();
 
     let unlisten = js_sys::Function::from(unlisten);
-    move || {
+    Ok(move || {
         unlisten.call0(&wasm_bindgen::JsValue::NULL).unwrap();
-    }
+    })
 }
 
 /// Listen to an one-off event from the backend.
@@ -115,7 +116,7 @@ where
 ///
 /// Note that removing the listener is required if your listener goes out of scope e.g. the component is unmounted.
 #[inline(always)]
-pub async fn once<T, H>(event: &str, mut handler: H) -> impl FnOnce()
+pub async fn once<T, H>(event: &str, mut handler: H) -> crate::Result<impl FnOnce()>
 where
     T: DeserializeOwned,
     H: FnMut(Event<T>) + 'static,
@@ -124,14 +125,14 @@ where
         (handler)(serde_wasm_bindgen::from_value(raw).unwrap())
     });
 
-    let unlisten = inner::once(event, &closure).await;
+    let unlisten = inner::once(event, &closure).await?;
 
     closure.forget();
 
     let unlisten = js_sys::Function::from(unlisten);
-    move || {
+    Ok(move || {
         unlisten.call0(&wasm_bindgen::JsValue::NULL).unwrap();
-    }
+    })
 }
 
 mod inner {
@@ -140,10 +141,19 @@ mod inner {
         JsValue,
     };
 
-    #[wasm_bindgen(module = "/dist/event.js")]
+    #[wasm_bindgen(module = "/src/event.js")]
     extern "C" {
-        pub async fn emit(event: &str, payload: JsValue);
-        pub async fn listen(event: &str, handler: &Closure<dyn FnMut(JsValue)>) -> JsValue;
-        pub async fn once(event: &str, handler: &Closure<dyn FnMut(JsValue)>) -> JsValue;
+        #[wasm_bindgen(catch)]
+        pub async fn emit(event: &str, payload: JsValue) -> Result<(), JsValue>;
+        #[wasm_bindgen(catch)]
+        pub async fn listen(
+            event: &str,
+            handler: &Closure<dyn FnMut(JsValue)>,
+        ) -> Result<JsValue, JsValue>;
+        #[wasm_bindgen(catch)]
+        pub async fn once(
+            event: &str,
+            handler: &Closure<dyn FnMut(JsValue)>,
+        ) -> Result<JsValue, JsValue>;
     }
 }
