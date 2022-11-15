@@ -64,7 +64,7 @@ These API bindings are not completely on-par with `@tauri-apps/api` yet, but her
 - [ ] `notification`
 - [ ] `os`
 - [ ] `path`
-- [ ] `process`
+- [x] `process`
 - [ ] `shell`
 - [x] `tauri`
 - [ ] `updater`

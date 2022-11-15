@@ -3,6 +3,7 @@ mod clipboard;
 mod event;
 mod window;
 mod dialog;
+mod notification;
 
 extern crate console_error_panic_hook;
 use std::future::Future;
@@ -153,7 +154,10 @@ fn main() {
                         InteractiveTest(name="dialog::pick_folder",test=dialog::pick_folder())
                         InteractiveTest(name="dialog::pick_folders",test=dialog::pick_folders())
                         InteractiveTest(name="dialog::save",test=dialog::save())
-
+                        Test(name="notification::is_permission_granted",test=notification::is_permission_granted())
+                        Test(name="notification::request_permission",test=notification::request_permission())
+                        InteractiveTest(name="notification::show_notification",test=notification::show_notification())
+                        
                         // Test(name="window::WebviewWindow::new",test=window::create_window())
 
                         Terminate

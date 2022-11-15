@@ -14,6 +14,7 @@ wasm-bindgen-futures = "0.4.32"
 url = { version = "2.3.1", optional = true, features = ["serde"] }
 thiserror = "1.0.37"
 semver = { version = "1.0.14", optional = true, features = ["serde"] }
+log = "0.4.17"
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.33"
@@ -24,7 +25,7 @@ tauri-sys = { path = ".", features = ["all"] }
 all-features = true
 
 [features]
-all = ["app", "clipboard", "event", "mocks", "tauri", "window", "process", "dialog"]
+all = ["app", "clipboard", "event", "mocks", "tauri", "window", "process", "dialog", "notification"]
 app = ["dep:semver"]
 clipboard = []
 dialog = []
@@ -33,6 +34,7 @@ mocks = []
 tauri = ["dep:url"]
 window = []
 process = []
+notification = []
 
 [workspace]
 members = ["examples/test", "examples/test/src-tauri"]
