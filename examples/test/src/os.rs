@@ -19,7 +19,7 @@ pub async fn platform() -> anyhow::Result<()> {
 pub async fn tempdir() -> anyhow::Result<()> {
     let tempdir = os::tempdir().await?;
 
-    log::debug!("{:?}", tempdir);
+    log::info!("{:?}", tempdir);
 
     Ok(())
 }

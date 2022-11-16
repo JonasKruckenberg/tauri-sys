@@ -1,6 +1,4 @@
-use log::debug;
 use serde::{Deserialize, Serialize};
-use wasm_bindgen::JsValue;
 
 pub async fn is_permission_granted() -> crate::Result<bool> {
     let raw = inner::isPermissionGranted().await?;

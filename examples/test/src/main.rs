@@ -1,16 +1,19 @@
 mod app;
 mod clipboard;
-mod event;
-mod window;
 mod dialog;
+mod event;
 mod notification;
 mod os;
+mod tauri_log;
+mod window;
 
 extern crate console_error_panic_hook;
+use log::LevelFilter;
 use std::future::Future;
 use std::panic;
 use sycamore::prelude::*;
 use sycamore::suspense::Suspense;
+use tauri_log::TauriLogger;
 
 #[cfg(feature = "ci")]
 async fn exit_with_error(e: String) {
@@ -127,8 +130,12 @@ pub async fn Terminate<'a, G: Html>(cx: Scope<'a>) -> View<G> {
     }
 }
 
+static LOGGER: TauriLogger = TauriLogger;
+
 fn main() {
-    wasm_logger::init(wasm_logger::Config::default());
+    log::set_logger(&LOGGER)
+        .map(|()| log::set_max_level(LevelFilter::Trace))
+        .unwrap();
 
     panic::set_hook(Box::new(|info| {
         console_error_panic_hook::hook(info);
@@ -163,7 +170,7 @@ fn main() {
                         Test(name="notification::is_permission_granted",test=notification::is_permission_granted())
                         Test(name="notification::request_permission",test=notification::request_permission())
                         InteractiveTest(name="notification::show_notification",test=notification::show_notification())
-                        
+
                         // Test(name="window::WebviewWindow::new",test=window::create_window())
 
                         Terminate
