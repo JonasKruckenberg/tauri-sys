@@ -4,8 +4,8 @@
 )]
 
 use std::sync::atomic::{AtomicBool, Ordering};
-
-use tauri::{Manager, State, api::notification::Notification};
+use tauri::{Manager, State};
+use tauri_plugin_log::{LogTarget, LoggerBuilder};
 
 struct Received(AtomicBool);
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
@@ -21,7 +21,20 @@ fn exit_with_error(e: &str) -> bool {
 }
 
 fn main() {
+    let log_plugin = {
+        let targets = [
+            LogTarget::LogDir,
+            #[cfg(debug_assertions)]
+            LogTarget::Stdout,
+            #[cfg(debug_assertions)]
+            LogTarget::Webview,
+        ];
+
+        LoggerBuilder::new().targets(targets).build()
+    };
+
     tauri::Builder::default()
+        .plugin(log_plugin)
         .invoke_handler(tauri::generate_handler![verify_receive, exit_with_error])
         .setup(|app| {
             app.manage(Received(AtomicBool::new(false)));

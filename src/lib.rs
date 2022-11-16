@@ -20,6 +20,8 @@ pub mod window;
 pub mod notification;
 #[cfg(feature = "os")]
 pub mod os;
+#[cfg(feature = "path")]
+pub mod path;
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
