@@ -1,8 +1,10 @@
+#[inline(always)]
 pub async fn exit(exit_code: u32) -> ! {
     inner::exit(exit_code).await;
     unreachable!()
 }
 
+#[inline(always)]
 pub fn relaunch() {
     inner::relaunch();
 }

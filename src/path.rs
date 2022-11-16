@@ -14,6 +14,7 @@ use wasm_bindgen::JsValue;
 /// # Ok(())
 /// # }
 /// ```
+#[inline(always)]
 pub async fn app_config_dir() -> crate::Result<PathBuf> {
     let raw = inner::appConfigDir().await?;
 
@@ -33,6 +34,7 @@ pub async fn app_config_dir() -> crate::Result<PathBuf> {
 /// # Ok(())
 /// # }
 /// ```
+#[inline(always)]
 pub async fn app_data_dir() -> crate::Result<PathBuf> {
     let raw = inner::appDataDir().await?;
 
@@ -52,6 +54,7 @@ pub async fn app_data_dir() -> crate::Result<PathBuf> {
 /// # Ok(())
 /// # }
 /// ```
+#[inline(always)]
 pub async fn app_local_data_dir() -> crate::Result<PathBuf> {
     let raw = inner::appLocalDataDir().await?;
 
@@ -71,6 +74,7 @@ pub async fn app_local_data_dir() -> crate::Result<PathBuf> {
 /// # Ok(())
 /// # }
 /// ```
+#[inline(always)]
 pub async fn app_cache_dir() -> crate::Result<PathBuf> {
     let raw = inner::appCacheDir().await?;
 
@@ -95,6 +99,7 @@ pub async fn app_cache_dir() -> crate::Result<PathBuf> {
 /// # Ok(())
 /// # }
 /// ```
+#[inline(always)]
 pub async fn audio_dir() -> crate::Result<PathBuf> {
     let raw = inner::audioDir().await?;
 
@@ -119,6 +124,7 @@ pub async fn audio_dir() -> crate::Result<PathBuf> {
 /// # Ok(())
 /// # }
 /// ```
+#[inline(always)]
 pub async fn cache_dir() -> crate::Result<PathBuf> {
     let raw = inner::cacheDir().await?;
 
@@ -143,6 +149,7 @@ pub async fn cache_dir() -> crate::Result<PathBuf> {
 /// # Ok(())
 /// # }
 /// ```
+#[inline(always)]
 pub async fn config_dir() -> crate::Result<PathBuf> {
     let raw = inner::configDir().await?;
 
@@ -167,6 +174,7 @@ pub async fn config_dir() -> crate::Result<PathBuf> {
 /// # Ok(())
 /// # }
 /// ```
+#[inline(always)]
 pub async fn data_dir() -> crate::Result<PathBuf> {
     let raw = inner::dataDir().await?;
 
@@ -191,6 +199,7 @@ pub async fn data_dir() -> crate::Result<PathBuf> {
 /// # Ok(())
 /// # }
 /// ```
+#[inline(always)]
 pub async fn desktop_dir() -> crate::Result<PathBuf> {
     let raw = inner::desktopDir().await?;
 
@@ -215,6 +224,7 @@ pub async fn desktop_dir() -> crate::Result<PathBuf> {
 /// # Ok(())
 /// # }
 /// ```
+#[inline(always)]
 pub async fn document_dir() -> crate::Result<PathBuf> {
     let raw = inner::documentDir().await?;
 
@@ -239,6 +249,7 @@ pub async fn document_dir() -> crate::Result<PathBuf> {
 /// # Ok(())
 /// # }
 /// ```
+#[inline(always)]
 pub async fn download_dir() -> crate::Result<PathBuf> {
     let raw = inner::downloadDir().await?;
 
@@ -263,6 +274,7 @@ pub async fn download_dir() -> crate::Result<PathBuf> {
 /// # Ok(())
 /// # }
 /// ```
+#[inline(always)]
 pub async fn executable_dir() -> crate::Result<PathBuf> {
     let raw = inner::executableDir().await?;
 
@@ -287,6 +299,7 @@ pub async fn executable_dir() -> crate::Result<PathBuf> {
 /// # Ok(())
 /// # }
 /// ```
+#[inline(always)]
 pub async fn font_dir() -> crate::Result<PathBuf> {
     let raw = inner::fontDir().await?;
 
@@ -311,6 +324,7 @@ pub async fn font_dir() -> crate::Result<PathBuf> {
 /// # Ok(())
 /// # }
 /// ```
+#[inline(always)]
 pub async fn home_dir() -> crate::Result<PathBuf> {
     let raw = inner::homeDir().await?;
 
@@ -335,6 +349,7 @@ pub async fn home_dir() -> crate::Result<PathBuf> {
 /// # Ok(())
 /// # }
 /// ```
+#[inline(always)]
 pub async fn local_data_dir() -> crate::Result<PathBuf> {
     let raw = inner::localDataDir().await?;
 
@@ -359,6 +374,7 @@ pub async fn local_data_dir() -> crate::Result<PathBuf> {
 /// # Ok(())
 /// # }
 /// ```
+#[inline(always)]
 pub async fn picture_dir() -> crate::Result<PathBuf> {
     let raw = inner::pictureDir().await?;
 
@@ -383,6 +399,7 @@ pub async fn picture_dir() -> crate::Result<PathBuf> {
 /// # Ok(())
 /// # }
 /// ```
+#[inline(always)]
 pub async fn public_dir() -> crate::Result<PathBuf> {
     let raw = inner::publicDir().await?;
 
@@ -402,6 +419,7 @@ pub async fn public_dir() -> crate::Result<PathBuf> {
 /// # Ok(())
 /// # }
 /// ```
+#[inline(always)]
 pub async fn resource_dir() -> crate::Result<PathBuf> {
     let raw = inner::resourceDir().await?;
 
@@ -422,6 +440,7 @@ pub async fn resource_dir() -> crate::Result<PathBuf> {
 /// # Ok(())
 /// # }
 /// ```
+#[inline(always)]
 pub async fn resolve_resource(resource_path: &str) -> crate::Result<PathBuf> {
     let raw = inner::resolveResource(JsValue::from_str(resource_path)).await?;
 
@@ -446,6 +465,7 @@ pub async fn resolve_resource(resource_path: &str) -> crate::Result<PathBuf> {
 /// # Ok(())
 /// # }
 /// ```
+#[inline(always)]
 pub async fn runtime_dir() -> crate::Result<PathBuf> {
     let raw = inner::runtimeDir().await?;
 
@@ -470,6 +490,7 @@ pub async fn runtime_dir() -> crate::Result<PathBuf> {
 /// # Ok(())
 /// # }
 /// ```
+#[inline(always)]
 pub async fn template_dir() -> crate::Result<PathBuf> {
     let raw = inner::templateDir().await?;
 
@@ -494,6 +515,7 @@ pub async fn template_dir() -> crate::Result<PathBuf> {
 /// # Ok(())
 /// # }
 /// ```
+#[inline(always)]
 pub async fn video_dir() -> crate::Result<PathBuf> {
     let raw = inner::videoDir().await?;
 
@@ -518,6 +540,7 @@ pub async fn video_dir() -> crate::Result<PathBuf> {
 /// # Ok(())
 /// # }
 /// ```
+#[inline(always)]
 pub async fn app_log_dir() -> crate::Result<PathBuf> {
     let raw = inner::appLogDir().await?;
 
@@ -538,6 +561,7 @@ pub async fn app_log_dir() -> crate::Result<PathBuf> {
 /// # Ok(())
 /// # }
 /// ```
+#[inline(always)]
 pub async fn resolve(paths: impl IntoIterator<Item = &str>) -> crate::Result<PathBuf> {
     let paths = paths.into_iter();
     let raw = inner::resolve(serde_wasm_bindgen::to_value(&paths.collect::<Vec<_>>())?).await?;
@@ -559,6 +583,7 @@ pub async fn resolve(paths: impl IntoIterator<Item = &str>) -> crate::Result<Pat
 /// # Ok(())
 /// # }
 /// ```
+#[inline(always)]
 pub async fn normalize(path: &str) -> crate::Result<PathBuf> {
     let raw = inner::normalize(JsValue::from_str(path)).await?;
 
@@ -579,6 +604,7 @@ pub async fn normalize(path: &str) -> crate::Result<PathBuf> {
 /// # Ok(())
 /// # }
 /// ```
+#[inline(always)]
 pub async fn join(paths: impl IntoIterator<Item = &str>) -> crate::Result<PathBuf> {
     let paths = paths.into_iter();
     let raw = inner::join(serde_wasm_bindgen::to_value(&paths.collect::<Vec<_>>())?).await?;
@@ -600,6 +626,7 @@ pub async fn join(paths: impl IntoIterator<Item = &str>) -> crate::Result<PathBu
 /// # Ok(())
 /// # }
 /// ```
+#[inline(always)]
 pub async fn dirname(path: &str) -> crate::Result<PathBuf> {
     let raw = inner::dirname(JsValue::from_str(path)).await?;
 
@@ -620,6 +647,7 @@ pub async fn dirname(path: &str) -> crate::Result<PathBuf> {
 /// # Ok(())
 /// # }
 /// ```
+#[inline(always)]
 pub async fn extname(path: &str) -> crate::Result<PathBuf> {
     let raw = inner::extname(JsValue::from_str(path)).await?;
 
@@ -642,6 +670,7 @@ pub async fn extname(path: &str) -> crate::Result<PathBuf> {
 /// # Ok(())
 /// # }
 /// ```
+#[inline(always)]
 pub async fn basename(path: &str, ext: Option<&str>) -> crate::Result<PathBuf> {
     let raw = inner::basename(
         JsValue::from_str(path),
@@ -664,6 +693,7 @@ pub async fn basename(path: &str, ext: Option<&str>) -> crate::Result<PathBuf> {
 /// # Ok(())
 /// # }
 /// ```
+#[inline(always)]
 pub async fn is_absolute(path: &str) -> crate::Result<bool> {
     let raw = inner::isAbsolute(JsValue::from_str(path)).await?;
 

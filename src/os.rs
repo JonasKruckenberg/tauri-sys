@@ -61,30 +61,40 @@ pub enum OsKind {
     WindowsNt,
 }
 
+/// Returns the operating system CPU architecture for which the tauri app was compiled.
+#[inline(always)]
 pub async fn arch() -> crate::Result<Arch> {
     let raw = inner::arch().await?;
 
     Ok(serde_wasm_bindgen::from_value(raw)?)
 }
 
+/// Returns a string identifying the operating system platform. The value is set at compile time.
+#[inline(always)]
 pub async fn platform() -> crate::Result<Platform> {
     let raw = inner::platform().await?;
 
     Ok(serde_wasm_bindgen::from_value(raw)?)
 }
 
+/// Returns the operating system's default directory for temporary files.
+#[inline(always)]
 pub async fn tempdir() -> crate::Result<PathBuf> {
     let raw = inner::tempdir().await?;
 
     Ok(serde_wasm_bindgen::from_value(raw)?)
 }
 
+/// Returns 'OsKind::Linux' on Linux, 'OsKind::Darwin' on macOS, and 'OsKind::WindowsNT' on Windows.
+#[inline(always)]
 pub async fn kind() -> crate::Result<OsKind> {
     let raw = inner::kind().await?;
 
     Ok(serde_wasm_bindgen::from_value(raw)?)
 }
 
+/// Returns a string identifying the kernel version.
+#[inline(always)]
 pub async fn version() -> crate::Result<String> {
     let raw = inner::version().await?;
 

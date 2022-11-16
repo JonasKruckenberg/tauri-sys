@@ -43,6 +43,7 @@ pub enum UpdateStatus {
 /// # Ok(())
 /// # }
 /// ```
+#[inline(always)]
 pub async fn check_update() -> crate::Result<UpdateResult> {
     let raw = inner::checkUpdate().await?;
 
@@ -66,6 +67,7 @@ pub async fn check_update() -> crate::Result<UpdateResult> {
 /// # Ok(())
 /// # }
 /// ```
+#[inline(always)]
 pub async fn install_update() -> crate::Result<()> {
     inner::installUpdate().await?;
     Ok(())

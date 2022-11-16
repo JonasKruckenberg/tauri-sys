@@ -67,7 +67,6 @@ pub async fn emit<T: Serialize>(event: &str, payload: &T) -> crate::Result<()> {
 ///
 /// @param event Event name. Must include only alphanumeric characters, `-`, `/`, `:` and `_`.
 /// @param handler Event handler callback.
-/// @returns A promise resolving to a function to unlisten to the event.
 ///
 /// Note that removing the listener is required if your listener goes out of scope e.g. the component is unmounted.
 #[inline(always)]
@@ -112,7 +111,6 @@ where
 /// ```
 ///
 /// @param event Event name. Must include only alphanumeric characters, `-`, `/`, `:` and `_`.
-/// @returns A promise resolving to a function to unlisten to the event.
 ///
 /// Note that removing the listener is required if your listener goes out of scope e.g. the component is unmounted.
 #[inline(always)]
