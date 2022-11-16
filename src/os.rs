@@ -1,6 +1,5 @@
-use std::path::{PathBuf};
-use semver::Version;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
+use std::path::PathBuf;
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 pub enum Arch {
@@ -25,7 +24,7 @@ pub enum Arch {
     #[serde(rename = "s390x")]
     S390x,
     #[serde(rename = "sparc64")]
-    Sparc64
+    Sparc64,
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
@@ -86,7 +85,7 @@ pub async fn kind() -> crate::Result<OsKind> {
     Ok(serde_wasm_bindgen::from_value(raw)?)
 }
 
-pub async fn version() -> crate::Result<Version> {
+pub async fn version() -> crate::Result<String> {
     let raw = inner::version().await?;
 
     Ok(serde_wasm_bindgen::from_value(raw)?)
