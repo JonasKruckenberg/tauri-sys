@@ -14,6 +14,8 @@ pub mod mocks;
 pub mod process;
 #[cfg(feature = "tauri")]
 pub mod tauri;
+#[cfg(feature = "updater")]
+pub mod updater;
 #[cfg(feature = "window")]
 pub mod window;
 #[cfg(feature = "notification")]

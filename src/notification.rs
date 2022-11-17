@@ -1,39 +1,28 @@
 use serde::{Deserialize, Serialize};
 
+#[inline(always)]
 pub async fn is_permission_granted() -> crate::Result<bool> {
     let raw = inner::isPermissionGranted().await?;
 
     Ok(serde_wasm_bindgen::from_value(raw)?)
 }
 
+#[inline(always)]
 pub async fn request_permission() -> crate::Result<Permission> {
     let raw = inner::requestPermission().await?;
 
     Ok(serde_wasm_bindgen::from_value(raw)?)
 }
 
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Deserialize, Default, Clone, Copy, PartialEq, Eq)]
 pub enum Permission {
     #[default]
+    #[serde(rename = "default")]
     Default,
+    #[serde(rename = "granted")]
     Granted,
+    #[serde(rename = "denied")]
     Denied,
-}
-
-impl<'de> Deserialize<'de> for Permission {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        match String::deserialize(deserializer)?.as_str() {
-            "default" => Ok(Permission::Default),
-            "granted" => Ok(Permission::Granted),
-            "denied" => Ok(Permission::Denied),
-            _ => Err(serde::de::Error::custom(
-                "expected one of default, granted, denied",
-            )),
-        }
-    }
 }
 
 #[derive(Debug, Default, Serialize)]
@@ -60,6 +49,7 @@ impl<'a> Notification<'a> {
         self.icon = Some(icon);
     }
 
+    #[inline(always)]
     pub fn show(&self) -> crate::Result<()> {
         inner::sendNotification(serde_wasm_bindgen::to_value(&self)?)?;
         

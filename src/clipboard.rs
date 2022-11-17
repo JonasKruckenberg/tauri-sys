@@ -24,8 +24,6 @@ pub async fn read_text() -> crate::Result<String> {
 /// write_text("Tauri is awesome!").await;
 /// assert_eq!(read_text().await, "Tauri is awesome!");
 /// ```
-///
-/// @returns A promise indicating the success or failure of the operation.
 #[inline(always)]
 pub async fn write_text(text: &str) -> crate::Result<()> {
     Ok(inner::writeText(text).await?)
