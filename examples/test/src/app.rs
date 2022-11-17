@@ -23,7 +23,7 @@ pub async fn get_version() -> anyhow::Result<()> {
 
 pub async fn get_tauri_version() -> anyhow::Result<()> {
     let version = app::get_tauri_version().await?;
-    
+
     ensure!(version.major == 1);
     ensure!(version.minor == 2);
     ensure!(version.patch == 0);

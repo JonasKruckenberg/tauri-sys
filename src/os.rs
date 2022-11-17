@@ -58,7 +58,7 @@ pub enum OsKind {
     #[serde(rename = "Darwin")]
     Darwin,
     #[serde(rename = "Windows_NT")]
-    WindowsNt,
+    WindowsNT,
 }
 
 /// Returns the operating system CPU architecture for which the tauri app was compiled.
@@ -85,7 +85,7 @@ pub async fn tempdir() -> crate::Result<PathBuf> {
     Ok(serde_wasm_bindgen::from_value(raw)?)
 }
 
-/// Returns 'OsKind::Linux' on Linux, 'OsKind::Darwin' on macOS, and 'OsKind::WindowsNT' on Windows.
+/// Returns [`OsKind::Linux`] on Linux, [`OsKind::Darwin`] on macOS, and [`OsKind::WindowsNT`] on Windows.
 #[inline(always)]
 pub async fn kind() -> crate::Result<OsKind> {
     let raw = inner::kind().await?;

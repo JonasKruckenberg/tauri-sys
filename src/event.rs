@@ -2,7 +2,7 @@ use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use std::fmt::Debug;
 use wasm_bindgen::{prelude::Closure, JsValue};
 
-#[derive(Deserialize)]
+#[derive(Debug, Clone, Hash, Deserialize)]
 pub struct Event<T> {
     /// Event name
     pub event: String,
@@ -12,17 +12,6 @@ pub struct Event<T> {
     pub payload: T,
     /// The label of the window that emitted this event
     pub window_label: String,
-}
-
-impl<T: Debug> Debug for Event<T> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("Event")
-            .field("event", &self.event)
-            .field("id", &self.id)
-            .field("payload", &self.payload)
-            .field("window_label", &self.window_label)
-            .finish()
-    }
 }
 
 /// Emits an event to the backend.
@@ -56,9 +45,10 @@ pub async fn emit<T: Serialize>(event: &str, payload: &T) -> crate::Result<()> {
 ///
 /// ```rust,no_run
 /// use tauri_api::event::{emit, listen};
+/// use web_sys::console;
 ///
 /// const unlisten = listen::<String>("error", |event| {
-///   println!("Got error in window {}, payload: {}", event.window_label, event.payload);
+///   console::log_1(&format!("Got error in window {}, payload: {}", event.window_label, event.payload).into());
 /// }).await;
 ///
 /// // you need to call unlisten if your handler goes out of scope e.g. the component is unmounted
@@ -96,6 +86,7 @@ where
 /// ```rust,no_run
 /// use tauri_api::event::once;
 /// use serde::Deserialize;
+/// use web_sys::console;
 ///
 /// #[derive(Deserialize)]
 /// interface LoadedPayload {
@@ -103,7 +94,7 @@ where
 ///   token: String
 /// }
 /// const unlisten = once::<LoadedPayload>("loaded", |event| {
-///     println!("App is loaded, loggedIn: {}, token: {}", event.payload.logged_in, event.payload.token);
+///     console::log_1!(&format!("App is loaded, loggedIn: {}, token: {}", event.payload.logged_in, event.payload.token).into());
 /// }).await;
 ///
 /// // you need to call unlisten if your handler goes out of scope e.g. the component is unmounted

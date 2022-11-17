@@ -10,6 +10,12 @@ pub mod dialog;
 pub mod event;
 #[cfg(feature = "mocks")]
 pub mod mocks;
+#[cfg(feature = "notification")]
+pub mod notification;
+#[cfg(feature = "os")]
+pub mod os;
+#[cfg(feature = "path")]
+pub mod path;
 #[cfg(feature = "process")]
 pub mod process;
 #[cfg(feature = "tauri")]
@@ -18,12 +24,6 @@ pub mod tauri;
 pub mod updater;
 #[cfg(feature = "window")]
 pub mod window;
-#[cfg(feature = "notification")]
-pub mod notification;
-#[cfg(feature = "os")]
-pub mod os;
-#[cfg(feature = "path")]
-pub mod path;
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
@@ -31,12 +31,14 @@ pub enum Error {
     Serde(String),
     #[error("Unknown Theme \"{0}\". Expected one of \"light\",\"dark\"")]
     UnknownTheme(String),
-    #[error("Invalid Url {0}")]
-    InvalidUrl(#[from] url::ParseError),
-    #[error("Invalid Version {0}")]
-    InvalidVersion(#[from] semver::Error),
     #[error("{0}")]
     Other(String),
+    #[cfg(feature = "tauri")]
+    #[error("Invalid Url {0}")]
+    InvalidUrl(#[from] url::ParseError),
+    #[cfg(feature = "app")]
+    #[error("Invalid Version {0}")]
+    InvalidVersion(#[from] semver::Error),
 }
 
 impl From<serde_wasm_bindgen::Error> for Error {

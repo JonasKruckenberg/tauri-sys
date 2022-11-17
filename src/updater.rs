@@ -5,19 +5,19 @@ use wasm_bindgen::{prelude::Closure, JsValue};
 pub struct UpdateManifest {
     pub body: String,
     pub date: String,
-    pub version: String
+    pub version: String,
 }
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct UpdateResult {
     pub manifest: Option<UpdateManifest>,
-    pub should_update: bool
+    pub should_update: bool,
 }
 
 #[derive(Deserialize)]
 struct UpdateStatusResult {
     error: Option<String>,
-    status: UpdateStatus
+    status: UpdateStatus,
 }
 
 #[derive(Deserialize)]
@@ -27,16 +27,16 @@ pub enum UpdateStatus {
     #[serde(rename = "DONE")]
     Done,
     #[serde(rename = "UPTODATE")]
-    UpToDate
+    UpToDate,
 }
 
 /// Checks if an update is available.
-/// 
+///
 /// # Example
-/// 
+///
 /// ```rust,no_run
 /// use tauri_sys::updater::check_update;
-/// 
+///
 /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let update = check_update().await?;
 /// // now run installUpdate() if needed
@@ -51,15 +51,15 @@ pub async fn check_update() -> crate::Result<UpdateResult> {
 }
 
 /// Install the update if there's one available.
-/// 
+///
 /// # Example
-/// 
+///
 /// ```rust,no_run
 /// use tauri_sys::updater::{check_update, install_update};
-/// 
+///
 /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let update = check_update().await?;
-/// 
+///
 /// if update.should_update {
 ///     log::info("Installing update {:?}", update.manifest);
 ///     install_update().await?;
@@ -74,17 +74,17 @@ pub async fn install_update() -> crate::Result<()> {
 }
 
 /// Listen to an updater event.
-/// 
+///
 /// # Example
-/// 
+///
 /// ```rust,no_run
 /// use tauri_sys::updater::on_updater_event;
-/// 
+///
 /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let unlisten = on_updater_event(|event| {
 ///     log::debug!("Updater event {:?}", event);
 /// }).await?;
-/// 
+///
 /// // you need to call unlisten if your handler goes out of scope e.g. the component is unmounted
 /// unlisten();
 /// # Ok(())

@@ -1,10 +1,10 @@
 use anyhow::ensure;
-use tauri_sys::dialog::{FileDialogBuilder, MessageDialogBuilder, MessageDialogType};
+use tauri_sys::dialog::{FileDialogBuilder, MessageDialogBuilder, MessageDialogKind};
 
 pub async fn ask() -> anyhow::Result<()> {
     let mut builder = MessageDialogBuilder::new();
     builder.set_title("Tauri");
-    builder.set_type(MessageDialogType::Warning);
+    builder.set_type(MessageDialogKind::Warning);
 
     let works = builder
         .ask("Does this work? \n Click Yes to mark this test as passing")
@@ -18,7 +18,7 @@ pub async fn ask() -> anyhow::Result<()> {
 pub async fn confirm() -> anyhow::Result<()> {
     let mut builder = MessageDialogBuilder::new();
     builder.set_title("Tauri");
-    builder.set_type(MessageDialogType::Warning);
+    builder.set_type(MessageDialogKind::Warning);
 
     let works = builder
         .confirm("Does this work? \n Click Ok to mark this test as passing")
@@ -32,7 +32,7 @@ pub async fn confirm() -> anyhow::Result<()> {
 pub async fn message() -> anyhow::Result<()> {
     let mut builder = MessageDialogBuilder::new();
     builder.set_title("Tauri");
-    builder.set_type(MessageDialogType::Warning);
+    builder.set_type(MessageDialogKind::Warning);
 
     builder.message("This is a message just for you!").await?;
 

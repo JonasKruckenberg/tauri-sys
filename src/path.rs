@@ -2,13 +2,14 @@ use std::path::PathBuf;
 use wasm_bindgen::JsValue;
 
 /// Returns the path to the suggested directory for your app's config files.
+///
 /// Resolves to `${configDir}/${bundleIdentifier}`, where `bundleIdentifier` is the value [`tauri.bundle.identifier`](https://tauri.app/v1/api/config/#bundleconfig.identifier) is configured in `tauri.conf.json`.
 ///
 /// # Example
 ///
 /// ```rust,no_run
 /// use tauri_sys::path::app_config_dir;
-/// 
+///
 /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let app_config_dir_path = app_config_dir().await?;
 /// # Ok(())
@@ -22,13 +23,14 @@ pub async fn app_config_dir() -> crate::Result<PathBuf> {
 }
 
 /// Returns the path to the suggested directory for your app's data files.
+///
 /// Resolves to `${dataDir}/${bundleIdentifier}`, where `bundleIdentifier` is the value [`tauri.bundle.identifier`](https://tauri.app/v1/api/config/#bundleconfig.identifier) is configured in `tauri.conf.json`.
 ///
 /// # Example
 ///
 /// ```rust,no_run
 /// use tauri_sys::path::app_data_dir;
-/// 
+///
 /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let app_data_dir_path = app_data_dir().await?;
 /// # Ok(())
@@ -42,13 +44,14 @@ pub async fn app_data_dir() -> crate::Result<PathBuf> {
 }
 
 /// Returns the path to the suggested directory for your app's local data files.
+///
 /// Resolves to `${localDataDir}/${bundleIdentifier}`, where `bundleIdentifier` is the value [`tauri.bundle.identifier`](https://tauri.app/v1/api/config/#bundleconfig.identifier) is configured in `tauri.conf.json`.
 ///
 /// # Example
 ///
 /// ```rust,no_run
 /// use tauri_sys::path::app_local_data_dir;
-/// 
+///
 /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let app_local_data_dir_path = app_local_data_dir().await?;
 /// # Ok(())
@@ -62,13 +65,14 @@ pub async fn app_local_data_dir() -> crate::Result<PathBuf> {
 }
 
 /// Returns the path to the suggested directory for your app's cache files.
+///
 /// Resolves to `${cacheDir}/${bundleIdentifier}`, where `bundleIdentifier` is the value [`tauri.bundle.identifier`](https://tauri.app/v1/api/config/#bundleconfig.identifier) is configured in `tauri.conf.json`.
 ///
 /// # Example
 ///
 /// ```rust,no_run
 /// use tauri_sys::path::app_cache_dir;
-/// 
+///
 /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let app_cache_dir_path = app_cache_dir().await?;
 /// # Ok(())
@@ -85,15 +89,15 @@ pub async fn app_cache_dir() -> crate::Result<PathBuf> {
 ///
 /// #### Platform-specific
 ///
-/// -///*Linux:** Resolves to [`xdg-user-dirs`](https://www.freedesktop.org/wiki/Software/xdg-user-dirs/)' `XDG_MUSIC_DIR`.
-/// -///*macOS:** Resolves to `$HOME/Music`.
-/// -///*Windows:** Resolves to `{FOLDERID_Music}`.
+/// - **Linux:** Resolves to [`xdg-user-dirs`](https://www.freedesktop.org/wiki/Software/xdg-user-dirs/)' `XDG_MUSIC_DIR`.
+/// - **macOS:** Resolves to `$HOME/Music`.
+/// - **Windows:** Resolves to `{FOLDERID_Music}`.
 ///
 /// # Example
 ///
 /// ```rust,no_run
 /// use tauri_sys::path::audio_dir;
-/// 
+///
 /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let audio_dir_path = audio_dir().await?;
 /// # Ok(())
@@ -110,15 +114,15 @@ pub async fn audio_dir() -> crate::Result<PathBuf> {
 ///
 /// #### Platform-specific
 ///
-/// -///*Linux:** Resolves to `$XDG_CACHE_HOME` or `$HOME/.cache`.
-/// -///*macOS:** Resolves to `$HOME/Library/Caches`.
-/// -///*Windows:** Resolves to `{FOLDERID_LocalAppData}`.
+/// - **Linux:** Resolves to `$XDG_CACHE_HOME` or `$HOME/.cache`.
+/// - **macOS:** Resolves to `$HOME/Library/Caches`.
+/// - **Windows:** Resolves to `{FOLDERID_LocalAppData}`.
 ///
 /// # Example
 ///
 /// ```rust,no_run
 /// use tauri_sys::path::cache_dir;
-/// 
+///
 /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let cache_dir_path = cache_dir().await?;
 /// # Ok(())
@@ -135,15 +139,15 @@ pub async fn cache_dir() -> crate::Result<PathBuf> {
 ///
 /// #### Platform-specific
 ///
-/// -///*Linux:** Resolves to `$XDG_CONFIG_HOME` or `$HOME/.config`.
-/// -///*macOS:** Resolves to `$HOME/Library/Application Support`.
-/// -///*Windows:** Resolves to `{FOLDERID_RoamingAppData}`.
+/// - **Linux:** Resolves to `$XDG_CONFIG_HOME` or `$HOME/.config`.
+/// - **macOS:** Resolves to `$HOME/Library/Application Support`.
+/// - **Windows:** Resolves to `{FOLDERID_RoamingAppData}`.
 ///
 /// # Example
 ///
 /// ```rust,no_run
 /// use tauri_sys::path::config_dir;
-/// 
+///
 /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let config_dir_path = config_dir().await?;
 /// # Ok(())
@@ -160,15 +164,15 @@ pub async fn config_dir() -> crate::Result<PathBuf> {
 ///
 /// #### Platform-specific
 ///
-/// -///*Linux:** Resolves to `$XDG_DATA_HOME` or `$HOME/.local/share`.
-/// -///*macOS:** Resolves to `$HOME/Library/Application Support`.
-/// -///*Windows:** Resolves to `{FOLDERID_RoamingAppData}`.
+/// - **Linux:** Resolves to `$XDG_DATA_HOME` or `$HOME/.local/share`.
+/// - **macOS:** Resolves to `$HOME/Library/Application Support`.
+/// - **Windows:** Resolves to `{FOLDERID_RoamingAppData}`.
 ///
 /// # Example
 ///
 /// ```rust,no_run
 /// use tauri_sys::path::data_dir;
-/// 
+///
 /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let data_dir_path = data_dir().await?;
 /// # Ok(())
@@ -185,15 +189,15 @@ pub async fn data_dir() -> crate::Result<PathBuf> {
 ///
 /// #### Platform-specific
 ///
-/// -///*Linux:** Resolves to [`xdg-user-dirs`](https://www.freedesktop.org/wiki/Software/xdg-user-dirs/)' `XDG_DESKTOP_DIR`.
-/// -///*macOS:** Resolves to `$HOME/Desktop`.
-/// -///*Windows:** Resolves to `{FOLDERID_Desktop}`.
+/// - **Linux:** Resolves to [`xdg-user-dirs`](https://www.freedesktop.org/wiki/Software/xdg-user-dirs/)' `XDG_DESKTOP_DIR`.
+/// - **macOS:** Resolves to `$HOME/Desktop`.
+/// - **Windows:** Resolves to `{FOLDERID_Desktop}`.
 ///
 /// # Example
 ///
 /// ```rust,no_run
 /// use tauri_sys::path::desktop_dir;
-/// 
+///
 /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let desktop_dir_path = desktop_dir().await?;
 /// # Ok(())
@@ -213,12 +217,12 @@ pub async fn desktop_dir() -> crate::Result<PathBuf> {
 /// - **Linux:** Resolves to [`xdg-user-dirs`](https://www.freedesktop.org/wiki/Software/xdg-user-dirs/)' `XDG_DOCUMENTS_DIR`.
 /// - **macOS:** Resolves to `$HOME/Documents`.
 /// - **Windows:** Resolves to `{FOLDERID_Documents}`.
-/// 
+///
 /// # Example
 ///
 /// ```rust,no_run
 /// use tauri_sys::path::document_dir;
-/// 
+///
 /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let document_dir_path = document_dir().await?;
 /// # Ok(())
@@ -243,7 +247,7 @@ pub async fn document_dir() -> crate::Result<PathBuf> {
 ///
 /// ```rust,no_run
 /// use tauri_sys::path::download_dir;
-/// 
+///
 /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let download_dir_path = download_dir().await?;
 /// # Ok(())
@@ -268,7 +272,7 @@ pub async fn download_dir() -> crate::Result<PathBuf> {
 ///
 /// ```rust,no_run
 /// use tauri_sys::path::executable_dir;
-/// 
+///
 /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let executable_dir_path = executable_dir().await?;
 /// # Ok(())
@@ -293,7 +297,7 @@ pub async fn executable_dir() -> crate::Result<PathBuf> {
 ///
 /// ```rust,no_run
 /// use tauri_sys::path::font_dir;
-/// 
+///
 /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let font_dir_path = font_dir().await?;
 /// # Ok(())
@@ -318,7 +322,7 @@ pub async fn font_dir() -> crate::Result<PathBuf> {
 ///
 /// ```rust,no_run
 /// use tauri_sys::path::home_dir;
-/// 
+///
 /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let home_dir_path = home_dir().await?;
 /// # Ok(())
@@ -343,7 +347,7 @@ pub async fn home_dir() -> crate::Result<PathBuf> {
 ///
 /// ```rust,no_run
 /// use tauri_sys::path::local_data_dir;
-/// 
+///
 /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let local_data_dir_path = local_data_dir().await?;
 /// # Ok(())
@@ -368,7 +372,7 @@ pub async fn local_data_dir() -> crate::Result<PathBuf> {
 ///
 /// ```rust,no_run
 /// use tauri_sys::path::picture_dir;
-/// 
+///
 /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let picture_dir_path = picture_dir().await?;
 /// # Ok(())
@@ -393,7 +397,7 @@ pub async fn picture_dir() -> crate::Result<PathBuf> {
 ///
 /// ```rust,no_run
 /// use tauri_sys::path::public_dir;
-/// 
+///
 /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let public_dir_path = public_dir().await?;
 /// # Ok(())
@@ -407,13 +411,14 @@ pub async fn public_dir() -> crate::Result<PathBuf> {
 }
 
 /// Returns the path to the application's resource directory.
-/// To resolve a resource path, see the [[resolveResource | `resolveResource API`]].
+///
+/// To resolve a resource path, see the [`resolve_resource`] function.
 ///
 /// # Example
 ///
 /// ```rust,no_run
 /// use tauri_sys::path::resource_dir;
-/// 
+///
 /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let resource_dir_path = resource_dir().await?;
 /// # Ok(())
@@ -431,10 +436,10 @@ pub async fn resource_dir() -> crate::Result<PathBuf> {
 /// @param resourcePath The path to the resource.
 /// Must follow the same syntax as defined in `tauri.conf.json > tauri > bundle > resources`, i.e. keeping subfolders and parent dir components (`../`).
 /// @returns The full path to the resource.
-/// 
+///
 /// ```rust,no_run
 /// use tauri_sys::path::resolve_resource;
-/// 
+///
 /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let resource_path = resolve_resource("script.sh").await?;
 /// # Ok(())
@@ -451,15 +456,15 @@ pub async fn resolve_resource(resource_path: &str) -> crate::Result<PathBuf> {
 ///
 /// #### Platform-specific
 ///
-/// -///*Linux:** Resolves to `$XDG_RUNTIME_DIR`.
-/// -///*macOS:** Not supported.
-/// -///*Windows:** Not supported.
+/// - **Linux:** Resolves to `$XDG_RUNTIME_DIR`.
+/// - **macOS:** Not supported.
+/// - **Windows:** Not supported.
 ///
 /// # Example
 ///
 /// ```rust,no_run
 /// use tauri_sys::path::runtime_dir;
-/// 
+///
 /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let runtime_dir_path = runtime_dir().await?;
 /// # Ok(())
@@ -476,15 +481,15 @@ pub async fn runtime_dir() -> crate::Result<PathBuf> {
 ///
 /// #### Platform-specific
 ///
-/// -///*Linux:** Resolves to [`xdg-user-dirs`](https://www.freedesktop.org/wiki/Software/xdg-user-dirs/)' `XDG_TEMPLATES_DIR`.
-/// -///*macOS:** Not supported.
-/// -///*Windows:** Resolves to `{FOLDERID_Templates}`.
+/// - **Linux:** Resolves to [`xdg-user-dirs`](https://www.freedesktop.org/wiki/Software/xdg-user-dirs/)' `XDG_TEMPLATES_DIR`.
+/// - **macOS:** Not supported.
+/// - **Windows:** Resolves to `{FOLDERID_Templates}`.
 ///
 /// # Example
 ///
 /// ```rust,no_run
 /// use tauri_sys::path::template_dir;
-/// 
+///
 /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let template_dir_path = template_dir().await?;
 /// # Ok(())
@@ -501,15 +506,15 @@ pub async fn template_dir() -> crate::Result<PathBuf> {
 ///
 /// #### Platform-specific
 ///
-/// -///*Linux:** Resolves to [`xdg-user-dirs`](https://www.freedesktop.org/wiki/Software/xdg-user-dirs/)' `XDG_VIDEOS_DIR`.
-/// -///*macOS:** Resolves to `$HOME/Movies`.
-/// -///*Windows:** Resolves to `{FOLDERID_Videos}`.
+/// - **Linux:** Resolves to [`xdg-user-dirs`](https://www.freedesktop.org/wiki/Software/xdg-user-dirs/)' `XDG_VIDEOS_DIR`.
+/// - **macOS:** Resolves to `$HOME/Movies`.
+/// - **Windows:** Resolves to `{FOLDERID_Videos}`.
 ///
 /// # Example
 ///
 /// ```rust,no_run
 /// use tauri_sys::path::video_dir;
-/// 
+///
 /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let video_dir_path = video_dir().await?;
 /// # Ok(())
@@ -534,7 +539,7 @@ pub async fn video_dir() -> crate::Result<PathBuf> {
 ///
 /// ```rust,no_run
 /// use tauri_sys::path::app_log_dir;
-/// 
+///
 /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let app_log_dir_path = app_log_dir().await?;
 /// # Ok(())
@@ -553,10 +558,10 @@ pub async fn app_log_dir() -> crate::Result<PathBuf> {
 ///
 /// ```rust,no_run
 /// use tauri_sys::path::{resolve, app_data_dir};
-/// 
+///
 /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let app_data_dir_path = app_data_dir().await?;
-/// 
+///
 /// let path = resolve([app_data_dir_path, "..", "users", "tauri", "avatar.png"]).await?;
 /// # Ok(())
 /// # }
@@ -575,10 +580,10 @@ pub async fn resolve(paths: impl IntoIterator<Item = &str>) -> crate::Result<Pat
 ///
 /// ```rust,no_run
 /// use tauri_sys::path::{normalize, app_data_dir};
-/// 
+///
 /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let app_data_dir_path = app_data_dir().await?;
-/// 
+///
 /// let path = normalize([app_data_dir_path, "..", "users", "tauri", "avatar.png"]).await?;
 /// # Ok(())
 /// # }
@@ -596,10 +601,10 @@ pub async fn normalize(path: &str) -> crate::Result<PathBuf> {
 ///
 /// ```rust,no_run
 /// use tauri_sys::path::{join, app_data_dir};
-/// 
+///
 /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let app_data_dir_path = app_data_dir().await?;
-/// 
+///
 /// let path = join([app_data_dir_path, "..", "users", "tauri", "avatar.png"]).await?;
 /// # Ok(())
 /// # }
@@ -618,10 +623,10 @@ pub async fn join(paths: impl IntoIterator<Item = &str>) -> crate::Result<PathBu
 ///
 /// ```rust,no_run
 /// use tauri_sys::path::{dirname, app_data_dir};
-/// 
+///
 /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let app_data_dir_path = app_data_dir().await?;
-/// 
+///
 /// let dir = dirname(app_data_dir_path).await?;
 /// # Ok(())
 /// # }
@@ -639,7 +644,7 @@ pub async fn dirname(path: &str) -> crate::Result<PathBuf> {
 ///
 /// ```rust,no_run
 /// use tauri_sys::path::{extname, resolve_resource};
-/// 
+///
 /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let resource_path = await resolve_resource("app.conf").await?;
 /// let ext = extname(resource_path).await?;
@@ -657,12 +662,12 @@ pub async fn extname(path: &str) -> crate::Result<PathBuf> {
 /// Returns the last portion of a `path`. Trailing directory separators are ignored.
 ///
 /// @param ext An optional file extension to be removed from the returned path.
-/// 
+///
 /// # Example
 ///
 /// ```rust,no_run
 /// use tauri_sys::path::{basename, resolve_resource};
-/// 
+///
 /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let resource_path = await resolve_resource("app.conf").await?;
 /// let ext = basename(resource_path).await?;
@@ -687,7 +692,7 @@ pub async fn basename(path: &str, ext: Option<&str>) -> crate::Result<PathBuf> {
 ///
 /// ```rust,no_run
 /// use tauri_sys::path::is_absolute;
-/// 
+///
 /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// assert!(is_absolute("/home/tauri").await?);
 /// # Ok(())

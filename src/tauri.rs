@@ -2,6 +2,7 @@ use serde::{de::DeserializeOwned, Serialize};
 use url::Url;
 
 /// Convert a device file path to an URL that can be loaded by the webview.
+///
 /// Note that `asset:` and `https://asset.localhost` must be added to [`tauri.security.csp`](https://tauri.app/v1/api/config/#securityconfig.csp) in `tauri.conf.json`.
 /// Example CSP value: `"csp": "default-src 'self'; img-src 'self' asset: https://asset.localhost"` to use the asset protocol on image sources.
 ///
@@ -68,6 +69,7 @@ pub async fn invoke<A: Serialize, R: DeserializeOwned>(cmd: &str, args: &A) -> c
 }
 
 /// Transforms a callback function to a string identifier that can be passed to the backend.
+///
 /// The backend uses the identifier to `eval()` the callback.
 ///
 /// @return A unique identifier associated with the callback function.

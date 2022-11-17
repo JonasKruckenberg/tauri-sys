@@ -47,7 +47,7 @@ pub async fn get_tauri_version() -> crate::Result<Version> {
     Ok(serde_wasm_bindgen::from_value(js_val)?)
 }
 
-/// Shows the application on macOS. This function does not automatically focuses any app window.
+/// Shows the application on macOS. This function does not automatically focus the apps windows.
 ///
 /// # Example
 ///

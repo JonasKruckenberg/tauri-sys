@@ -19,9 +19,9 @@ pub async fn request_permission() -> anyhow::Result<()> {
 
 pub async fn show_notification() -> anyhow::Result<()> {
     let mut n = notification::Notification::default();
-        n.set_title("TAURI");
-        n.set_body("Tauri is awesome!");
-    
+    n.set_title("TAURI");
+    n.set_body("Tauri is awesome!");
+
     n.show()?;
 
     Ok(())
