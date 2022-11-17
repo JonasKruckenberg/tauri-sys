@@ -1,3 +1,5 @@
+//! Customize the auto updater flow.
+
 use serde::Deserialize;
 use wasm_bindgen::{prelude::Closure, JsValue};
 

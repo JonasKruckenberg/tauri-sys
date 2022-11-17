@@ -1,3 +1,24 @@
+//! Native system dialogs for opening and saving files.
+//! 
+//! The APIs must be added to tauri.allowlist.dialog in tauri.conf.json:
+//! ```json
+//! {
+//!     "tauri": {
+//!         "allowlist": {
+//!             "dialog": {
+//!                 "all": true, // enable all dialog APIs
+//!                 "open": true, // enable file open API
+//!                 "save": true // enable file save API
+//!                 "message": true,
+//!                 "ask": true,
+//!                 "confirm": true
+//!             }
+//!         }
+//!     }
+//! }
+//! ```
+//! It is recommended to allowlist only the APIs you use for optimal bundle size and security.
+
 use serde::Serialize;
 use std::path::{Path, PathBuf};
 
@@ -114,6 +135,8 @@ impl<'a> FileDialogBuilder<'a> {
     /// # Ok(())
     /// # }
     /// ```
+    /// 
+    /// Requires [`allowlist > dialog > open`](https://tauri.app/v1/api/config#dialogallowlistconfig.open) to be enabled.
     pub async fn pick_file(self) -> crate::Result<Option<PathBuf>> {
         let raw = inner::open(serde_wasm_bindgen::to_value(&self)?).await?;
 
@@ -132,6 +155,8 @@ impl<'a> FileDialogBuilder<'a> {
     /// # Ok(())
     /// # }
     /// ```
+    /// 
+    /// Requires [`allowlist > dialog > open`](https://tauri.app/v1/api/config#dialogallowlistconfig.open) to be enabled.
     pub async fn pick_files(mut self) -> crate::Result<Option<Vec<PathBuf>>> {
         self.multiple = true;
 
@@ -152,6 +177,8 @@ impl<'a> FileDialogBuilder<'a> {
     /// # Ok(())
     /// # }
     /// ```
+    /// 
+    /// Requires [`allowlist > dialog > open`](https://tauri.app/v1/api/config#dialogallowlistconfig.open) to be enabled.
     pub async fn pick_folder(mut self) -> crate::Result<Option<PathBuf>> {
         self.directory = true;
 
@@ -172,6 +199,8 @@ impl<'a> FileDialogBuilder<'a> {
     /// # Ok(())
     /// # }
     /// ```
+    /// 
+    /// Requires [`allowlist > dialog > open`](https://tauri.app/v1/api/config#dialogallowlistconfig.open) to be enabled.
     pub async fn pick_folders(mut self) -> crate::Result<Option<Vec<PathBuf>>> {
         self.directory = true;
         self.multiple = true;
@@ -199,6 +228,8 @@ impl<'a> FileDialogBuilder<'a> {
     /// # Ok(())
     /// # }
     /// ```
+    /// 
+    /// Requires [`allowlist > dialog > save`](https://tauri.app/v1/api/config#dialogallowlistconfig.save) to be enabled.
     pub async fn save(self) -> crate::Result<Option<PathBuf>> {
         let raw = inner::save(serde_wasm_bindgen::to_value(&self)?).await?;
 
@@ -275,6 +306,8 @@ impl<'a> MessageDialogBuilder<'a> {
     /// # Ok(())
     /// # }
     /// ```
+    /// 
+    /// Requires [`allowlist > dialog > message`](https://tauri.app/v1/api/config#dialogallowlistconfig.message) to be enabled.
     pub async fn message(self, message: &str) -> crate::Result<()> {
         Ok(inner::message(message, serde_wasm_bindgen::to_value(&self)?).await?)
     }
@@ -291,6 +324,8 @@ impl<'a> MessageDialogBuilder<'a> {
     /// # Ok(())
     /// # }
     /// ```
+    /// 
+    /// Requires [`allowlist > dialog > ask`](https://tauri.app/v1/api/config#dialogallowlistconfig.ask) to be enabled.
     pub async fn ask(self, message: &str) -> crate::Result<bool> {
         let raw = inner::ask(message, serde_wasm_bindgen::to_value(&self)?).await?;
 
@@ -309,6 +344,8 @@ impl<'a> MessageDialogBuilder<'a> {
     /// # Ok(())
     /// # }
     /// ```
+    /// 
+    /// Requires [`allowlist > dialog > confirm`](https://tauri.app/v1/api/config#dialogallowlistconfig.confirm) to be enabled.
     pub async fn confirm(self, message: &str) -> crate::Result<bool> {
         let raw = inner::confirm(message, serde_wasm_bindgen::to_value(&self)?).await?;
 

@@ -1,3 +1,21 @@
+//! Get application metadata.
+//! 
+//! he APIs must be added to tauri.allowlist.app in tauri.conf.json:
+//! ```json
+//! {
+//!     "tauri": {
+//!         "allowlist": {
+//!             "app": {
+//!                 "all": true, // enable all app APIs
+//!                 "show": true,
+//!                 "hide": true
+//!             }
+//!         }
+//!     }
+//! }
+//! ```
+//! It is recommended to allowlist only the APIs you use for optimal bundle size and security.
+
 use semver::Version;
 
 /// Gets the application name.
@@ -56,6 +74,8 @@ pub async fn get_tauri_version() -> crate::Result<Version> {
 ///
 /// show().await;
 /// ```
+/// 
+/// Requires [`allowlist > app > show`](https://tauri.app/v1/api/config#appallowlistconfig.show) to be enabled.
 #[inline(always)]
 pub async fn show() -> crate::Result<()> {
     Ok(inner::show().await?)
@@ -70,6 +90,8 @@ pub async fn show() -> crate::Result<()> {
 ///
 /// hide().await;
 /// ```
+/// 
+/// Requires [`allowlist > app > hide`](https://tauri.app/v1/api/config#appallowlistconfig.hide) to be enabled.
 #[inline(always)]
 pub async fn hide() -> crate::Result<()> {
     Ok(inner::hide().await?)

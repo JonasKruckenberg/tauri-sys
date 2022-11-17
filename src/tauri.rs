@@ -1,3 +1,5 @@
+//! Invoke your custom commands.
+
 use serde::{de::DeserializeOwned, Serialize};
 use url::Url;
 

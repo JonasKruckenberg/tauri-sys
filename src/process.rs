@@ -1,3 +1,5 @@
+//! Perform operations on the current process.
+
 /// Exits immediately with the given `exit_code`.
 #[inline(always)]
 pub async fn exit(exit_code: i32) -> ! {

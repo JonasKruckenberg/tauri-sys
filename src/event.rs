@@ -1,3 +1,5 @@
+//! The event system allows you to emit events to the backend and listen to events from it.
+
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use std::fmt::Debug;
 use wasm_bindgen::{prelude::Closure, JsValue};

@@ -1,3 +1,20 @@
+//! Send toast notifications (brief auto-expiring OS window element) to your user. Can also be used with the Notification Web API.
+//! 
+//! The APIs must be added to tauri.allowlist.notification in tauri.conf.json:
+//! 
+//! ```json
+//! {
+//!     "tauri": {
+//!         "allowlist": {
+//!             "notification": {
+//!                 "all": true // enable all notification APIs
+//!             }
+//!         }
+//!     }
+//! }
+//! ```
+//! It is recommended to allowlist only the APIs you use for optimal bundle size and security.
+
 use serde::{Deserialize, Serialize};
 
 /// Checks if the permission to send notifications is granted.
