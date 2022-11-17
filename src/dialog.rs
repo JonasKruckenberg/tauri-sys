@@ -259,7 +259,7 @@ impl<'a> MessageDialogBuilder<'a> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn set_kind(&mut self, r#kind: MessageDialogKind) {
+    pub fn set_kind(&mut self, kind: MessageDialogKind) {
         self.kind = r#kind;
     }
 
