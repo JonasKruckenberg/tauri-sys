@@ -1,5 +1,3 @@
-use std::time::Duration;
-
 use anyhow::ensure;
 use futures::StreamExt;
 use tauri_sys::{event, tauri};
