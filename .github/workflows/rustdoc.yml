@@ -47,6 +47,9 @@ jobs:
           command: doc
           args: -p tauri-sys --all-features --no-deps
           
+      - name: Create index.html
+        run: echo "<meta http-equiv="refresh" content="0; url=tauri_sys">" > ./target/doc/index.html
+          
       - name: Setup Pages
         uses: actions/configure-pages@v2
         
