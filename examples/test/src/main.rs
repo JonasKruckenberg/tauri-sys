@@ -6,6 +6,7 @@ mod notification;
 mod os;
 mod tauri_log;
 mod window;
+mod global_shortcut;
 
 extern crate console_error_panic_hook;
 use log::LevelFilter;
@@ -182,6 +183,7 @@ fn main() {
                         Test(name="notification::is_permission_granted",test=notification::is_permission_granted())
                         Test(name="notification::request_permission",test=notification::request_permission())
                         InteractiveTest(name="notification::show_notification",test=notification::show_notification())
+                        InteractiveTest(name="global_shortcut::register_all",test=global_shortcut::register_all())
 
                         // Test(name="window::WebviewWindow::new",test=window::create_window())
 
