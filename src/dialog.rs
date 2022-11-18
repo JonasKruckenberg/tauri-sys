@@ -49,8 +49,9 @@ impl<'a> FileDialogBuilder<'a> {
     }
 
     /// Set starting file name or directory of the dialog.
-    pub fn set_default_path(&mut self, default_path: &'a Path) {
+    pub fn set_default_path(&mut self, default_path: &'a Path) -> &mut Self {
         self.default_path = Some(default_path);
+        self
     }
 
     /// If directory is true, indicates that it will be read recursively later.
@@ -66,8 +67,9 @@ impl<'a> FileDialogBuilder<'a> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn set_recursive(&mut self, recursive: bool) {
+    pub fn set_recursive(&mut self, recursive: bool) -> &mut Self {
         self.recursive = recursive;
+        self
     }
 
     /// Set the title of the dialog.
@@ -82,8 +84,9 @@ impl<'a> FileDialogBuilder<'a> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn set_title(&mut self, title: &'a str) {
+    pub fn set_title(&mut self, title: &'a str) -> &mut Self {
         self.title = Some(title);
+        self
     }
 
     /// Add file extension filter. Takes in the name of the filter, and list of extensions
@@ -98,8 +101,9 @@ impl<'a> FileDialogBuilder<'a> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn add_filter(&mut self, name: &'a str, extensions: &'a [&'a str]) {
+    pub fn add_filter(&mut self, name: &'a str, extensions: &'a [&'a str]) -> &mut Self {
         self.filters.push(DialogFilter { name, extensions });
+        self
     }
 
     /// Add many file extension filters.
@@ -114,13 +118,14 @@ impl<'a> FileDialogBuilder<'a> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn add_filters(&mut self, filters: impl IntoIterator<Item = (&'a str, &'a [&'a str])>) {
+    pub fn add_filters(&mut self, filters: impl IntoIterator<Item = (&'a str, &'a [&'a str])>) -> &mut Self {
         for (name, extensions) in filters.into_iter() {
             self.filters.push(DialogFilter {
                 name: name.as_ref(),
                 extensions,
             });
         }
+        self
     }
 
     /// Shows the dialog to select a single file.
@@ -137,7 +142,7 @@ impl<'a> FileDialogBuilder<'a> {
     /// ```
     /// 
     /// Requires [`allowlist > dialog > open`](https://tauri.app/v1/api/config#dialogallowlistconfig.open) to be enabled.
-    pub async fn pick_file(self) -> crate::Result<Option<PathBuf>> {
+    pub async fn pick_file(&self) -> crate::Result<Option<PathBuf>> {
         let raw = inner::open(serde_wasm_bindgen::to_value(&self)?).await?;
 
         Ok(serde_wasm_bindgen::from_value(raw)?)
@@ -157,7 +162,7 @@ impl<'a> FileDialogBuilder<'a> {
     /// ```
     /// 
     /// Requires [`allowlist > dialog > open`](https://tauri.app/v1/api/config#dialogallowlistconfig.open) to be enabled.
-    pub async fn pick_files(mut self) -> crate::Result<Option<Vec<PathBuf>>> {
+    pub async fn pick_files(&mut self) -> crate::Result<Option<Vec<PathBuf>>> {
         self.multiple = true;
 
         let raw = inner::open(serde_wasm_bindgen::to_value(&self)?).await?;
@@ -179,7 +184,7 @@ impl<'a> FileDialogBuilder<'a> {
     /// ```
     /// 
     /// Requires [`allowlist > dialog > open`](https://tauri.app/v1/api/config#dialogallowlistconfig.open) to be enabled.
-    pub async fn pick_folder(mut self) -> crate::Result<Option<PathBuf>> {
+    pub async fn pick_folder(&mut self) -> crate::Result<Option<PathBuf>> {
         self.directory = true;
 
         let raw = inner::open(serde_wasm_bindgen::to_value(&self)?).await?;
@@ -201,7 +206,7 @@ impl<'a> FileDialogBuilder<'a> {
     /// ```
     /// 
     /// Requires [`allowlist > dialog > open`](https://tauri.app/v1/api/config#dialogallowlistconfig.open) to be enabled.
-    pub async fn pick_folders(mut self) -> crate::Result<Option<Vec<PathBuf>>> {
+    pub async fn pick_folders(&mut self) -> crate::Result<Option<Vec<PathBuf>>> {
         self.directory = true;
         self.multiple = true;
 
@@ -230,7 +235,7 @@ impl<'a> FileDialogBuilder<'a> {
     /// ```
     /// 
     /// Requires [`allowlist > dialog > save`](https://tauri.app/v1/api/config#dialogallowlistconfig.save) to be enabled.
-    pub async fn save(self) -> crate::Result<Option<PathBuf>> {
+    pub async fn save(&self) -> crate::Result<Option<PathBuf>> {
         let raw = inner::save(serde_wasm_bindgen::to_value(&self)?).await?;
 
         Ok(serde_wasm_bindgen::from_value(raw)?)
@@ -274,8 +279,9 @@ impl<'a> MessageDialogBuilder<'a> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn set_title(&mut self, title: &'a str) {
+    pub fn set_title(&mut self, title: &'a str) -> &mut Self {
         self.title = Some(title);
+        self
     }
 
     /// Set the type of the dialog.
@@ -290,8 +296,9 @@ impl<'a> MessageDialogBuilder<'a> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn set_kind(&mut self, kind: MessageDialogKind) {
-        self.kind = r#kind;
+    pub fn set_kind(&mut self, kind: MessageDialogKind) -> &mut Self {
+        self.kind = kind;
+        self
     }
 
     /// Shows a message dialog with an `Ok` button.
@@ -308,7 +315,7 @@ impl<'a> MessageDialogBuilder<'a> {
     /// ```
     /// 
     /// Requires [`allowlist > dialog > message`](https://tauri.app/v1/api/config#dialogallowlistconfig.message) to be enabled.
-    pub async fn message(self, message: &str) -> crate::Result<()> {
+    pub async fn message(&self, message: &str) -> crate::Result<()> {
         Ok(inner::message(message, serde_wasm_bindgen::to_value(&self)?).await?)
     }
 
@@ -326,7 +333,7 @@ impl<'a> MessageDialogBuilder<'a> {
     /// ```
     /// 
     /// Requires [`allowlist > dialog > ask`](https://tauri.app/v1/api/config#dialogallowlistconfig.ask) to be enabled.
-    pub async fn ask(self, message: &str) -> crate::Result<bool> {
+    pub async fn ask(&self, message: &str) -> crate::Result<bool> {
         let raw = inner::ask(message, serde_wasm_bindgen::to_value(&self)?).await?;
 
         Ok(serde_wasm_bindgen::from_value(raw)?)
@@ -346,7 +353,7 @@ impl<'a> MessageDialogBuilder<'a> {
     /// ```
     /// 
     /// Requires [`allowlist > dialog > confirm`](https://tauri.app/v1/api/config#dialogallowlistconfig.confirm) to be enabled.
-    pub async fn confirm(self, message: &str) -> crate::Result<bool> {
+    pub async fn confirm(&self, message: &str) -> crate::Result<bool> {
         let raw = inner::confirm(message, serde_wasm_bindgen::to_value(&self)?).await?;
 
         Ok(serde_wasm_bindgen::from_value(raw)?)
