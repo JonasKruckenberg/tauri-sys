@@ -41,6 +41,9 @@ pub enum Error {
     #[cfg(feature = "app")]
     #[error("Invalid Version {0}")]
     InvalidVersion(#[from] semver::Error),
+    #[cfg(any(feature = "event", feature = "updater", feature = "window"))]
+    #[error(transparent)]
+    Recv(#[from] futures::channel::oneshot::Canceled)
 }
 
 impl From<serde_wasm_bindgen::Error> for Error {

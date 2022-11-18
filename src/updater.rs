@@ -1,7 +1,9 @@
 //! Customize the auto updater flow.
 
+use futures::{Stream, channel::mpsc};
 use serde::Deserialize;
 use wasm_bindgen::{prelude::Closure, JsValue};
+use crate::event::Listen;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct UpdateManifest {
@@ -11,6 +13,7 @@ pub struct UpdateManifest {
 }
 
 #[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct UpdateResult {
     pub manifest: Option<UpdateManifest>,
     pub should_update: bool,
@@ -80,43 +83,39 @@ pub async fn install_update() -> crate::Result<()> {
 /// # Example
 ///
 /// ```rust,no_run
-/// use tauri_sys::updater::on_updater_event;
+/// use tauri_sys::updater::updater_events;
+/// use web_sys::console;
 ///
 /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
-/// let unlisten = on_updater_event(|event| {
-///     log::debug!("Updater event {:?}", event);
-/// }).await?;
+/// let events = updater_events();
 ///
-/// // you need to call unlisten if your handler goes out of scope e.g. the component is unmounted
-/// unlisten();
+/// while let Some(event) = events.next().await {
+///     console::log_1(&format!("Updater event {:?}", event).into());
+/// }
 /// # Ok(())
 /// # }
 /// ```
-/// Note that removing the listener is required if your listener goes out of scope e.g. the component is unmounted.
 #[inline(always)]
-pub async fn on_updater_event<H>(mut handler: H) -> crate::Result<impl FnOnce()>
-where
-    H: FnMut(Result<UpdateStatus, String>) + 'static,
-{
+pub async fn updater_events() -> crate::Result<impl Stream<Item = Result<UpdateStatus, String>>> {
+    let (tx, rx) = mpsc::unbounded::<Result<UpdateStatus, String>>();
+
     let closure = Closure::<dyn FnMut(JsValue)>::new(move |raw| {
         let raw: UpdateStatusResult = serde_wasm_bindgen::from_value(raw).unwrap();
 
-        let result = if let Some(error) = raw.error {
+        let msg = if let Some(error) = raw.error {
             Err(error)
         } else {
             Ok(raw.status)
         };
 
-        (handler)(result)
+        let _ = tx.unbounded_send(msg);
     });
-
     let unlisten = inner::onUpdaterEvent(&closure).await?;
-
     closure.forget();
 
-    let unlisten = js_sys::Function::from(unlisten);
-    Ok(move || {
-        unlisten.call0(&wasm_bindgen::JsValue::NULL).unwrap();
+    Ok(Listen {
+        rx,
+        unlisten: js_sys::Function::from(unlisten),
     })
 }
 

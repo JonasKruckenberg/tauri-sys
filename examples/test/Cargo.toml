@@ -12,6 +12,7 @@ console_error_panic_hook = "0.1.7"
 wasm-bindgen-futures = "0.4.32"
 serde = { version = "1.0.147", features = ["derive"] }
 log = { version = "0.4.17", features = ["serde"] }
+futures = "0.3.25"
 
 [features]
 ci = []

@@ -3031,6 +3031,7 @@ dependencies = [
 name = "tauri-sys"
 version = "0.1.0"
 dependencies = [
+ "futures",
  "js-sys",
  "log",
  "semver 1.0.14",
@@ -3061,6 +3062,7 @@ version = "0.0.0"
 dependencies = [
  "anyhow",
  "console_error_panic_hook",
+ "futures",
  "log",
  "serde",
  "sycamore",

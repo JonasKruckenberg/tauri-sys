@@ -4,7 +4,7 @@
 )]
 
 use std::sync::atomic::{AtomicBool, Ordering};
-use tauri::{Manager, State};
+use tauri::{Manager, Runtime, State, Window};
 use tauri_plugin_log::{LogTarget, LoggerBuilder};
 
 struct Received(AtomicBool);
@@ -12,6 +12,22 @@ struct Received(AtomicBool);
 #[tauri::command]
 fn verify_receive(emitted: State<Received>) -> bool {
     emitted.0.load(Ordering::Relaxed)
+}
+
+#[tauri::command]
+async fn emit_event<R: Runtime>(win: Window<R>) -> Result<(), ()> {
+    let _ = win.emit("rust-event-once", "Hello World from Rust!");
+
+    Ok(())
+}
+
+#[tauri::command]
+async fn emit_event_5_times<R: Runtime>(win: Window<R>) -> Result<(), ()> {
+    for i in 0..5 {
+        let _ = win.emit("rust-event-listen", i);
+    }
+
+    Ok(())
 }
 
 #[tauri::command]
@@ -35,12 +51,12 @@ fn main() {
 
     tauri::Builder::default()
         .plugin(log_plugin)
-        .invoke_handler(tauri::generate_handler![verify_receive, exit_with_error])
+        .invoke_handler(tauri::generate_handler![verify_receive, emit_event, emit_event_5_times, exit_with_error])
         .setup(|app| {
             app.manage(Received(AtomicBool::new(false)));
 
             let app_handle = app.handle();
-            app.listen_global("foo", move |_| {
+            app.listen_global("javascript-event", move |_| {
                 app_handle
                     .state::<Received>()
                     .0

@@ -6,6 +6,7 @@ version = "0.1.0"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+futures = { version = "0.3.25", optional = true }
 js-sys = "0.3.59"
 log = "0.4.17"
 semver = {version = "1.0.14", optional = true, features = ["serde"]}
@@ -28,16 +29,16 @@ all = ["app", "clipboard", "event", "mocks", "tauri", "window", "process", "dial
 app = ["dep:semver"]
 clipboard = []
 dialog = []
-event = []
+event = ["dep:futures"]
 global_shortcut = []
 mocks = []
-tauri = ["dep:url"]
-window = []
-process = []
-os = []
 notification = []
+os = []
 path = []
-updater = []
+process = []
+tauri = ["dep:url"]
+updater = ["dep:futures"]
+window = ["dep:futures"]
 
 [workspace]
 members = ["examples/test", "examples/test/src-tauri"]

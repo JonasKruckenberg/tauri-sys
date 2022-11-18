@@ -39,7 +39,7 @@ where
 }
 
 #[component]
-pub async fn Test<'a, G: Html, F>(cx: Scope<'a>, props: TestProps<'a, F>) -> View<G>
+pub async fn TestInner<'a, G: Html, F>(cx: Scope<'a>, props: TestProps<'a, F>) -> View<G>
 where
     F: Future<Output = anyhow::Result<()>> + 'a,
 {
@@ -64,9 +64,30 @@ where
     }
 }
 
+#[component]
+pub fn Test<'a, G: Html, F>(cx: Scope<'a>, props: TestProps<'a, F>) -> View<G>
+where
+    F: Future<Output = anyhow::Result<()>> + 'a,
+{
+    let fallback = view! { cx,
+        tr {
+            td { code { (props.name.to_string()) } }
+            td {
+                span(class="loader") { "⏳" }
+            }
+        }
+    };
+
+    view! { cx,
+        Suspense(fallback=fallback) {
+            TestInner(name=props.name, test=props.test)
+        }
+    }
+}
+
 #[cfg(not(feature = "ci"))]
 #[component]
-pub async fn InteractiveTest<'a, G: Html, F>(cx: Scope<'a>, props: TestProps<'a, F>) -> View<G>
+pub fn InteractiveTest<'a, G: Html, F>(cx: Scope<'a>, props: TestProps<'a, F>) -> View<G>
 where
     F: Future<Output = anyhow::Result<()>> + 'a,
 {
@@ -81,19 +102,8 @@ where
         (if *render_test.get() {
             let test = test.take().unwrap();
 
-            let fallback = view! { cx,
-                tr {
-                    td { code { (props.name.to_string()) } }
-                    td {
-                        "Running Test..."
-                    }
-                }
-            };
-
             view! { cx,
-                Suspense(fallback=fallback) {
-                    Test(name=props.name, test=test)
-                }
+                Test(name=props.name, test=test)
             }
         } else {
             view! { cx,
@@ -148,12 +158,14 @@ fn main() {
         view! { cx,
             table {
                 tbody {
-                    Suspense(fallback=view!{ cx, "Running Tests..." }) {
+                    // Suspense(fallback=view!{ cx, "Running Tests..." }) {
                         Test(name="app::get_name",test=app::get_name())
                         Test(name="app::get_version",test=app::get_version())
                         Test(name="app::get_tauri_version",test=app::get_tauri_version())
                         Test(name="clipboard::read_text | clipboard::write_text",test=clipboard::test())
                         Test(name="event::emit",test=event::emit())
+                        Test(name="event::listen",test=event::listen())
+                        Test(name="event::once",test=event::once())
                         InteractiveTest(name="dialog::message",test=dialog::message())
                         InteractiveTest(name="dialog::ask",test=dialog::ask())
                         InteractiveTest(name="dialog::confirm",test=dialog::confirm())
@@ -174,7 +186,7 @@ fn main() {
                         // Test(name="window::WebviewWindow::new",test=window::create_window())
 
                         Terminate
-                    }
+                    // }
                 }
             }
         }
