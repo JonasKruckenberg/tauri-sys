@@ -1,3 +1,49 @@
+//! # Differences to the JavaScript API 
+//! 
+//! ## Event Listeners
+//! 
+//! RAII, unlisten on drop
+//! 
+//! ### Cancelling event listeners
+//! 
+//! ```js
+//! import { listen } from '@tauri-apps/api/event'
+//! 
+//! const unlisten = await listen('rust-event', (ev) => console.log(ev))
+//! 
+//! // Some time later. We are no longer interested in listening to the event
+//! unlisten()
+//! ```
+//! ```rust
+//! use tauri_sys::event::listen;
+//! use futures::stream::StreamExt;
+//! 
+//! let events = listen::<()>("rust-event")
+//!     .await?
+//!     .take(10); // we're only interested in the first 10 events!
+//! 
+//! while let Some(_) = events.next().await {
+//!     log::debug!("Received event!");
+//! }
+//! 
+//! // after the 10 events happened we will continue
+//! log::debug!("Some other code here...");
+//! ```
+//! 
+//! ```rust
+//! use tauri_sys::event::listen;
+//! 
+//! let events = listen::<()>("rust-event").await?
+//! let (events, abort_handle) = futures::stream::abortable(events); 
+//! 
+//! while let Some(_) = events.next().await {
+//!     log::debug!("Received event!");
+//! }
+//! 
+//! // in some other task, when we're done with listening to the events
+//! abort_handle.abort();
+//! ```
+
 use wasm_bindgen::JsValue;
 
 #[cfg(feature = "app")]

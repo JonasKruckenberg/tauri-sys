@@ -80,6 +80,9 @@ pub async fn install_update() -> crate::Result<()> {
 
 /// Listen to an updater event.
 ///
+/// The returned Future will automatically clean up it's underlying event listener when dropped, so no manual unlisten function needs to be called.
+/// See [Differences to the JavaScript API](../index.html#differences-to-the-javascript-api) for details.
+/// 
 /// # Example
 ///
 /// ```rust,no_run

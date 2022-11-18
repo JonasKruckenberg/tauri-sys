@@ -727,6 +727,9 @@ impl WebviewWindow {
     }
 
     /// Listen to an event emitted by the backend that is tied to the webview window.
+    /// 
+    /// The returned Future will automatically clean up it's underlying event listener when dropped, so no manual unlisten function needs to be called.
+    /// See [Differences to the JavaScript API](../index.html#differences-to-the-javascript-api) for details.
     #[inline(always)]
     pub async fn listen<T, H>(&self, event: &str) -> crate::Result<impl Stream<Item = Event<T>>>
     where
@@ -747,6 +750,9 @@ impl WebviewWindow {
     }
 
     /// Listen to an one-off event emitted by the backend that is tied to the webview window.
+    /// 
+    /// The returned Future will automatically clean up it's underlying event listener when dropped, so no manual unlisten function needs to be called.
+    /// See [Differences to the JavaScript API](../index.html#differences-to-the-javascript-api) for details.
     #[inline(always)]
     pub async fn once<T, H>(&self, event: &str) -> crate::Result<Event<T>>
     where

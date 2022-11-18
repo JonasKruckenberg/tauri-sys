@@ -47,6 +47,9 @@ pub async fn emit<T: Serialize>(event: &str, payload: &T) -> crate::Result<()> {
 }
 
 /// Listen to an event from the backend.
+/// 
+/// The returned Future will automatically clean up it's underlying event listener when dropped, so no manual unlisten function needs to be called.
+/// See [Differences to the JavaScript API](../index.html#differences-to-the-javascript-api) for details.
 ///
 /// # Example
 ///
@@ -86,6 +89,7 @@ pub(crate) struct Listen<T> {
 
 impl<T> Drop for Listen<T> {
     fn drop(&mut self) {
+        log::debug!("Calling unlisten for listen callback");
         self.unlisten.call0(&wasm_bindgen::JsValue::NULL).unwrap();
     }
 }
@@ -103,6 +107,9 @@ impl<T> Stream for Listen<T> {
 
 /// Listen to an one-off event from the backend.
 ///
+/// The returned Future will automatically clean up it's underlying event listener when dropped, so no manual unlisten function needs to be called.
+/// See [Differences to the JavaScript API](../index.html#differences-to-the-javascript-api) for details.
+/// 
 /// # Example
 ///
 /// ```rust,no_run
@@ -152,6 +159,7 @@ pub(crate) struct Once<T> {
 impl<T> Drop for Once<T> {
     fn drop(&mut self) {
         self.rx.close();
+        log::debug!("Calling unlisten for once callback");
         self.unlisten.call0(&wasm_bindgen::JsValue::NULL).unwrap();
     }
 }
