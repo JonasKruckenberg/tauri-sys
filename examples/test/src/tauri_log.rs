@@ -6,6 +6,7 @@ use tauri_sys::tauri;
 struct LogArgs {
     level: Level,
     message: String,
+    location: String,
     file: Option<String>,
     line: Option<u32>,
 }
@@ -56,6 +57,7 @@ impl log::Log for TauriLogger {
         if self.enabled(record.metadata()) {
             let args = LogArgs {
                 level: record.level().into(),
+                location: record.target().to_string(),
                 message: format!("{}", record.args()),
                 file: record.file().map(ToString::to_string),
                 line: record.line(),
