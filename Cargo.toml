@@ -1,35 +1,35 @@
 [package]
+edition = "2021"
 name = "tauri-sys"
 version = "0.1.0"
-edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-serde-wasm-bindgen = "0.4.3"
-js-sys = "0.3.59" 
-serde = { version = "1.0.140", features = ["derive"] }
-wasm-bindgen = { version = "0.2.82", features = ["serde_json"] }
-wasm-bindgen-futures = "0.4.32"
-url = { version = "2.3.1", optional = true, features = ["serde"] }
-thiserror = "1.0.37"
-semver = { version = "1.0.14", optional = true, features = ["serde"] }
+js-sys = "0.3.59"
 log = "0.4.17"
+semver = {version = "1.0.14", optional = true, features = ["serde"]}
+serde = {version = "1.0.140", features = ["derive"]}
+serde-wasm-bindgen = "0.4.3"
+thiserror = "1.0.37"
+url = {version = "2.3.1", optional = true, features = ["serde"]}
+wasm-bindgen = {version = "0.2.82", features = ["serde_json"]}
+wasm-bindgen-futures = "0.4.32"
 
 [dev-dependencies]
+tauri-sys = {path = ".", features = ["all"]}
 wasm-bindgen-test = "0.3.33"
-tauri-sys = { path = ".", features = ["all"] }
-# tauri = "1.1.1"
 
 [package.metadata.docs.rs]
 all-features = true
 
 [features]
-all = ["app", "clipboard", "event", "mocks", "tauri", "window", "process", "dialog", "os", "notification", "path", "updater"]
+all = ["app", "clipboard", "event", "mocks", "tauri", "window", "process", "dialog", "os", "notification", "path", "updater", "global_shortcut"]
 app = ["dep:semver"]
 clipboard = []
 dialog = []
 event = []
+global_shortcut = []
 mocks = []
 tauri = ["dep:url"]
 window = []

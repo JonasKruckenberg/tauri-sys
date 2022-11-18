@@ -8,6 +8,8 @@ pub mod clipboard;
 pub mod dialog;
 #[cfg(feature = "event")]
 pub mod event;
+#[cfg(feature = "global_shortcut")]
+pub mod global_shortcut;
 #[cfg(feature = "mocks")]
 pub mod mocks;
 #[cfg(feature = "notification")]

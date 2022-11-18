@@ -58,7 +58,7 @@ These API bindings are not completely on-par with `@tauri-apps/api` yet, but her
 - [x] `dialog`
 - [x] `event`
 - [ ] `fs`
-- [ ] `global_shortcut`
+- [x] `global_shortcut`
 - [ ] `http`
 - [x] `mocks`
 - [x] `notification`
