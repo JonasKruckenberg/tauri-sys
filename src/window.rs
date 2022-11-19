@@ -989,8 +989,10 @@ pub fn current_window() -> WebviewWindow {
 /// # Ok(())
 /// # }
 /// ```
-pub fn all_windows() -> Vec<WebviewWindow> {
-    inner::getAll().into_iter().map(WebviewWindow).collect()
+pub fn all_windows() -> impl IntoIterator<Item = WebviewWindow> {
+    let raw = inner::getAll();
+
+    ArrayIterator::new(raw).map(|r| WebviewWindow(inner::WebviewWindow::from(r)))
 }
 
 /// Returns the monitor on which the window currently resides.
@@ -1041,29 +1043,6 @@ pub async fn primary_monitor() -> crate::Result<Option<Monitor>> {
     }
 }
 
-#[derive(Debug, Clone)]
-pub struct AvailableMonitors {
-    idx: u32,
-    array: js_sys::Array,
-}
-
-impl Iterator for AvailableMonitors {
-    type Item = Monitor;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        let raw = self.array.get(self.idx);
-
-        if raw.is_undefined() {
-            None
-        } else {
-            let monitor = Monitor(raw);
-            self.idx += 1;
-
-            Some(monitor)
-        }
-    }
-}
-
 /// Returns the list of all the monitors available on the system.
 ///
 /// # Example
@@ -1081,16 +1060,17 @@ impl Iterator for AvailableMonitors {
 /// # Ok(())
 /// # }
 /// ```
-pub async fn available_monitors() -> crate::Result<AvailableMonitors> {
+pub async fn available_monitors() -> crate::Result<impl Iterator<Item = Monitor>> {
     let raw = inner::availableMonitors().await?;
+    let raw = Array::try_from(raw).unwrap();
 
-    Ok(AvailableMonitors {
-        idx: 0,
-        array: raw.unchecked_into(),
-    })
+    let monitors = ArrayIterator::new(raw).map(Monitor);
+
+    Ok(monitors)
 }
 
 mod inner {
+    use js_sys::Array;
     use wasm_bindgen::{
         prelude::{wasm_bindgen, Closure},
         JsValue,
@@ -1339,7 +1319,7 @@ mod inner {
     #[wasm_bindgen(module = "/src/window.js")]
     extern "C" {
         pub fn getCurrent() -> WebviewWindow;
-        pub fn getAll() -> Vec<WebviewWindow>;
+        pub fn getAll() -> Array;
         #[wasm_bindgen(catch)]
         pub async fn currentMonitor() -> Result<JsValue, JsValue>;
         #[wasm_bindgen(catch)]

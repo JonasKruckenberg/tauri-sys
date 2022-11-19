@@ -19,9 +19,11 @@
 //! ```
 //! It is recommended to allowlist only the APIs you use for optimal bundle size and security.
 
+use js_sys::Array;
 use serde::Serialize;
 use std::path::{Path, PathBuf};
 
+use crate::ArrayIterator;
 #[derive(Debug, Clone, Copy, Hash, Serialize)]
 struct DialogFilter<'a> {
     extensions: &'a [&'a str],
@@ -157,12 +159,19 @@ impl<'a> FileDialogBuilder<'a> {
     /// ```
     /// 
     /// Requires [`allowlist > dialog > open`](https://tauri.app/v1/api/config#dialogallowlistconfig.open) to be enabled.
-    pub async fn pick_files(mut self) -> crate::Result<Option<Vec<PathBuf>>> {
+    pub async fn pick_files(mut self) -> crate::Result<Option<impl Iterator<Item = PathBuf>>> {
         self.multiple = true;
 
         let raw = inner::open(serde_wasm_bindgen::to_value(&self)?).await?;
 
-        Ok(serde_wasm_bindgen::from_value(raw)?)
+        if let Ok(files) = Array::try_from(raw) {
+            let files =
+                ArrayIterator::new(files).map(|raw| serde_wasm_bindgen::from_value(raw).unwrap());
+
+            Ok(Some(files))
+        } else {
+            Ok(None)
+        }
     }
 
     /// Shows the dialog to select a single folder.
@@ -201,13 +210,20 @@ impl<'a> FileDialogBuilder<'a> {
     /// ```
     /// 
     /// Requires [`allowlist > dialog > open`](https://tauri.app/v1/api/config#dialogallowlistconfig.open) to be enabled.
-    pub async fn pick_folders(mut self) -> crate::Result<Option<Vec<PathBuf>>> {
+    pub async fn pick_folders(mut self) -> crate::Result<Option<impl Iterator<Item = PathBuf>>> {
         self.directory = true;
         self.multiple = true;
 
         let raw = inner::open(serde_wasm_bindgen::to_value(&self)?).await?;
 
-        Ok(serde_wasm_bindgen::from_value(raw)?)
+        if let Ok(files) = Array::try_from(raw) {
+            let files =
+                ArrayIterator::new(files).map(|raw| serde_wasm_bindgen::from_value(raw).unwrap());
+
+            Ok(Some(files))
+        } else {
+            Ok(None)
+        }
     }
 
     /// Open a file/directory save dialog.
