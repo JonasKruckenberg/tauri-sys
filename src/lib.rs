@@ -118,14 +118,13 @@
 //! abort_handle.abort();
 //! ```
 
-use wasm_bindgen::JsValue;
-
 #[cfg(feature = "app")]
 pub mod app;
 #[cfg(feature = "clipboard")]
 pub mod clipboard;
 #[cfg(feature = "dialog")]
 pub mod dialog;
+mod error;
 #[cfg(feature = "event")]
 pub mod event;
 #[cfg(feature = "global_shortcut")]
@@ -147,35 +146,32 @@ pub mod updater;
 #[cfg(feature = "window")]
 pub mod window;
 
-#[derive(Debug, thiserror::Error)]
-pub enum Error {
-    #[error("{0}")]
-    Serde(String),
-    #[error("Unknown Theme \"{0}\". Expected one of \"light\",\"dark\"")]
-    UnknownTheme(String),
-    #[error("{0}")]
-    Other(String),
-    #[cfg(feature = "tauri")]
-    #[error("Invalid Url {0}")]
-    InvalidUrl(#[from] url::ParseError),
-    #[cfg(feature = "app")]
-    #[error("Invalid Version {0}")]
-    InvalidVersion(#[from] semver::Error),
-    #[cfg(any(feature = "event", feature = "updater", feature = "window"))]
-    #[error(transparent)]
-    Recv(#[from] futures::channel::oneshot::Canceled)
+pub(crate) use error::Error;
+pub(crate) type Result<T> = core::result::Result<T, Error>;
+
+pub(crate) struct ArrayIterator {
+    pos: u32,
+    arr: js_sys::Array,
 }
 
-impl From<serde_wasm_bindgen::Error> for Error {
-    fn from(e: serde_wasm_bindgen::Error) -> Self {
-        Self::Serde(format!("{:?}", e))
+impl ArrayIterator {
+    pub fn new(arr: js_sys::Array) -> Self {
+        Self { pos: 0, arr }
     }
 }
 
-impl From<JsValue> for Error {
-    fn from(e: JsValue) -> Self {
-        Self::Serde(format!("{:?}", e))
+impl Iterator for ArrayIterator {
+    type Item = wasm_bindgen::JsValue;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let raw = self.arr.get(self.pos);
+
+        if raw.is_undefined() {
+            None
+        } else {
+            self.pos += 1;
+
+            Some(raw)
+        }
     }
 }
-
-pub(crate) type Result<T> = std::result::Result<T, Error>;
