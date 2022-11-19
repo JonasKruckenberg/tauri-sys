@@ -232,138 +232,161 @@ impl<'a> WebviewWindowBuilder<'a> {
     /// - URL such as `https://github.com/tauri-apps` is opened directly on a Tauri window.
     /// - data: URL such as `data:text/html,<html>...` is only supported with the `window-data-url` Cargo feature for the `tauri` dependency.
     /// - local file path or route such as `/path/to/page.html` or `/users` is appended to the application URL (the devServer URL on development, or `tauri://localhost/` and `https://tauri.localhost/` on production).
-    pub fn set_url(&mut self, url: &'a str) {
+    pub fn set_url(&mut self, url: &'a str) -> &mut Self {
         self.inner.url = Some(url);
+        self
     }
 
     /// Show window in the center of the screen.
-    pub fn set_center(&mut self, center: bool) {
+    pub fn set_center(&mut self, center: bool) -> &mut Self {
         self.inner.center = center;
+        self
     }
 
     /// The initial position.
-    pub fn set_position(&mut self, position: PhysicalPosition) {
+    pub fn set_position(&mut self, position: PhysicalPosition) -> &mut Self  {
         self.inner.x = Some(position.x());
         self.inner.y = Some(position.y());
+        self
     }
 
     /// The initial size.
-    pub fn set_size(&mut self, size: PhysicalSize) {
+    pub fn set_size(&mut self, size: PhysicalSize) -> &mut Self {
         self.inner.width = Some(size.width());
         self.inner.height = Some(size.height());
+        self
     }
 
     /// Minimum window size.
-    pub fn set_min_size(&mut self, min_size: PhysicalSize) {
+    pub fn set_min_size(&mut self, min_size: PhysicalSize) -> &mut Self {
         self.inner.min_width = Some(min_size.width());
         self.inner.min_height = Some(min_size.height());
+        self
     }
 
     /// Maximum window size.
-    pub fn set_max_size(&mut self, max_size: PhysicalSize) {
+    pub fn set_max_size(&mut self, max_size: PhysicalSize) -> &mut Self {
         self.inner.max_width = Some(max_size.width());
         self.inner.max_height = Some(max_size.height());
+        self
     }
 
     /// Whether the window is resizable or not.
-    pub fn set_resizable(&mut self, resizable: bool) {
+    pub fn set_resizable(&mut self, resizable: bool) -> &mut Self {
         self.inner.resizable = resizable;
+        self
     }
 
     /// Window title.
-    pub fn set_title(&mut self, title: &'a str) {
+    pub fn set_title(&mut self, title: &'a str) -> &mut Self {
         self.inner.title = Some(title);
+        self
     }
 
     /// Whether the window is in fullscreen mode or not.
-    pub fn set_fullscreen(&mut self, fullscreen: bool) {
+    pub fn set_fullscreen(&mut self, fullscreen: bool) -> &mut Self {
         self.inner.fullscreen = fullscreen;
+        self
     }
 
     /// Whether the window will be initially focused or not.
-    pub fn set_focus(&mut self, focus: bool) {
+    pub fn set_focus(&mut self, focus: bool) -> &mut Self {
         self.inner.focus = focus;
+        self
     }
 
     /// Whether the window is transparent or not.
     ///
     /// Note that on `macOS` this requires the `macos-private-api` feature flag, enabled under `tauri.conf.json > tauri > macOSPrivateApi`.
     /// WARNING: Using private APIs on `macOS` prevents your application from being accepted to the `App Store`.
-    pub fn set_transparent(&mut self, transparent: bool) {
+    pub fn set_transparent(&mut self, transparent: bool) -> &mut Self {
         self.inner.transparent = transparent;
+        self
     }
 
     /// Whether the window should be maximized upon creation or not.
-    pub fn set_maximized(&mut self, maximized: bool) {
+    pub fn set_maximized(&mut self, maximized: bool) -> &mut Self {
         self.inner.maximized = maximized;
+        self
     }
 
     /// Whether the window should be immediately visible upon creation or not.
-    pub fn set_visible(&mut self, visible: bool) {
+    pub fn set_visible(&mut self, visible: bool) -> &mut Self {
         self.inner.visible = visible;
+        self
     }
 
     /// Whether the window should have borders and bars or not.
-    pub fn set_decorations(&mut self, decorations: bool) {
+    pub fn set_decorations(&mut self, decorations: bool) -> &mut Self {
         self.inner.decorations = decorations;
+        self
     }
 
     /// Whether the window should always be on top of other windows or not.
-    pub fn set_always_on_top(&mut self, always_on_top: bool) {
+    pub fn set_always_on_top(&mut self, always_on_top: bool) -> &mut Self {
         self.inner.always_on_top = always_on_top;
+        self
     }
 
     /// Whether or not the window icon should be added to the taskbar.
-    pub fn set_skip_taskbar(&mut self, skip_taskbar: bool) {
+    pub fn set_skip_taskbar(&mut self, skip_taskbar: bool) -> &mut Self {
         self.inner.skip_taskbar = skip_taskbar;
+        self
     }
 
     /// Whether the file drop is enabled or not on the webview. By default it is enabled.
     ///
     /// Disabling it is required to use drag and drop on the frontend on Windows.
-    pub fn set_file_drop_enabled(&mut self, file_drop_enabled: bool) {
+    pub fn set_file_drop_enabled(&mut self, file_drop_enabled: bool) -> &mut Self {
         self.inner.file_drop_enabled = file_drop_enabled;
+        self
     }
 
     /// The initial window theme. Defaults to the system theme.
     ///
     /// Only implemented on Windows and macOS 10.14+.
-    pub fn set_theme(&mut self, theme: Theme) {
+    pub fn set_theme(&mut self, theme: Theme) -> &mut Self {
         self.inner.theme = Some(theme);
+        self
     }
 
     /// The style of the macOS title bar.
-    pub fn set_title_bar_style(&mut self, title_bar_style: TitleBarStyle) {
+    pub fn set_title_bar_style(&mut self, title_bar_style: TitleBarStyle) -> &mut Self {
         self.inner.title_bar_style = Some(title_bar_style);
+        self
     }
 
     /// If `true`, sets the window title to be hidden on macOS.
-    pub fn set_hidden_title(&mut self, hidden_title: bool) {
+    pub fn set_hidden_title(&mut self, hidden_title: bool) -> &mut Self {
         self.inner.hidden_title = hidden_title;
+        self
     }
 
     /// Whether clicking an inactive window also clicks through to the webview.
-    pub fn set_accept_first_mouse(&mut self, accept_first_mouse: bool) {
+    pub fn set_accept_first_mouse(&mut self, accept_first_mouse: bool) -> &mut Self {
         self.inner.accept_first_mouse = accept_first_mouse;
+        self
     }
 
     /// Defines the window [tabbing identifier](https://developer.apple.com/documentation/appkit/nswindow/1644704-tabbingidentifier) on macOS.
     ///
     /// Windows with the same tabbing identifier will be grouped together.
     /// If the tabbing identifier is not set, automatic tabbing will be disabled.
-    pub fn set_tabbing_identifier(&mut self, tabbing_identifier: &'a str) {
+    pub fn set_tabbing_identifier(&mut self, tabbing_identifier: &'a str) -> &mut Self {
         self.inner.tabbing_identifier = Some(tabbing_identifier);
+        self
     }
 
     /// The user agent for the webview.
-    pub fn set_user_agent(&mut self, user_agent: &'a str) {
+    pub fn set_user_agent(&mut self, user_agent: &'a str) -> &mut Self {
         self.inner.user_agent = Some(user_agent);
+        self
     }
 
     /// Creates a new webview window.
     ///
     /// Requires [`allowlist > window > create`](https://tauri.app/v1/api/config#windowallowlistconfig.create) to be enabled.
-    pub fn build(self) -> crate::Result<WebviewWindow> {
+    pub fn build(&self) -> crate::Result<WebviewWindow> {
         let opts = serde_wasm_bindgen::to_value(&self.inner)?;
 
         Ok(WebviewWindow(inner::WebviewWindow::new(self.label, opts)))

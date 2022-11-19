@@ -8,6 +8,14 @@
   </p>
 </div>
 
+[![Documentation master][docs-badge]][docs-url]
+[![MIT licensed][mit-badge]][mit-url]
+
+[docs-badge]: https://img.shields.io/badge/docs-main-blue
+[docs-url]: https://jonaskruckenberg.github.io/tauri-sys/tauri_sys
+[mit-badge]: https://img.shields.io/badge/license-MIT-blue.svg
+[mit-url]: LICENSE
+
 ## Installation
 
 This crate is not yet published to crates.io, so you need to use it from git. You also need a global installation of [`esbuild`].
