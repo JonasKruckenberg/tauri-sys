@@ -23,7 +23,7 @@ use js_sys::Array;
 use serde::Serialize;
 use std::path::{Path, PathBuf};
 
-use crate::ArrayIterator;
+use crate::utils::ArrayIterator;
 #[derive(Debug, Clone, Copy, Hash, Serialize)]
 struct DialogFilter<'a> {
     extensions: &'a [&'a str],

@@ -149,29 +149,32 @@ pub mod window;
 pub(crate) use error::Error;
 pub(crate) type Result<T> = core::result::Result<T, Error>;
 
-pub(crate) struct ArrayIterator {
-    pos: u32,
-    arr: js_sys::Array,
-}
-
-impl ArrayIterator {
-    pub fn new(arr: js_sys::Array) -> Self {
-        Self { pos: 0, arr }
+#[cfg(any(feature = "dialog", feature = "window"))]
+pub(crate) mod utils {
+    pub struct ArrayIterator {
+        pos: u32,
+        arr: js_sys::Array,
     }
-}
-
-impl Iterator for ArrayIterator {
-    type Item = wasm_bindgen::JsValue;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        let raw = self.arr.get(self.pos);
-
-        if raw.is_undefined() {
-            None
-        } else {
-            self.pos += 1;
-
-            Some(raw)
+    
+    impl ArrayIterator {
+        pub fn new(arr: js_sys::Array) -> Self {
+            Self { pos: 0, arr }
+        }
+    }
+    
+    impl Iterator for ArrayIterator {
+        type Item = wasm_bindgen::JsValue;
+    
+        fn next(&mut self) -> Option<Self::Item> {
+            let raw = self.arr.get(self.pos);
+    
+            if raw.is_undefined() {
+                None
+            } else {
+                self.pos += 1;
+    
+                Some(raw)
+            }
         }
     }
 }

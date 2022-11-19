@@ -174,7 +174,7 @@ impl<T> Stream for Listen<T> {
 // }
 
 mod inner {
-    use js_sys::Array;
+    // use js_sys::Array;
     use wasm_bindgen::{
         prelude::{wasm_bindgen, Closure},
         JsValue,
@@ -189,11 +189,11 @@ mod inner {
             shortcut: &str,
             handler: &Closure<dyn FnMut(JsValue)>,
         ) -> Result<(), JsValue>;
-        #[wasm_bindgen(catch)]
-        pub async fn registerAll(
-            shortcuts: Array,
-            handler: &Closure<dyn FnMut(JsValue)>,
-        ) -> Result<(), JsValue>;
+        // #[wasm_bindgen(catch)]
+        // pub async fn registerAll(
+        //     shortcuts: Array,
+        //     handler: &Closure<dyn FnMut(JsValue)>,
+        // ) -> Result<(), JsValue>;
         pub fn unregister(shortcut: JsValue);
     }
 }

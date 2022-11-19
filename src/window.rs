@@ -43,11 +43,12 @@
 //! ```
 //! It is recommended to allowlist only the APIs you use for optimal bundle size and security.
 
-use crate::event::{Event, Listen, Once};
+use crate::{event::{Event, Listen, Once}, utils::ArrayIterator};
 use futures::{
     channel::{mpsc, oneshot},
     Stream,
 };
+use js_sys::Array;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use std::fmt::Display;
 use wasm_bindgen::{prelude::Closure, JsCast, JsValue};
