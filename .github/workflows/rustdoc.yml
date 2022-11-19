@@ -11,7 +11,7 @@ on:
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
-  contents: write
+  contents: read
   pages: write
   id-token: write
 
@@ -48,10 +48,17 @@ jobs:
           args: -p tauri-sys --all-features --no-deps
           
       - name: Create index.html
-        run: echo "<meta http-equiv="refresh" content="0; url=tauri_sys">" > ./target/doc/index.html
+        run: echo '<meta http-equiv="refresh" content="0; url=tauri_sys">' > ./target/doc/index.html
+          
+      - name: Setup Pages
+        uses: actions/configure-pages@v2
+        
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          # Upload entire repository
+          path: './target/doc'
           
       - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4.4.1
-        with:
-          folder: ./target/doc
-          single-commit: true
+        id: deployment
+        uses: actions/deploy-pages@v1
