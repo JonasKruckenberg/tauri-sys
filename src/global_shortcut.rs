@@ -1,7 +1,31 @@
 //! Register global shortcuts.
-//! 
+//!
+//! ## Differences to the JavaScript API
+//!
+//! ## `registerAll`
+//!
+//! ```rust,no_run
+//! # async fn main() -> Result<(), Box<dyn std::error::Error>> {
+//! let shortcuts = ["CommandOrControl+Shift+C", "Ctrl+Alt+F12"];
+//!
+//! let streams = futures::future::try_join_all(shortcuts.map(|s| async move {
+//!     let stream = global_shortcut::register(s).await?;
+//!
+//!     anyhow::Ok(stream.map(move |_| s))
+//! }))
+//! .await?;
+//!
+//! let mut events = futures::stream::select_all(streams);
+//!
+//! while let Some(shortcut) = events.next().await {
+//!     log::debug!("Shortcut {} triggered", shortcut)
+//! }
+//! # Ok(())
+//! # }
+//! ```
+//!
 //! The APIs must be added to tauri.allowlist.globalShortcut in tauri.conf.json:
-//! 
+//!
 //! ```json
 //! {
 //!     "tauri": {
@@ -15,15 +39,16 @@
 //! ```
 //! It is recommended to allowlist only the APIs you use for optimal bundle size and security.
 
+use futures::{channel::mpsc, Stream, StreamExt};
 use wasm_bindgen::{prelude::Closure, JsValue};
 
 /// Determines whether the given shortcut is registered by this application or not.
-/// 
+///
 /// # Example
-/// 
+///
 /// ```rust,no_run
 /// use tauri_sys::global_shortcut::is_registered;
-/// 
+///
 /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// let registered = is_registered("CommandOrControl+P").await?;
 /// # Ok(())
@@ -36,107 +61,120 @@ pub async fn is_registered(shortcut: &str) -> crate::Result<bool> {
 }
 
 /// Register a global shortcut.
-/// 
-/// # Example
-/// 
+///
+/// The returned Future will automatically clean up it's underlying event listener when dropped, so no manual unlisten function needs to be called.
+/// See [Differences to the JavaScript API](../index.html#differences-to-the-javascript-api) for details.
+///
+/// # Examples
+///
 /// ```rust,no_run
 /// use tauri_sys::global_shortcut::register;
 /// use web_sys::console;
-/// 
+///
 /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
-/// register("CommandOrControl+Shift+C", |_| {
+/// let events = register("CommandOrControl+Shift+C").await?;
+///
+/// while let Some(_) in events.next().await {
 ///     console::log_1(&"Shortcut triggered".into());
-/// }).await?;
+/// }
 /// # Ok(())
 /// # }
 /// ```
-pub async fn register<H>(shortcut: &str, mut handler: H) -> crate::Result<()>
-where
-    H: FnMut(&str) + 'static,
-{
-    let closure = Closure::<dyn FnMut(JsValue)>::new(move |raw: JsValue| {
-        let raw = raw.as_string().unwrap();
-        (handler)(raw.as_str())
+pub async fn register(shortcut: &str) -> crate::Result<impl Stream<Item = ()>> {
+    let (tx, rx) = mpsc::unbounded();
+
+    let closure = Closure::<dyn FnMut(JsValue)>::new(move |_| {
+        let _ = tx.unbounded_send(());
     });
-
     inner::register(shortcut, &closure).await?;
-
     closure.forget();
 
-    Ok(())
+    Ok(Listen {
+        shortcut: JsValue::from_str(shortcut),
+        rx,
+    })
+}
+
+struct Listen<T> {
+    pub shortcut: JsValue,
+    pub rx: mpsc::UnboundedReceiver<T>,
+}
+
+impl<T> Drop for Listen<T> {
+    fn drop(&mut self) {
+        log::debug!("Unregistering shortcut {:?}", self.shortcut);
+        inner::unregister(self.shortcut.clone());
+    }
+}
+
+impl<T> Stream for Listen<T> {
+    type Item = T;
+
+    fn poll_next(
+        mut self: std::pin::Pin<&mut Self>,
+        cx: &mut std::task::Context<'_>,
+    ) -> std::task::Poll<Option<Self::Item>> {
+        self.rx.poll_next_unpin(cx)
+    }
 }
 
 /// Register a collection of global shortcuts.
-/// 
+///
 /// # Example
-/// 
+///
 /// ```rust,no_run
-/// use tauri_sys::global_shortcut::register_all;
-/// 
+/// use tauri_sys::global_shortcut::register;
+/// use web_sys::console;
+///
 /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
-/// let registered = register_all(["CommandOrControl+Shift+C", "Ctrl+Alt+F12"], |shortcut| {
+/// let events = register_all(["CommandOrControl+Shift+C", "Ctrl+Alt+F12"]).await?;
+///
+/// while let Some(shortcut) in events.next().await {
 ///     console::log_1(&format!("Shortcut {} triggered", shortcut).into());
-/// }).await?;
+/// }
 /// # Ok(())
 /// # }
 /// ```
-pub async fn register_all<'a, I, H>(shortcuts: I, mut handler: H) -> crate::Result<()>
-where
-    I: IntoIterator<Item = &'a str>,
-    H: FnMut(&str) + 'static,
-{
-    let shortcuts = shortcuts.into_iter().map(JsValue::from_str).collect();
+// pub async fn register_all<I>(shortcuts: impl IntoIterator<Item = &str>) -> crate::Result<impl Stream<Item = String>>
+// {
+//     let shortcuts: Array = shortcuts.into_iter().map(JsValue::from_str).collect();
+//     let (tx, rx) = mpsc::unbounded::<String>();
 
-    let closure = Closure::<dyn FnMut(JsValue)>::new(move |raw: JsValue| {
-        let raw = raw.as_string().unwrap();
-        (handler)(raw.as_str())
-    });
+//     let closure = Closure::<dyn FnMut(JsValue)>::new(move |raw| {
+//         let _ = tx.unbounded_send(serde_wasm_bindgen::from_value(raw).unwrap());
+//     });
+//     inner::registerAll(shortcuts.clone(), &closure).await?;
+//     closure.forget();
 
-    inner::registerAll(shortcuts, &closure).await?;
+//     Ok(ListenAll { shortcuts, rx })
+// }
 
-    closure.forget();
+// struct ListenAll<T> {
+//     pub shortcuts: js_sys::Array,
+//     pub rx: mpsc::UnboundedReceiver<T>,
+// }
 
-    Ok(())
-}
+// impl<T> Drop for ListenAll<T> {
+//     fn drop(&mut self) {
+//         for shortcut in self.shortcuts.iter() {
+//             inner::unregister(shortcut);
+//         }
+//     }
+// }
 
-/// Unregister a global shortcut.
-/// 
-/// # Example
-/// 
-/// ```rust,no_run
-/// use tauri_sys::global_shortcut::unregister;
-/// 
-/// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
-/// unregister("CmdOrControl+Space").await?;
-/// # Ok(())
-/// # }
-/// ```
-pub async fn unregister(shortcut: &str) -> crate::Result<()> {
-    inner::unregister(shortcut).await?;
+// impl<T> Stream for ListenAll<T> {
+//     type Item = T;
 
-    Ok(())
-}
-
-/// Unregisters all shortcuts registered by the application.
-/// 
-/// # Example
-/// 
-/// ```rust,no_run
-/// use tauri_sys::global_shortcut::unregister_all;
-/// 
-/// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
-/// unregister_all().await?;
-/// # Ok(())
-/// # }
-/// ```
-pub async fn unregister_all() -> crate::Result<()> {
-    inner::unregisterAll().await?;
-
-    Ok(())
-}
+//     fn poll_next(
+//         mut self: std::pin::Pin<&mut Self>,
+//         cx: &mut std::task::Context<'_>,
+//     ) -> std::task::Poll<Option<Self::Item>> {
+//         self.rx.poll_next_unpin(cx)
+//     }
+// }
 
 mod inner {
-    use js_sys::Array;
+    // use js_sys::Array;
     use wasm_bindgen::{
         prelude::{wasm_bindgen, Closure},
         JsValue,
@@ -151,14 +189,11 @@ mod inner {
             shortcut: &str,
             handler: &Closure<dyn FnMut(JsValue)>,
         ) -> Result<(), JsValue>;
-        #[wasm_bindgen(catch)]
-        pub async fn registerAll(
-            shortcuts: Array,
-            handler: &Closure<dyn FnMut(JsValue)>,
-        ) -> Result<(), JsValue>;
-        #[wasm_bindgen(catch)]
-        pub async fn unregister(shortcut: &str) -> Result<(), JsValue>;
-        #[wasm_bindgen(catch)]
-        pub async fn unregisterAll() -> Result<(), JsValue>;
+        // #[wasm_bindgen(catch)]
+        // pub async fn registerAll(
+        //     shortcuts: Array,
+        //     handler: &Closure<dyn FnMut(JsValue)>,
+        // ) -> Result<(), JsValue>;
+        pub fn unregister(shortcut: JsValue);
     }
 }

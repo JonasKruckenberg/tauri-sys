@@ -53,7 +53,7 @@ pub async fn pick_files() -> anyhow::Result<()> {
         .await?;
 
     ensure!(file.is_some());
-    ensure!(file.unwrap().len() > 1);
+    ensure!(file.unwrap().count() > 1);
 
     Ok(())
 }
@@ -76,7 +76,7 @@ pub async fn pick_folders() -> anyhow::Result<()> {
         .await?;
 
     ensure!(file.is_some());
-    ensure!(file.unwrap().len() > 1);
+    ensure!(file.unwrap().count() > 1);
 
     Ok(())
 }

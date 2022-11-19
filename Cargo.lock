@@ -1031,6 +1031,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "gloo-timers"
+version = "0.2.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5fb7d06c1c8cc2a29bee7ec961009a0b2caa0793ee4900c2ffb348734ba1c8f9"
+dependencies = [
+ "futures-channel",
+ "futures-core",
+ "js-sys",
+ "wasm-bindgen",
+]
+
+[[package]]
 name = "gobject-sys"
 version = "0.15.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3031,6 +3043,7 @@ dependencies = [
 name = "tauri-sys"
 version = "0.1.0"
 dependencies = [
+ "futures",
  "js-sys",
  "log",
  "semver 1.0.14",
@@ -3061,6 +3074,8 @@ version = "0.0.0"
 dependencies = [
  "anyhow",
  "console_error_panic_hook",
+ "futures",
+ "gloo-timers",
  "log",
  "serde",
  "sycamore",

@@ -1,5 +1,5 @@
 //! Provides APIs to create windows, communicate with other windows and manipulate the current window.
-//! 
+//!
 //! The APIs must be added to tauri.allowlist.window in tauri.conf.json:
 //! ```json
 //! {
@@ -43,7 +43,12 @@
 //! ```
 //! It is recommended to allowlist only the APIs you use for optimal bundle size and security.
 
-use crate::event::Event;
+use crate::{event::{Event, Listen, Once}, utils::ArrayIterator};
+use futures::{
+    channel::{mpsc, oneshot},
+    Stream,
+};
+use js_sys::Array;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use std::fmt::Display;
 use wasm_bindgen::{prelude::Closure, JsCast, JsValue};
@@ -178,6 +183,7 @@ impl Display for CursorIcon {
 }
 
 #[derive(Debug, Default, Clone, Serialize)]
+#[serde(rename = "camelCase")]
 struct WebviewWindowOptions<'a> {
     url: Option<&'a str>,
     center: bool,
@@ -379,7 +385,7 @@ impl<'a> WebviewWindowBuilder<'a> {
     }
 
     /// Creates a new webview window.
-    /// 
+    ///
     /// Requires [`allowlist > window > create`](https://tauri.app/v1/api/config#windowallowlistconfig.create) to be enabled.
     pub fn build(&self) -> crate::Result<WebviewWindow> {
         let opts = serde_wasm_bindgen::to_value(&self.inner)?;
@@ -485,7 +491,7 @@ impl WebviewWindow {
     }
 
     /// Centers the window.
-    /// 
+    ///
     /// Requires [`allowlist > window > center`](https://tauri.app/v1/api/config#windowallowlistconfig.center) to be enabled.
     pub async fn center(&self) -> crate::Result<()> {
         Ok(self.0.center().await?)
@@ -498,7 +504,7 @@ impl WebviewWindow {
     /// #### Platform-specific
     /// - macOS: None has no effect.
     /// - Linux: Urgency levels have the same effect.
-    /// 
+    ///
     /// Requires [`allowlist > window > requestUserAttention`](https://tauri.app/v1/api/config#windowallowlistconfig.requestuserattention) to be enabled.
     pub async fn request_user_attention(
         &self,
@@ -507,38 +513,38 @@ impl WebviewWindow {
         Ok(self.0.requestUserAttention(request_type as u32).await?)
     }
 
-    /// Opens the dialog to prints the contents of the webview. 
-    /// 
+    /// Opens the dialog to prints the contents of the webview.
+    ///
     /// Currently only supported on macOS on wry. window.print() works on all platforms.
-    /// 
+    ///
     /// Requires [`allowlist > window > print`](https://tauri.app/v1/api/config#windowallowlistconfig.print) to be enabled.
     pub fn print(&self) -> crate::Result<()> {
         todo!()
     }
 
     /// Determines if this window should be resizable.
-    /// 
+    ///
     /// Requires [`allowlist > window > setResizable`](https://tauri.app/v1/api/config#windowallowlistconfig.setresizable) to be enabled.
     pub async fn set_resizable(&self, resizable: bool) -> crate::Result<()> {
         Ok(self.0.setResizable(resizable).await?)
     }
 
     /// Set this window’s title.
-    /// 
+    ///
     /// Requires [`allowlist > window > setTitle`](https://tauri.app/v1/api/config#windowallowlistconfig.settitle) to be enabled.
     pub async fn set_title(&self, title: impl AsRef<str>) -> crate::Result<()> {
         Ok(self.0.setTitle(title.as_ref()).await?)
     }
 
     /// Maximizes this window.
-    /// 
+    ///
     /// Requires [`allowlist > window > maximize`](https://tauri.app/v1/api/config#windowallowlistconfig.maximize) to be enabled.
     pub async fn maximize(&self) -> crate::Result<()> {
         Ok(self.0.maximize().await?)
     }
 
     /// Un-maximizes this window.
-    /// 
+    ///
     /// Requires [`allowlist > window > unmaximize`](https://tauri.app/v1/api/config#windowallowlistconfig.unmaximize) to be enabled.
     pub async fn unmaximize(&self) -> crate::Result<()> {
         Ok(self.0.unmaximize().await?)
@@ -549,56 +555,56 @@ impl WebviewWindow {
     }
 
     /// Minimizes this window.
-    /// 
+    ///
     /// Requires [`allowlist > window > minimize`](https://tauri.app/v1/api/config#windowallowlistconfig.minimize) to be enabled.
     pub async fn minimize(&self) -> crate::Result<()> {
         Ok(self.0.minimize().await?)
     }
 
     /// Un-minimizes this window.
-    /// 
+    ///
     /// Requires [`allowlist > window > unminimize`](https://tauri.app/v1/api/config#windowallowlistconfig.unminimize) to be enabled.
     pub async fn unminimize(&self) -> crate::Result<()> {
         Ok(self.0.unminimize().await?)
     }
 
     /// Show this window.
-    /// 
+    ///
     /// Requires [`allowlist > window > show`](https://tauri.app/v1/api/config#windowallowlistconfig.show) to be enabled.
     pub async fn show(&self) -> crate::Result<()> {
         Ok(self.0.show().await?)
     }
 
     /// Hide this window.
-    /// 
+    ///
     /// Requires [`allowlist > window > hide`](https://tauri.app/v1/api/config#windowallowlistconfig.hide) to be enabled.
     pub async fn hide(&self) -> crate::Result<()> {
         Ok(self.0.hide().await?)
     }
 
     /// Closes this window.
-    /// 
+    ///
     /// Requires [`allowlist > window > close`](https://tauri.app/v1/api/config#windowallowlistconfig.close) to be enabled.
     pub async fn close(&self) -> crate::Result<()> {
         Ok(self.0.close().await?)
     }
 
     /// Determines if this window should be [decorated](https://en.wikipedia.org/wiki/Window_(computing)#Window_decoration).
-    /// 
+    ///
     /// Requires [`allowlist > window > setDecorations`](https://tauri.app/v1/api/config#windowallowlistconfig.setdecorations) to be enabled.
     pub async fn set_decorations(&self, decorations: bool) -> crate::Result<()> {
         Ok(self.0.setDecorations(decorations).await?)
     }
 
     /// Determines if this window should always be on top of other windows.
-    /// 
+    ///
     /// Requires [`allowlist > window > setAlwaysOnTop`](https://tauri.app/v1/api/config#windowallowlistconfig.setalwaysontop) to be enabled.
     pub async fn set_always_on_top(&self, always_on_top: bool) -> crate::Result<()> {
         Ok(self.0.setAlwaysOnTop(always_on_top).await?)
     }
 
     /// Resizes this window.
-    /// 
+    ///
     /// Requires [`allowlist > window > setSize`](https://tauri.app/v1/api/config#windowallowlistconfig.setsize) to be enabled.
     pub async fn set_size(&self, size: impl Into<Size>) -> crate::Result<()> {
         match size.into() {
@@ -610,7 +616,7 @@ impl WebviewWindow {
     }
 
     /// Sets this window’s minimum size.
-    /// 
+    ///
     /// Requires [`allowlist > window > setMinSize`](https://tauri.app/v1/api/config#windowallowlistconfig.setminsize) to be enabled.
     pub async fn set_min_size(&self, size: Option<impl Into<Size>>) -> crate::Result<()> {
         match size.map(Into::into) {
@@ -623,7 +629,7 @@ impl WebviewWindow {
     }
 
     /// Sets this window’s maximum size.
-    /// 
+    ///
     /// Requires [`allowlist > window > setMaxSize`](https://tauri.app/v1/api/config#windowallowlistconfig.setmaxsize) to be enabled.
     pub async fn set_max_size(&self, size: Option<impl Into<Size>>) -> crate::Result<()> {
         match size.map(Into::into) {
@@ -636,7 +642,7 @@ impl WebviewWindow {
     }
 
     /// Sets this window’s position.
-    /// 
+    ///
     /// Requires [`allowlist > window > setPosition`](https://tauri.app/v1/api/config#windowallowlistconfig.setposition) to be enabled.
     pub async fn set_position(&self, position: impl Into<Position>) -> crate::Result<()> {
         match position.into() {
@@ -648,28 +654,28 @@ impl WebviewWindow {
     }
 
     /// Determines if this window should be fullscreen.
-    /// 
+    ///
     /// Requires [`allowlist > window > setFullscreen`](https://tauri.app/v1/api/config#windowallowlistconfig.setfullscreen) to be enabled.
     pub async fn set_fullscreen(&self, fullscreen: bool) -> crate::Result<()> {
         Ok(self.0.setFullscreen(fullscreen).await?)
     }
 
     /// Bring the window to front and focus.
-    /// 
+    ///
     /// Requires [`allowlist > window > setFocus`](https://tauri.app/v1/api/config#windowallowlistconfig.setfocus) to be enabled.
     pub async fn set_focus(&self) -> crate::Result<()> {
         Ok(self.0.setFocus().await?)
     }
 
     /// Sets this window’ icon.
-    /// 
+    ///
     /// Requires [`allowlist > window > setIcon`](https://tauri.app/v1/api/config#windowallowlistconfig.seticon) to be enabled.
     pub async fn set_icon(&self, icon: &[u8]) -> crate::Result<()> {
         Ok(self.0.setIcon(icon).await?)
     }
 
     /// Whether to show the window icon in the task bar or not.
-    /// 
+    ///
     /// Requires [`allowlist > window > setSkipTaskbar`](https://tauri.app/v1/api/config#windowallowlistconfig.setskiptaskbar) to be enabled.
     pub async fn set_skip_taskbar(&self, skip: bool) -> crate::Result<()> {
         Ok(self.0.setSkipTaskbar(skip).await?)
@@ -682,7 +688,7 @@ impl WebviewWindow {
     /// #### Platform-specific
     /// - Linux: Unsupported.
     /// - macOS: This locks the cursor in a fixed location, which looks visually awkward.
-    /// 
+    ///
     /// Requires [`allowlist > window > setCursorGrab`](https://tauri.app/v1/api/config#windowallowlistconfig.setcursorgrab) to be enabled.
     pub async fn set_cursor_grab(&self, grab: bool) -> crate::Result<()> {
         Ok(self.0.setCursorGrab(grab).await?)
@@ -695,21 +701,21 @@ impl WebviewWindow {
     /// #### Platform-specific
     /// - Windows: The cursor is only hidden within the confines of the window.
     /// - macOS: The cursor is hidden as long as the window has input focus, even if the cursor is outside of the window.
-    /// 
+    ///
     /// Requires [`allowlist > window > setCursorVisible`](https://tauri.app/v1/api/config#windowallowlistconfig.setcursorvisible) to be enabled.
     pub async fn set_cursor_visible(&self, visible: bool) -> crate::Result<()> {
         Ok(self.0.setCursorVisible(visible).await?)
     }
 
     /// Modifies the cursor icon of the window.
-    /// 
+    ///
     /// Requires [`allowlist > window > setCursorIcon`](https://tauri.app/v1/api/config#windowallowlistconfig.setcursoricon) to be enabled.
     pub async fn set_cursor_icon(&self, icon: CursorIcon) -> crate::Result<()> {
         Ok(self.0.setCursorIcon(&icon.to_string()).await?)
     }
 
     /// Changes the position of the cursor in window coordinates.
-    /// 
+    ///
     /// Requires [`allowlist > window > setCursorPosition`](https://tauri.app/v1/api/config#windowallowlistconfig.setcursorposition) to be enabled.
     pub async fn set_cursor_position(&self, position: Position) -> crate::Result<()> {
         match position {
@@ -721,14 +727,14 @@ impl WebviewWindow {
     }
 
     /// Ignores the window cursor events.
-    /// 
+    ///
     /// Requires [`allowlist > window > setIgnoreCursorEvents`](https://tauri.app/v1/api/config#windowallowlistconfig.setignorecursorevents) to be enabled.
     pub async fn set_ignore_cursor_events(&self, ignore: bool) -> crate::Result<()> {
         Ok(self.0.setIgnoreCursorEvents(ignore).await?)
     }
 
     /// Starts dragging the window.
-    /// 
+    ///
     /// Requires [`allowlist > window > startDragging`](https://tauri.app/v1/api/config#windowallowlistconfig.startdragging) to be enabled.
     pub async fn start_dragging(&self) -> crate::Result<()> {
         Ok(self.0.startDragging().await?)
@@ -745,45 +751,51 @@ impl WebviewWindow {
     }
 
     /// Listen to an event emitted by the backend that is tied to the webview window.
+    /// 
+    /// The returned Future will automatically clean up it's underlying event listener when dropped, so no manual unlisten function needs to be called.
+    /// See [Differences to the JavaScript API](../index.html#differences-to-the-javascript-api) for details.
     #[inline(always)]
-    pub async fn listen<T, H>(&self, event: &str, mut handler: H) -> crate::Result<impl FnOnce()>
+    pub async fn listen<T, H>(&self, event: &str) -> crate::Result<impl Stream<Item = Event<T>>>
     where
-        T: DeserializeOwned,
-        H: FnMut(Event<T>) + 'static,
+        T: DeserializeOwned + 'static,
     {
+        let (tx, rx) = mpsc::unbounded::<Event<T>>();
+
         let closure = Closure::<dyn FnMut(JsValue)>::new(move |raw| {
-            (handler)(serde_wasm_bindgen::from_value(raw).unwrap())
+            let _ = tx.unbounded_send(serde_wasm_bindgen::from_value(raw).unwrap());
         });
-
         let unlisten = self.0.listen(event, &closure).await?;
-
         closure.forget();
 
-        let unlisten = js_sys::Function::from(unlisten);
-        Ok(move || {
-            unlisten.call0(&wasm_bindgen::JsValue::NULL).unwrap();
+        Ok(Listen {
+            rx,
+            unlisten: js_sys::Function::from(unlisten),
         })
     }
 
     /// Listen to an one-off event emitted by the backend that is tied to the webview window.
+    /// 
+    /// The returned Future will automatically clean up it's underlying event listener when dropped, so no manual unlisten function needs to be called.
+    /// See [Differences to the JavaScript API](../index.html#differences-to-the-javascript-api) for details.
     #[inline(always)]
-    pub async fn once<T, H>(&self, event: &str, mut handler: H) -> crate::Result<impl FnOnce()>
+    pub async fn once<T, H>(&self, event: &str) -> crate::Result<Event<T>>
     where
-        T: DeserializeOwned,
-        H: FnMut(Event<T>) + 'static,
+        T: DeserializeOwned + 'static,
     {
-        let closure = Closure::<dyn FnMut(JsValue)>::new(move |raw| {
-            (handler)(serde_wasm_bindgen::from_value(raw).unwrap())
+        let (tx, rx) = oneshot::channel::<Event<T>>();
+
+        let closure: Closure<dyn FnMut(JsValue)> = Closure::once(move |raw| {
+            let _ = tx.send(serde_wasm_bindgen::from_value(raw).unwrap());
         });
-
         let unlisten = self.0.once(event, &closure).await?;
-
         closure.forget();
 
-        let unlisten = js_sys::Function::from(unlisten);
-        Ok(move || {
-            unlisten.call0(&wasm_bindgen::JsValue::NULL).unwrap();
-        })
+        let fut = Once {
+            rx,
+            unlisten: js_sys::Function::from(unlisten),
+        };
+
+        fut.await
     }
 }
 
@@ -1001,8 +1013,10 @@ pub fn current_window() -> WebviewWindow {
 /// # Ok(())
 /// # }
 /// ```
-pub fn all_windows() -> Vec<WebviewWindow> {
-    inner::getAll().into_iter().map(WebviewWindow).collect()
+pub fn all_windows() -> impl IntoIterator<Item = WebviewWindow> {
+    let raw = inner::getAll();
+
+    ArrayIterator::new(raw).map(|r| WebviewWindow(inner::WebviewWindow::from(r)))
 }
 
 /// Returns the monitor on which the window currently resides.
@@ -1053,29 +1067,6 @@ pub async fn primary_monitor() -> crate::Result<Option<Monitor>> {
     }
 }
 
-#[derive(Debug, Clone)]
-pub struct AvailableMonitors {
-    idx: u32,
-    array: js_sys::Array,
-}
-
-impl Iterator for AvailableMonitors {
-    type Item = Monitor;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        let raw = self.array.get(self.idx);
-
-        if raw.is_undefined() {
-            None
-        } else {
-            let monitor = Monitor(raw);
-            self.idx += 1;
-
-            Some(monitor)
-        }
-    }
-}
-
 /// Returns the list of all the monitors available on the system.
 ///
 /// # Example
@@ -1093,16 +1084,17 @@ impl Iterator for AvailableMonitors {
 /// # Ok(())
 /// # }
 /// ```
-pub async fn available_monitors() -> crate::Result<AvailableMonitors> {
+pub async fn available_monitors() -> crate::Result<impl Iterator<Item = Monitor>> {
     let raw = inner::availableMonitors().await?;
+    let raw = Array::try_from(raw).unwrap();
 
-    Ok(AvailableMonitors {
-        idx: 0,
-        array: raw.unchecked_into(),
-    })
+    let monitors = ArrayIterator::new(raw).map(Monitor);
+
+    Ok(monitors)
 }
 
 mod inner {
+    use js_sys::Array;
     use wasm_bindgen::{
         prelude::{wasm_bindgen, Closure},
         JsValue,
@@ -1351,7 +1343,7 @@ mod inner {
     #[wasm_bindgen(module = "/src/window.js")]
     extern "C" {
         pub fn getCurrent() -> WebviewWindow;
-        pub fn getAll() -> Vec<WebviewWindow>;
+        pub fn getAll() -> Array;
         #[wasm_bindgen(catch)]
         pub async fn currentMonitor() -> Result<JsValue, JsValue>;
         #[wasm_bindgen(catch)]

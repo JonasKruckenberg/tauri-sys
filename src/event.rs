@@ -1,15 +1,20 @@
 //! The event system allows you to emit events to the backend and listen to events from it.
 
+use futures::{
+    channel::{mpsc, oneshot},
+    Future, FutureExt, Stream, StreamExt,
+};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use std::fmt::Debug;
 use wasm_bindgen::{prelude::Closure, JsValue};
 
-#[derive(Debug, Clone, Hash, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Event<T> {
     /// Event name
     pub event: String,
     /// Event identifier used to unlisten
-    pub id: u32,
+    pub id: f32,
     /// Event payload
     pub payload: T,
     /// The label of the window that emitted this event
@@ -42,47 +47,69 @@ pub async fn emit<T: Serialize>(event: &str, payload: &T) -> crate::Result<()> {
 }
 
 /// Listen to an event from the backend.
+/// 
+/// The returned Future will automatically clean up it's underlying event listener when dropped, so no manual unlisten function needs to be called.
+/// See [Differences to the JavaScript API](../index.html#differences-to-the-javascript-api) for details.
 ///
 /// # Example
 ///
 /// ```rust,no_run
-/// use tauri_api::event::{emit, listen};
+/// use tauri_api::event::listen;
 /// use web_sys::console;
 ///
-/// const unlisten = listen::<String>("error", |event| {
-///   console::log_1(&format!("Got error in window {}, payload: {}", event.window_label, event.payload).into());
-/// }).await;
+/// let events = listen::<String>("error");
 ///
-/// // you need to call unlisten if your handler goes out of scope e.g. the component is unmounted
-/// unlisten();
+/// while let Some(event) = events.next().await {
+///     console::log_1(&format!("Got error in window {}, payload: {}", event.window_label, event.payload).into());
+/// }
 /// ```
-///
-/// @param event Event name. Must include only alphanumeric characters, `-`, `/`, `:` and `_`.
-/// @param handler Event handler callback.
-///
-/// Note that removing the listener is required if your listener goes out of scope e.g. the component is unmounted.
 #[inline(always)]
-pub async fn listen<T, H>(event: &str, mut handler: H) -> crate::Result<impl FnOnce()>
+pub async fn listen<T>(event: &str) -> crate::Result<impl Stream<Item = Event<T>>>
 where
-    T: DeserializeOwned,
-    H: FnMut(Event<T>) + 'static,
+    T: DeserializeOwned + 'static,
 {
+    let (tx, rx) = mpsc::unbounded::<Event<T>>();
+
     let closure = Closure::<dyn FnMut(JsValue)>::new(move |raw| {
-        (handler)(serde_wasm_bindgen::from_value(raw).unwrap())
+        let _ = tx.unbounded_send(serde_wasm_bindgen::from_value(raw).unwrap());
     });
-
     let unlisten = inner::listen(event, &closure).await?;
-
     closure.forget();
 
-    let unlisten = js_sys::Function::from(unlisten);
-    Ok(move || {
-        unlisten.call0(&wasm_bindgen::JsValue::NULL).unwrap();
+    Ok(Listen {
+        rx,
+        unlisten: js_sys::Function::from(unlisten),
     })
+}
+
+pub(crate) struct Listen<T> {
+    pub rx: mpsc::UnboundedReceiver<T>,
+    pub unlisten: js_sys::Function,
+}
+
+impl<T> Drop for Listen<T> {
+    fn drop(&mut self) {
+        log::debug!("Calling unlisten for listen callback");
+        self.unlisten.call0(&wasm_bindgen::JsValue::NULL).unwrap();
+    }
+}
+
+impl<T> Stream for Listen<T> {
+    type Item = T;
+
+    fn poll_next(
+        mut self: std::pin::Pin<&mut Self>,
+        cx: &mut std::task::Context<'_>,
+    ) -> std::task::Poll<Option<Self::Item>> {
+        self.rx.poll_next_unpin(cx)
+    }
 }
 
 /// Listen to an one-off event from the backend.
 ///
+/// The returned Future will automatically clean up it's underlying event listener when dropped, so no manual unlisten function needs to be called.
+/// See [Differences to the JavaScript API](../index.html#differences-to-the-javascript-api) for details.
+/// 
 /// # Example
 ///
 /// ```rust,no_run
@@ -95,35 +122,57 @@ where
 ///   logged_in: bool,
 ///   token: String
 /// }
-/// const unlisten = once::<LoadedPayload>("loaded", |event| {
-///     console::log_1!(&format!("App is loaded, loggedIn: {}, token: {}", event.payload.logged_in, event.payload.token).into());
-/// }).await;
-///
-/// // you need to call unlisten if your handler goes out of scope e.g. the component is unmounted
-/// unlisten();
+/// 
+/// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
+/// const event = once::<LoadedPayload>("loaded").await?;
+/// 
+/// console::log_1!(&format!("App is loaded, loggedIn: {}, token: {}", event.payload.logged_in, event.payload.token).into());
+/// # Ok(())
+/// # }
 /// ```
-///
-/// @param event Event name. Must include only alphanumeric characters, `-`, `/`, `:` and `_`.
-///
-/// Note that removing the listener is required if your listener goes out of scope e.g. the component is unmounted.
 #[inline(always)]
-pub async fn once<T, H>(event: &str, mut handler: H) -> crate::Result<impl FnOnce()>
+pub async fn once<T>(event: &str) -> crate::Result<Event<T>>
 where
-    T: DeserializeOwned,
-    H: FnMut(Event<T>) + 'static,
+    T: DeserializeOwned + 'static,
 {
-    let closure = Closure::<dyn FnMut(JsValue)>::new(move |raw| {
-        (handler)(serde_wasm_bindgen::from_value(raw).unwrap())
+    let (tx, rx) = oneshot::channel::<Event<T>>();
+
+    let closure: Closure<dyn FnMut(JsValue)> = Closure::once(move |raw| {
+        let _ = tx.send(serde_wasm_bindgen::from_value(raw).unwrap());
     });
-
     let unlisten = inner::once(event, &closure).await?;
-
     closure.forget();
 
-    let unlisten = js_sys::Function::from(unlisten);
-    Ok(move || {
-        unlisten.call0(&wasm_bindgen::JsValue::NULL).unwrap();
-    })
+    let fut = Once {
+        rx,
+        unlisten: js_sys::Function::from(unlisten),
+    };
+
+    fut.await
+}
+
+pub(crate) struct Once<T> {
+    pub rx: oneshot::Receiver<Event<T>>,
+    pub unlisten: js_sys::Function,
+}
+
+impl<T> Drop for Once<T> {
+    fn drop(&mut self) {
+        self.rx.close();
+        log::debug!("Calling unlisten for once callback");
+        self.unlisten.call0(&wasm_bindgen::JsValue::NULL).unwrap();
+    }
+}
+
+impl<T> Future for Once<T> {
+    type Output = crate::Result<Event<T>>;
+
+    fn poll(
+        mut self: std::pin::Pin<&mut Self>,
+        cx: &mut std::task::Context<'_>,
+    ) -> std::task::Poll<Self::Output> {
+        self.rx.poll_unpin(cx).map_err(Into::into)
+    }
 }
 
 mod inner {
