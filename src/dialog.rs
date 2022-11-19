@@ -164,7 +164,7 @@ impl<'a> FileDialogBuilder<'a> {
     /// ```
     /// 
     /// Requires [`allowlist > dialog > open`](https://tauri.app/v1/api/config#dialogallowlistconfig.open) to be enabled.
-    pub async fn pick_files(mut self) -> crate::Result<Option<impl Iterator<Item = PathBuf>>> {
+    pub async fn pick_files(&mut self) -> crate::Result<Option<impl Iterator<Item = PathBuf>>> {
         self.multiple = true;
 
         let raw = inner::open(serde_wasm_bindgen::to_value(&self)?).await?;
@@ -215,7 +215,7 @@ impl<'a> FileDialogBuilder<'a> {
     /// ```
     /// 
     /// Requires [`allowlist > dialog > open`](https://tauri.app/v1/api/config#dialogallowlistconfig.open) to be enabled.
-    pub async fn pick_folders(mut self) -> crate::Result<Option<impl Iterator<Item = PathBuf>>> {
+    pub async fn pick_folders(&mut self) -> crate::Result<Option<impl Iterator<Item = PathBuf>>> {
         self.directory = true;
         self.multiple = true;
 
