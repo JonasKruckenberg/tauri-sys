@@ -12,7 +12,7 @@
 [![MIT licensed][mit-badge]][mit-url]
 
 [docs-badge]: https://img.shields.io/badge/docs-main-blue
-[docs-url]: https://jonaskruckenberg.github.io/tauri-sys
+[docs-url]: https://jonaskruckenberg.github.io/tauri-sys/tauri_sys
 [mit-badge]: https://img.shields.io/badge/license-MIT-blue.svg
 [mit-url]: LICENSE
 
