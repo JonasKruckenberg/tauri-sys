@@ -18,7 +18,7 @@ pub struct Event<T> {
     /// Event payload
     pub payload: T,
     /// The label of the window that emitted this event
-    pub window_label: String,
+    pub window_label: Option<String>,
 }
 
 /// Emits an event to the backend.
