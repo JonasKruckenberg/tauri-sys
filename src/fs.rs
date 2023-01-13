@@ -22,6 +22,7 @@
 //! }
 //! ```
 //! It is recommended to allowlist only the APIs you use for optimal bundle size and security.
+use js_sys::ArrayBuffer;
 use serde::{Deserialize, Serialize};
 use serde_repr::*;
 use std::path::{Path, PathBuf};
@@ -63,11 +64,11 @@ pub struct FileEntry {
     pub children: Option<Vec<FileEntry>>,
 }
 
-#[derive(Serialize)]
-pub struct FsBinaryFileOption {
-    pub path: PathBuf,
-    pub contents: BinaryFileContents, // must be last field to allow for un`Sized`
-}
+// #[derive(Serialize)]
+// pub struct FsBinaryFileOption {
+//     pub path: PathBuf,
+//     pub contents: BinaryFileContents,
+// }
 
 #[derive(Serialize)]
 pub struct FsDirOptions {
@@ -86,7 +87,7 @@ pub struct FsTextFileOption {
     path: PathBuf,
 }
 
-pub type BinaryFileContents = [u8];
+pub type BinaryFileContents = ArrayBuffer;
 
 /// Copies a file to a destination.
 ///
@@ -131,16 +132,14 @@ pub async fn create_dir(
     base_dir: Option<BaseDirectory>,
     recursive: Option<bool>,
 ) -> crate::Result<()> {
-    let raw = inner::createDir(
+    Ok(inner::createDir(
         dir.to_str().expect("could not convert path to str"),
         serde_wasm_bindgen::to_value(&FsDirOptions {
             dir: base_dir,
             recursive,
         })?,
     )
-    .await?;
-
-    Ok(serde_wasm_bindgen::from_value(raw)?)
+    .await?)
 }
 
 /// Checks if a path exists.
@@ -175,15 +174,15 @@ pub async fn exists(path: &Path, dir: Option<BaseDirectory>) -> crate::Result<bo
 /// ```
 ///
 /// Requires [`allowlist > fs > readBinaryFile`](https://tauri.app/v1/api/js/fs) to be enabled.
-// pub async fn read_binary_file(path: &Path, dir: Option<BaseDirectory>) -> crate::Result<[u8]> {
-//     let raw = inner::readBinaryFile(
-//         path.to_str().expect("could not convert path to str"),
-//         serde_wasm_bindgen::to_value(&FsOptions { dir })?,
-//     )
-//     .await?;
+pub async fn read_binary_file(path: &Path, dir: Option<BaseDirectory>) -> crate::Result<Vec<u8>> {
+    let raw = inner::readBinaryFile(
+        path.to_str().expect("could not convert path to str"),
+        serde_wasm_bindgen::to_value(&FsOptions { dir })?,
+    )
+    .await?;
 
-//     Ok(serde_wasm_bindgen::from_value(raw)?)
-// }
+    Ok(serde_wasm_bindgen::from_value(raw)?)
+}
 
 /// List directory files.
 ///
@@ -248,16 +247,14 @@ pub async fn remove_dir(
     base_dir: Option<BaseDirectory>,
     recursive: Option<bool>,
 ) -> crate::Result<()> {
-    let raw = inner::removeDir(
+    Ok(inner::removeDir(
         dir.to_str().expect("could not convert path to str"),
         serde_wasm_bindgen::to_value(&FsDirOptions {
             dir: base_dir,
             recursive,
         })?,
     )
-    .await?;
-
-    Ok(serde_wasm_bindgen::from_value(raw)?)
+    .await?)
 }
 
 /// Removes a file.
@@ -272,13 +269,11 @@ pub async fn remove_dir(
 ///
 /// Requires [`allowlist > fs > removeFile`](https://tauri.app/v1/api/js/fs) to be enabled.
 pub async fn remove_file(file: &Path, dir: Option<BaseDirectory>) -> crate::Result<()> {
-    let raw = inner::removeFile(
+    Ok(inner::removeFile(
         file.to_str().expect("could not convert path to str"),
         serde_wasm_bindgen::to_value(&FsOptions { dir })?,
     )
-    .await?;
-
-    Ok(serde_wasm_bindgen::from_value(raw)?)
+    .await?)
 }
 
 /// Renames a file.
@@ -297,14 +292,12 @@ pub async fn rename_file(
     new_path: &Path,
     dir: Option<BaseDirectory>,
 ) -> crate::Result<()> {
-    let raw = inner::renameFile(
+    Ok(inner::renameFile(
         old_path.to_str().expect("could not convert path to str"),
         new_path.to_str().expect("could not convert path to str"),
         serde_wasm_bindgen::to_value(&FsOptions { dir })?,
     )
-    .await?;
-
-    Ok(serde_wasm_bindgen::from_value(raw)?)
+    .await?)
 }
 
 /// Writes a byte array content to a file.
@@ -323,14 +316,12 @@ pub async fn rename_file(
 //     contents: BinaryFileContents,
 //     dir: Option<BaseDirectory>,
 // ) -> crate::Result<()> {
-//     let raw = inner::writeBinaryFile(
+//     Ok(inner::writeBinaryFile(
 //         path.to_str().expect("could not convert path to str"),
 //         contents,
 //         serde_wasm_bindgen::to_value(&FsOptions { dir })?,
 //     )
-//     .await?;
-
-//     Ok(serde_wasm_bindgen::from_value(raw)?)
+//     .await?)
 // }
 
 /// Writes a UTF-8 text file.
@@ -349,17 +340,16 @@ pub async fn write_text_file(
     contents: &str,
     dir: Option<BaseDirectory>,
 ) -> crate::Result<()> {
-    let raw = inner::writeTextFile(
+    Ok(inner::writeTextFile(
         path.to_str().expect("could not convert path to str"),
         &contents,
         serde_wasm_bindgen::to_value(&FsOptions { dir })?,
     )
-    .await?;
-
-    Ok(serde_wasm_bindgen::from_value(raw)?)
+    .await?)
 }
 
 mod inner {
+    use super::BinaryFileContents;
     use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
 
     #[wasm_bindgen(module = "/src/fs.js")]
@@ -371,7 +361,7 @@ mod inner {
             options: JsValue,
         ) -> Result<JsValue, JsValue>;
         #[wasm_bindgen(catch)]
-        pub async fn createDir(dir: &str, options: JsValue) -> Result<JsValue, JsValue>;
+        pub async fn createDir(dir: &str, options: JsValue) -> Result<(), JsValue>;
         #[wasm_bindgen(catch)]
         pub async fn exists(path: &str, options: JsValue) -> Result<JsValue, JsValue>;
         #[wasm_bindgen(catch)]
@@ -381,26 +371,26 @@ mod inner {
         #[wasm_bindgen(catch)]
         pub async fn readDir(dir: &str, options: JsValue) -> Result<JsValue, JsValue>;
         #[wasm_bindgen(catch)]
-        pub async fn removeDir(dir: &str, options: JsValue) -> Result<JsValue, JsValue>;
+        pub async fn removeDir(dir: &str, options: JsValue) -> Result<(), JsValue>;
         #[wasm_bindgen(catch)]
-        pub async fn removeFile(source: &str, options: JsValue) -> Result<JsValue, JsValue>;
+        pub async fn removeFile(source: &str, options: JsValue) -> Result<(), JsValue>;
         #[wasm_bindgen(catch)]
         pub async fn renameFile(
             oldPath: &str,
             newPath: &str,
             options: JsValue,
-        ) -> Result<JsValue, JsValue>;
+        ) -> Result<(), JsValue>;
         #[wasm_bindgen(catch)]
         pub async fn writeBinaryFile(
             filePath: &str,
-            contents: &str,
+            contents: BinaryFileContents,
             options: JsValue,
-        ) -> Result<JsValue, JsValue>;
+        ) -> Result<(), JsValue>;
         #[wasm_bindgen(catch)]
         pub async fn writeTextFile(
             filePath: &str,
             contents: &str,
             options: JsValue,
-        ) -> Result<JsValue, JsValue>;
+        ) -> Result<(), JsValue>;
     }
 }
