@@ -127,6 +127,8 @@ pub mod dialog;
 mod error;
 #[cfg(feature = "event")]
 pub mod event;
+#[cfg(feature = "fs")]
+pub mod fs;
 #[cfg(feature = "global_shortcut")]
 pub mod global_shortcut;
 #[cfg(feature = "mocks")]
@@ -155,24 +157,24 @@ pub(crate) mod utils {
         pos: u32,
         arr: js_sys::Array,
     }
-    
+
     impl ArrayIterator {
         pub fn new(arr: js_sys::Array) -> Self {
             Self { pos: 0, arr }
         }
     }
-    
+
     impl Iterator for ArrayIterator {
         type Item = wasm_bindgen::JsValue;
-    
+
         fn next(&mut self) -> Option<Self::Item> {
             let raw = self.arr.get(self.pos);
-    
+
             if raw.is_undefined() {
                 None
             } else {
                 self.pos += 1;
-    
+
                 Some(raw)
             }
         }
