@@ -67,18 +67,18 @@ pub struct FileEntry {
 }
 
 #[derive(Serialize)]
-pub struct FsDirOptions {
+struct FsDirOptions {
     pub dir: Option<BaseDirectory>,
     pub recursive: Option<bool>,
 }
 
 #[derive(Serialize)]
-pub struct FsOptions {
+struct FsOptions {
     pub dir: Option<BaseDirectory>,
 }
 
 #[derive(Serialize)]
-pub struct FsTextFileOption {
+struct FsTextFileOption {
     pub contents: String,
     path: PathBuf,
 }
