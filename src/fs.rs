@@ -22,10 +22,12 @@
 //! }
 //! ```
 //! It is recommended to allowlist only the APIs you use for optimal bundle size and security.
+use crate::Error;
 use js_sys::ArrayBuffer;
 use serde::{Deserialize, Serialize};
 use serde_repr::*;
 use std::path::{Path, PathBuf};
+use std::str;
 
 #[derive(Serialize_repr)]
 #[repr(u16)]
@@ -95,9 +97,17 @@ pub type BinaryFileContents = ArrayBuffer;
 ///
 /// Requires [`allowlist > fs > copyFile`](https://tauri.app/v1/api/js/fs) to be enabled.
 pub async fn copy_file(source: &Path, destination: &Path, dir: BaseDirectory) -> crate::Result<()> {
+    let Some(source) = source.to_str() else {
+        return Err(Error::Utf8(source.to_path_buf()));
+    };
+
+    let Some(destination) = destination.to_str() else {
+        return Err(Error::Utf8(destination.to_path_buf()));
+    };
+
     let raw = inner::copyFile(
-        source.to_str().expect("could not convert path to str"),
-        destination.to_str().expect("could not convert path to str"),
+        source,
+        destination,
         serde_wasm_bindgen::to_value(&FsOptions { dir: Some(dir) })?,
     )
     .await?;
@@ -120,8 +130,12 @@ pub async fn copy_file(source: &Path, destination: &Path, dir: BaseDirectory) ->
 pub async fn create_dir(dir: &Path, base_dir: BaseDirectory) -> crate::Result<()> {
     let recursive = Some(false);
 
+    let Some(dir) = dir.to_str() else {
+        return Err(Error::Utf8(dir.to_path_buf()));
+    };
+
     Ok(inner::createDir(
-        dir.to_str().expect("could not convert path to str"),
+        dir,
         serde_wasm_bindgen::to_value(&FsDirOptions {
             dir: Some(base_dir),
             recursive,
@@ -144,8 +158,12 @@ pub async fn create_dir(dir: &Path, base_dir: BaseDirectory) -> crate::Result<()
 pub async fn create_dir_all(dir: &Path, base_dir: BaseDirectory) -> crate::Result<()> {
     let recursive = Some(true);
 
+    let Some(dir) = dir.to_str() else {
+        return Err(Error::Utf8(dir.to_path_buf()));
+    };
+
     Ok(inner::createDir(
-        dir.to_str().expect("could not convert path to str"),
+        dir,
         serde_wasm_bindgen::to_value(&FsDirOptions {
             dir: Some(base_dir),
             recursive,
@@ -166,8 +184,12 @@ pub async fn create_dir_all(dir: &Path, base_dir: BaseDirectory) -> crate::Resul
 ///
 /// Requires [`allowlist > fs > exists`](https://tauri.app/v1/api/js/fs) to be enabled.
 pub async fn exists(path: &Path, dir: BaseDirectory) -> crate::Result<bool> {
+    let Some(path) = path.to_str() else {
+        return Err(Error::Utf8(path.to_path_buf()));
+    };
+
     let raw = inner::exists(
-        path.to_str().expect("could not convert path to str"),
+        path,
         serde_wasm_bindgen::to_value(&FsOptions { dir: Some(dir) })?,
     )
     .await?;
@@ -187,8 +209,12 @@ pub async fn exists(path: &Path, dir: BaseDirectory) -> crate::Result<bool> {
 ///
 /// Requires [`allowlist > fs > readBinaryFile`](https://tauri.app/v1/api/js/fs) to be enabled.
 pub async fn read_binary_file(path: &Path, dir: BaseDirectory) -> crate::Result<Vec<u8>> {
+    let Some(path) = path.to_str() else {
+        return Err(Error::Utf8(path.to_path_buf()));
+    };
+
     let raw = inner::readBinaryFile(
-        path.to_str().expect("could not convert path to str"),
+        path,
         serde_wasm_bindgen::to_value(&FsOptions { dir: Some(dir) })?,
     )
     .await?;
@@ -209,9 +235,12 @@ pub async fn read_binary_file(path: &Path, dir: BaseDirectory) -> crate::Result<
 /// Requires [`allowlist > fs > readDir`](https://tauri.app/v1/api/js/fs) to be enabled.
 pub async fn read_dir(path: &Path, dir: BaseDirectory) -> crate::Result<Vec<FileEntry>> {
     let recursive = Some(false);
+    let Some(path) = path.to_str() else {
+        return Err(Error::Utf8(path.to_path_buf()));
+    };
 
     let raw = inner::readDir(
-        path.to_str().expect("could not convert path to str"),
+        path,
         serde_wasm_bindgen::to_value(&FsDirOptions {
             dir: Some(dir),
             recursive,
@@ -235,9 +264,12 @@ pub async fn read_dir(path: &Path, dir: BaseDirectory) -> crate::Result<Vec<File
 /// Requires [`allowlist > fs > readDir`](https://tauri.app/v1/api/js/fs) to be enabled.
 pub async fn read_dir_all(path: &Path, dir: BaseDirectory) -> crate::Result<Vec<FileEntry>> {
     let recursive = Some(true);
+    let Some(path) = path.to_str() else {
+        return Err(Error::Utf8(path.to_path_buf()));
+    };
 
     let raw = inner::readDir(
-        path.to_str().expect("could not convert path to str"),
+        path,
         serde_wasm_bindgen::to_value(&FsDirOptions {
             dir: Some(dir),
             recursive,
@@ -260,8 +292,12 @@ pub async fn read_dir_all(path: &Path, dir: BaseDirectory) -> crate::Result<Vec<
 ///
 /// Requires [`allowlist > fs > readTextFile`](https://tauri.app/v1/api/js/fs) to be enabled.
 pub async fn read_text_file(path: &Path, dir: BaseDirectory) -> crate::Result<String> {
+    let Some(path) = path.to_str() else {
+        return Err(Error::Utf8(path.to_path_buf()));
+    };
+
     let raw = inner::readTextFile(
-        path.to_str().expect("could not convert path to str"),
+        path,
         serde_wasm_bindgen::to_value(&FsOptions { dir: Some(dir) })?,
     )
     .await?;
@@ -283,9 +319,12 @@ pub async fn read_text_file(path: &Path, dir: BaseDirectory) -> crate::Result<St
 /// Requires [`allowlist > fs > removeDir`](https://tauri.app/v1/api/js/fs) to be enabled.
 pub async fn remove_dir(dir: &Path, base_dir: BaseDirectory) -> crate::Result<()> {
     let recursive = Some(false);
+    let Some(dir) = dir.to_str() else {
+        return Err(Error::Utf8(dir.to_path_buf()));
+    };
 
     Ok(inner::removeDir(
-        dir.to_str().expect("could not convert path to str"),
+        dir,
         serde_wasm_bindgen::to_value(&FsDirOptions {
             dir: Some(base_dir),
             recursive,
@@ -307,9 +346,12 @@ pub async fn remove_dir(dir: &Path, base_dir: BaseDirectory) -> crate::Result<()
 /// Requires [`allowlist > fs > removeDir`](https://tauri.app/v1/api/js/fs) to be enabled.
 pub async fn remove_dir_all(dir: &Path, base_dir: BaseDirectory) -> crate::Result<()> {
     let recursive = Some(true);
+    let Some(dir) = dir.to_str() else {
+        return Err(Error::Utf8(dir.to_path_buf()));
+    };
 
     Ok(inner::removeDir(
-        dir.to_str().expect("could not convert path to str"),
+        dir,
         serde_wasm_bindgen::to_value(&FsDirOptions {
             dir: Some(base_dir),
             recursive,
@@ -330,8 +372,12 @@ pub async fn remove_dir_all(dir: &Path, base_dir: BaseDirectory) -> crate::Resul
 ///
 /// Requires [`allowlist > fs > removeFile`](https://tauri.app/v1/api/js/fs) to be enabled.
 pub async fn remove_file(file: &Path, dir: BaseDirectory) -> crate::Result<()> {
+    let Some(file) = file.to_str() else {
+        return Err(Error::Utf8(file.to_path_buf()));
+    };
+
     Ok(inner::removeFile(
-        file.to_str().expect("could not convert path to str"),
+        file,
         serde_wasm_bindgen::to_value(&FsOptions { dir: Some(dir) })?,
     )
     .await?)
@@ -353,9 +399,17 @@ pub async fn rename_file(
     new_path: &Path,
     dir: BaseDirectory,
 ) -> crate::Result<()> {
+    let Some(old_path) = old_path.to_str() else {
+        return Err(Error::Utf8(old_path.to_path_buf()));
+    };
+
+    let Some(new_path) = new_path.to_str() else {
+        return Err(Error::Utf8(new_path.to_path_buf()));
+    };
+
     Ok(inner::renameFile(
-        old_path.to_str().expect("could not convert path to str"),
-        new_path.to_str().expect("could not convert path to str"),
+        old_path,
+        new_path,
         serde_wasm_bindgen::to_value(&FsOptions { dir: Some(dir) })?,
     )
     .await?)
@@ -377,8 +431,12 @@ pub async fn write_binary_file(
     contents: BinaryFileContents,
     dir: BaseDirectory,
 ) -> crate::Result<()> {
+    let Some(path) = path.to_str() else {
+        return Err(Error::Utf8(path.to_path_buf()));
+    };
+
     Ok(inner::writeBinaryFile(
-        path.to_str().expect("could not convert path to str"),
+        path,
         contents,
         serde_wasm_bindgen::to_value(&FsOptions { dir: Some(dir) })?,
     )
@@ -397,8 +455,12 @@ pub async fn write_binary_file(
 ///
 /// Requires [`allowlist > fs > writeTextFile`](https://tauri.app/v1/api/js/fs) to be enabled.
 pub async fn write_text_file(path: &Path, contents: &str, dir: BaseDirectory) -> crate::Result<()> {
+    let Some(path) = path.to_str() else {
+        return Err(Error::Utf8(path.to_path_buf()));
+    };
+
     Ok(inner::writeTextFile(
-        path.to_str().expect("could not convert path to str"),
+        path,
         &contents,
         serde_wasm_bindgen::to_value(&FsOptions { dir: Some(dir) })?,
     )

@@ -1,5 +1,5 @@
+use std::path::PathBuf;
 use wasm_bindgen::JsValue;
-
 
 #[derive(Clone, Eq, PartialEq, Debug, thiserror::Error)]
 pub enum Error {
@@ -9,7 +9,10 @@ pub enum Error {
     Serde(String),
     #[cfg(any(feature = "event", feature = "window"))]
     #[error("TODO.")]
-    OneshotCanceled(#[from] futures::channel::oneshot::Canceled)
+    OneshotCanceled(#[from] futures::channel::oneshot::Canceled),
+    #[cfg(feature = "fs")]
+    #[error("could not convert path to string")]
+    Utf8(PathBuf),
 }
 
 impl From<serde_wasm_bindgen::Error> for Error {
