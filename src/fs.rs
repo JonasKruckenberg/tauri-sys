@@ -83,8 +83,6 @@ struct FsTextFileOption {
     path: PathBuf,
 }
 
-pub type BinaryFileContents = ArrayBuffer;
-
 /// Copies a file to a destination.
 ///
 /// # Example
@@ -428,7 +426,7 @@ pub async fn rename_file(
 /// Requires [`allowlist > fs > writeBinaryFile`](https://tauri.app/v1/api/js/fs) to be enabled.
 pub async fn write_binary_file(
     path: &Path,
-    contents: BinaryFileContents,
+    contents: ArrayBuffer,
     dir: BaseDirectory,
 ) -> crate::Result<()> {
     let Some(path) = path.to_str() else {
@@ -468,7 +466,7 @@ pub async fn write_text_file(path: &Path, contents: &str, dir: BaseDirectory) ->
 }
 
 mod inner {
-    use super::BinaryFileContents;
+    use super::ArrayBuffer;
     use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
 
     #[wasm_bindgen(module = "/src/fs.js")]
@@ -502,7 +500,7 @@ mod inner {
         #[wasm_bindgen(catch)]
         pub async fn writeBinaryFile(
             filePath: &str,
-            contents: BinaryFileContents,
+            contents: ArrayBuffer,
             options: JsValue,
         ) -> Result<(), JsValue>;
         #[wasm_bindgen(catch)]
