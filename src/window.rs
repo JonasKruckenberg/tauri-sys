@@ -43,7 +43,10 @@
 //! ```
 //! It is recommended to allowlist only the APIs you use for optimal bundle size and security.
 
-use crate::{event::{Event, Listen, Once}, utils::ArrayIterator};
+use crate::{
+    event::{Event, Listen, Once},
+    utils::ArrayIterator,
+};
 use futures::{
     channel::{mpsc, oneshot},
     Stream,
@@ -182,8 +185,8 @@ impl Display for CursorIcon {
     }
 }
 
-#[derive(Debug, Default, Clone, Serialize)]
-#[serde(rename = "camelCase")]
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
 struct WebviewWindowOptions<'a> {
     url: Option<&'a str>,
     center: bool,
@@ -212,6 +215,40 @@ struct WebviewWindowOptions<'a> {
     accept_first_mouse: bool,
     tabbing_identifier: Option<&'a str>,
     user_agent: Option<&'a str>,
+}
+
+impl<'a> Default for WebviewWindowOptions<'a> {
+    fn default() -> Self {
+        Self {
+            url: None,
+            center: false,
+            x: None,
+            y: None,
+            width: None,
+            height: None,
+            min_width: None,
+            min_height: None,
+            max_width: None,
+            max_height: None,
+            resizable: true,
+            title: None,
+            fullscreen: false,
+            focus: true,
+            transparent: false,
+            maximized: false,
+            visible: true,
+            decorations: true,
+            always_on_top: false,
+            skip_taskbar: false,
+            file_drop_enabled: true,
+            theme: None,
+            title_bar_style: None,
+            hidden_title: false,
+            accept_first_mouse: true,
+            tabbing_identifier: None,
+            user_agent: None,
+        }
+    }
 }
 
 #[derive(Debug, Default, Clone, Serialize)]
@@ -245,7 +282,7 @@ impl<'a> WebviewWindowBuilder<'a> {
     }
 
     /// The initial position.
-    pub fn set_position(&mut self, position: PhysicalPosition) -> &mut Self  {
+    pub fn set_position(&mut self, position: PhysicalPosition) -> &mut Self {
         self.inner.x = Some(position.x());
         self.inner.y = Some(position.y());
         self
@@ -387,10 +424,12 @@ impl<'a> WebviewWindowBuilder<'a> {
     /// Creates a new webview window.
     ///
     /// Requires [`allowlist > window > create`](https://tauri.app/v1/api/config#windowallowlistconfig.create) to be enabled.
-    pub fn build(&self) -> crate::Result<WebviewWindow> {
+    pub async fn build(&self) -> crate::Result<WebviewWindow> {
         let opts = serde_wasm_bindgen::to_value(&self.inner)?;
 
-        Ok(WebviewWindow(inner::WebviewWindow::new(self.label, opts)))
+        let win = WebviewWindow(inner::WebviewWindow::new(self.label, opts));
+        win.once::<()>("tauri://created").await?;
+        Ok(win)
     }
 }
 
@@ -751,7 +790,7 @@ impl WebviewWindow {
     }
 
     /// Listen to an event emitted by the backend that is tied to the webview window.
-    /// 
+    ///
     /// The returned Future will automatically clean up it's underlying event listener when dropped, so no manual unlisten function needs to be called.
     /// See [Differences to the JavaScript API](../index.html#differences-to-the-javascript-api) for details.
     #[inline(always)]
@@ -774,11 +813,11 @@ impl WebviewWindow {
     }
 
     /// Listen to an one-off event emitted by the backend that is tied to the webview window.
-    /// 
+    ///
     /// The returned Future will automatically clean up it's underlying event listener when dropped, so no manual unlisten function needs to be called.
     /// See [Differences to the JavaScript API](../index.html#differences-to-the-javascript-api) for details.
     #[inline(always)]
-    pub async fn once<T, H>(&self, event: &str) -> crate::Result<Event<T>>
+    pub async fn once<T>(&self, event: &str) -> crate::Result<Event<T>>
     where
         T: DeserializeOwned + 'static,
     {

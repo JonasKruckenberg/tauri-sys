@@ -2,10 +2,12 @@ use anyhow::ensure;
 use tauri_sys::window;
 
 pub async fn create_window() -> anyhow::Result<()> {
-    let win = window::WebviewWindowBuilder::new("foo").build()?;
+    let win = window::WebviewWindowBuilder::new("foo-win")
+        .set_url("/")
+        .build()
+        .await?;
 
     ensure!(win.is_visible().await?);
-    // ensure!(win.label() == "foo".to_string());
 
     win.close().await?;
 

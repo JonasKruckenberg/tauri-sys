@@ -185,7 +185,7 @@ fn main() {
                         InteractiveTest(name="notification::show_notification",test=notification::show_notification())
                         InteractiveTest(name="global_shortcut::register_all",test=global_shortcut::register_all())
 
-                        // Test(name="window::WebviewWindow::new",test=window::create_window())
+                        Test(name="window::WebviewWindow::new",test=window::create_window())
 
                         Terminate
                     // }

@@ -3,12 +3,12 @@ use wasm_bindgen::JsValue;
 
 #[derive(Clone, Eq, PartialEq, Debug, thiserror::Error)]
 pub enum Error {
-    #[error("TODO.")]
+    #[error("JS Binding: {0}")]
     Binding(String),
-    #[error("TODO.")]
+    #[error("JSON: {0}")]
     Serde(String),
     #[cfg(any(feature = "event", feature = "window"))]
-    #[error("TODO.")]
+    #[error("Oneshot cancelled: {0}")]
     OneshotCanceled(#[from] futures::channel::oneshot::Canceled),
     #[cfg(feature = "fs")]
     #[error("could not convert path to string")]
