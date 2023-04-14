@@ -25,7 +25,7 @@ wasm-bindgen-test = "0.3.33"
 all-features = true
 
 [features]
-all = ["app", "clipboard", "event", "mocks", "tauri", "window", "process", "dialog", "os", "notification", "path", "updater", "global_shortcut"]
+all = ["app", "clipboard", "event", "mocks", "tauri", "window", "process", "dialog", "os", "notification", "path", "updater", "global_shortcut", "shell"]
 app = ["dep:semver"]
 clipboard = []
 dialog = []
@@ -36,6 +36,7 @@ notification = []
 os = []
 path = []
 process = []
+shell = []
 tauri = ["dep:url"]
 updater = ["dep:futures", "event"]
 window = ["dep:futures", "event"]
