@@ -31,7 +31,7 @@ struct DialogFilter<'a> {
 }
 
 // Define a trait to represent the iterator of PathBuf items.
-trait PathBufIterator: Iterator<Item = PathBuf> {}
+pub trait PathBufIterator: Iterator<Item = PathBuf> {}
 
 // Implement the trait for the actual iterator type.
 impl<I: Iterator<Item = PathBuf>> PathBufIterator for I {}
