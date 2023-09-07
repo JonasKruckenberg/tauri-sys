@@ -270,7 +270,7 @@ pub struct MessageDialogBuilder {
     #[serde(rename = "okLabel")]
     ok_button_label: Option<String>,
     #[serde(rename = "cancelLabel")]
-    cancel_button_label: Option<String>
+    cancel_button_label: Option<String>,
 }
 
 impl<'a> MessageDialogBuilder {
@@ -312,11 +312,35 @@ impl<'a> MessageDialogBuilder {
         self
     }
 
+    /// Set the label for the Ok button of the dialog.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use tauri_sys::dialog::{MessageDialogBuilder};
+    ///
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// let _builder = MessageDialogBuilder::new().set_ok_label("Continue");
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn set_ok_label(&mut self, label: String) -> &mut Self {
         self.ok_button_label = Some(label);
         self
     }
 
+    /// Set the label for the cancel button of the dialog.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use tauri_sys::dialog::{MessageDialogBuilder};
+    ///
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// let _builder = MessageDialogBuilder::new().set_cancel_label("Stop");
+    /// # Ok(())
+    /// # }
+    /// ```
     pub fn set_cancel_label(&mut self, label: String) -> &mut Self {
         self.cancel_button_label = Some(label);
         self
