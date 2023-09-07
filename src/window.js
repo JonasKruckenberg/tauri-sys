@@ -1,147 +1,142 @@
-// tauri/tooling/api/src/tauri.ts
-function uid() {
-  return window.crypto.getRandomValues(new Uint32Array(1))[0];
-}
-function transformCallback(callback, once2 = false) {
-  const identifier = uid();
-  const prop = `_${identifier}`;
-  Object.defineProperty(window, prop, {
-    value: (result) => {
-      if (once2) {
-        Reflect.deleteProperty(window, prop);
-      }
-      return callback?.(result);
-    },
-    writable: false,
-    configurable: true
-  });
-  return identifier;
-}
-async function invoke(cmd, args = {}) {
-  return new Promise((resolve, reject) => {
-    const callback = transformCallback((e) => {
-      resolve(e);
-      Reflect.deleteProperty(window, `_${error}`);
-    }, true);
-    const error = transformCallback((e) => {
-      reject(e);
-      Reflect.deleteProperty(window, `_${callback}`);
-    }, true);
-    window.__TAURI_IPC__({
-      cmd,
-      callback,
-      error,
-      ...args
-    });
-  });
-}
-
-// tauri/tooling/api/src/helpers/tauri.ts
-async function invokeTauriCommand(command) {
-  return invoke("tauri", command);
-}
-
 // tauri/tooling/api/src/helpers/event.ts
 async function _unlisten(event, eventId) {
-  return invokeTauriCommand({
-    __tauriModule: "Event",
-    message: {
-      cmd: "unlisten",
-      event,
-      eventId
-    }
-  });
-}
-async function emit(event, windowLabel, payload) {
-  await invokeTauriCommand({
-    __tauriModule: "Event",
-    message: {
-      cmd: "emit",
-      event,
-      windowLabel,
-      payload
-    }
-  });
-}
-async function listen(event, windowLabel, handler) {
-  return invokeTauriCommand({
-    __tauriModule: "Event",
-    message: {
-      cmd: "listen",
-      event,
-      windowLabel,
-      handler: transformCallback(handler)
-    }
-  }).then((eventId) => {
-    return async () => _unlisten(event, eventId);
-  });
-}
-async function once(event, windowLabel, handler) {
-  return listen(event, windowLabel, (eventData) => {
-    handler(eventData);
-    _unlisten(event, eventData.id).catch(() => {
-    });
+  await window.__TAURI_INVOKE__("plugin:event|unlisten", {
+    event,
+    eventId,
   });
 }
 
-// tauri/tooling/api/src/window.ts
-var LogicalSize = class {
+async function listen(event, handler, options) {
+  return window
+    .__TAURI_INVOKE__("plugin:event|listen", {
+      event,
+      windowLabel: options?.target,
+      handler: window.__TAURI__.transformCallback(handler),
+    })
+    .then((eventId) => {
+      return async () => _unlisten(event, eventId);
+    });
+}
+
+async function once(event, handler, options) {
+  return listen(
+    event,
+    (eventData) => {
+      handler(eventData);
+      _unlisten(event, eventData.id).catch(() => {});
+    },
+    options
+  );
+}
+
+async function emit(event, payload, options) {
+  await window.__TAURI_INVOKE__("plugin:event|emit", {
+    event,
+    windowLabel: options?.target,
+    payload,
+  });
+}
+
+class LogicalSize {
+  type = "Logical";
+  width;
+  height;
+
   constructor(width, height) {
-    this.type = "Logical";
     this.width = width;
     this.height = height;
   }
-};
-var PhysicalSize = class {
+}
+
+class PhysicalSize {
+  type = "Physical";
+  width;
+  height;
+
   constructor(width, height) {
-    this.type = "Physical";
     this.width = width;
     this.height = height;
   }
+
   toLogical(scaleFactor) {
     return new LogicalSize(this.width / scaleFactor, this.height / scaleFactor);
   }
-};
-var LogicalPosition = class {
+}
+
+class LogicalPosition {
+  type = "Logical";
+  x;
+  y;
+
   constructor(x, y) {
-    this.type = "Logical";
     this.x = x;
     this.y = y;
   }
-};
-var PhysicalPosition = class {
+}
+
+class PhysicalPosition {
+  type = "Physical";
+  x;
+  y;
+
   constructor(x, y) {
-    this.type = "Physical";
     this.x = x;
     this.y = y;
   }
+
   toLogical(scaleFactor) {
     return new LogicalPosition(this.x / scaleFactor, this.y / scaleFactor);
   }
-};
-var UserAttentionType = /* @__PURE__ */ ((UserAttentionType2) => {
-  UserAttentionType2[UserAttentionType2["Critical"] = 1] = "Critical";
-  UserAttentionType2[UserAttentionType2["Informational"] = 2] = "Informational";
-  return UserAttentionType2;
-})(UserAttentionType || {});
+}
+
+class CloseRequestedEvent {
+  event;
+  windowLabel;
+
+  id;
+  _preventDefault = false;
+
+  constructor(event) {
+    this.event = event.event;
+    this.windowLabel = event.windowLabel;
+    this.id = event.id;
+  }
+
+  preventDefault() {
+    this._preventDefault = true;
+  }
+
+  isPreventDefault() {
+    return this._preventDefault;
+  }
+}
+
 function getCurrent() {
-  return new WebviewWindow(window.__TAURI_METADATA__.__currentWindow.label, {
-    skip: true
+  return new Window(window.__TAURI_METADATA__.__currentWindow.label, {
+    skip: true,
   });
 }
+
 function getAll() {
   return window.__TAURI_METADATA__.__windows.map(
-    (w) => new WebviewWindow(w.label, {
-      skip: true
-    })
+    (w) =>
+      new Window(w.label, {
+        skip: true,
+      })
   );
 }
-var localTauriEvents = ["tauri://created", "tauri://error"];
-var WebviewWindowHandle = class {
+
+const localTauriEvents = ["tauri://created", "tauri://error"];
+
+class WindowHandle {
+  label;
+  listeners;
+
   constructor(label) {
     this.label = label;
-    this.listeners = /* @__PURE__ */ Object.create(null);
+    this.listeners = Object.create(null);
   }
+
   async listen(event, handler) {
     if (this._handleTauriEvent(event, handler)) {
       return Promise.resolve(() => {
@@ -149,8 +144,9 @@ var WebviewWindowHandle = class {
         listeners.splice(listeners.indexOf(handler), 1);
       });
     }
-    return listen(event, this.label, handler);
+    return listen(event, handler, { target: this.label });
   }
+
   async once(event, handler) {
     if (this._handleTauriEvent(event, handler)) {
       return Promise.resolve(() => {
@@ -158,8 +154,9 @@ var WebviewWindowHandle = class {
         listeners.splice(listeners.indexOf(handler), 1);
       });
     }
-    return once(event, this.label, handler);
+    return once(event, handler, { target: this.label });
   }
+
   async emit(event, payload) {
     if (localTauriEvents.includes(event)) {
       for (const handler of this.listeners[event] || []) {
@@ -167,8 +164,9 @@ var WebviewWindowHandle = class {
       }
       return Promise.resolve();
     }
-    return emit(event, this.label, payload);
+    return emit(event, payload, { target: this.label });
   }
+
   _handleTauriEvent(event, handler) {
     if (localTauriEvents.includes(event)) {
       if (!(event in this.listeners)) {
@@ -180,644 +178,434 @@ var WebviewWindowHandle = class {
     }
     return false;
   }
-};
-var WindowManager = class extends WebviewWindowHandle {
+}
+
+class WindowManager extends WindowHandle {
   async scaleFactor() {
-    return invokeTauriCommand({
-      __tauriModule: "Window",
-      message: {
-        cmd: "manage",
-        data: {
-          label: this.label,
-          cmd: {
-            type: "scaleFactor"
-          }
-        }
-      }
+    return window.__TAURI_INVOKE__("plugin:window|scale_factor", {
+      label: this.label,
     });
   }
+
   async innerPosition() {
-    return invokeTauriCommand({
-      __tauriModule: "Window",
-      message: {
-        cmd: "manage",
-        data: {
-          label: this.label,
-          cmd: {
-            type: "innerPosition"
-          }
-        }
-      }
-    }).then(({ x, y }) => new PhysicalPosition(x, y));
+    return window
+      .__TAURI_INVOKE__("plugin:window|inner_position", {
+        label: this.label,
+      })
+      .then(({ x, y }) => new PhysicalPosition(x, y));
   }
+
   async outerPosition() {
-    return invokeTauriCommand({
-      __tauriModule: "Window",
-      message: {
-        cmd: "manage",
-        data: {
-          label: this.label,
-          cmd: {
-            type: "outerPosition"
-          }
-        }
-      }
-    }).then(({ x, y }) => new PhysicalPosition(x, y));
+    return window
+      .__TAURI_INVOKE__("plugin:window|outer_position", {
+        label: this.label,
+      })
+      .then(({ x, y }) => new PhysicalPosition(x, y));
   }
+
   async innerSize() {
-    return invokeTauriCommand({
-      __tauriModule: "Window",
-      message: {
-        cmd: "manage",
-        data: {
-          label: this.label,
-          cmd: {
-            type: "innerSize"
-          }
-        }
-      }
-    }).then(({ width, height }) => new PhysicalSize(width, height));
+    return window
+      .__TAURI_INVOKE__("plugin:window|inner_size", {
+        label: this.label,
+      })
+      .then(({ width, height }) => new PhysicalSize(width, height));
   }
+
   async outerSize() {
-    return invokeTauriCommand({
-      __tauriModule: "Window",
-      message: {
-        cmd: "manage",
-        data: {
-          label: this.label,
-          cmd: {
-            type: "outerSize"
-          }
-        }
-      }
-    }).then(({ width, height }) => new PhysicalSize(width, height));
+    return window
+      .__TAURI_INVOKE__("plugin:window|outer_size", {
+        label: this.label,
+      })
+      .then(({ width, height }) => new PhysicalSize(width, height));
   }
+
   async isFullscreen() {
-    return invokeTauriCommand({
-      __tauriModule: "Window",
-      message: {
-        cmd: "manage",
-        data: {
-          label: this.label,
-          cmd: {
-            type: "isFullscreen"
-          }
-        }
-      }
+    return window.__TAURI_INVOKE__("plugin:window|is_fullscreen", {
+      label: this.label,
     });
   }
+
+  async isMinimized() {
+    return window.__TAURI_INVOKE__("plugin:window|is_minimized", {
+      label: this.label,
+    });
+  }
+
   async isMaximized() {
-    return invokeTauriCommand({
-      __tauriModule: "Window",
-      message: {
-        cmd: "manage",
-        data: {
-          label: this.label,
-          cmd: {
-            type: "isMaximized"
-          }
-        }
-      }
+    return window.__TAURI_INVOKE__("plugin:window|is_maximized", {
+      label: this.label,
     });
   }
+
+  async isFocused() {
+    return window.__TAURI_INVOKE__("plugin:window|is_focused", {
+      label: this.label,
+    });
+  }
+
   async isDecorated() {
-    return invokeTauriCommand({
-      __tauriModule: "Window",
-      message: {
-        cmd: "manage",
-        data: {
-          label: this.label,
-          cmd: {
-            type: "isDecorated"
-          }
-        }
-      }
+    return window.__TAURI_INVOKE__("plugin:window|is_decorated", {
+      label: this.label,
     });
   }
+
   async isResizable() {
-    return invokeTauriCommand({
-      __tauriModule: "Window",
-      message: {
-        cmd: "manage",
-        data: {
-          label: this.label,
-          cmd: {
-            type: "isResizable"
-          }
-        }
-      }
+    return window.__TAURI_INVOKE__("plugin:window|is_resizable", {
+      label: this.label,
     });
   }
+
+  async isMaximizable() {
+    return window.__TAURI_INVOKE__("plugin:window|is_maximizable", {
+      label: this.label,
+    });
+  }
+
+  async isMinimizable() {
+    return window.__TAURI_INVOKE__("plugin:window|is_minimizable", {
+      label: this.label,
+    });
+  }
+
+  async isClosable() {
+    return window.__TAURI_INVOKE__("plugin:window|is_closable", {
+      label: this.label,
+    });
+  }
+
   async isVisible() {
-    return invokeTauriCommand({
-      __tauriModule: "Window",
-      message: {
-        cmd: "manage",
-        data: {
-          label: this.label,
-          cmd: {
-            type: "isVisible"
-          }
-        }
-      }
+    return window.__TAURI_INVOKE__("plugin:window|is_visible", {
+      label: this.label,
     });
   }
+
+  async title() {
+    return window.__TAURI_INVOKE__("plugin:window|title", {
+      label: this.label,
+    });
+  }
+
   async theme() {
-    return invokeTauriCommand({
-      __tauriModule: "Window",
-      message: {
-        cmd: "manage",
-        data: {
-          label: this.label,
-          cmd: {
-            type: "theme"
-          }
-        }
-      }
+    return window.__TAURI_INVOKE__("plugin:window|theme", {
+      label: this.label,
     });
   }
+
   async center() {
-    return invokeTauriCommand({
-      __tauriModule: "Window",
-      message: {
-        cmd: "manage",
-        data: {
-          label: this.label,
-          cmd: {
-            type: "center"
-          }
-        }
-      }
+    return window.__TAURI_INVOKE__("plugin:window|center", {
+      label: this.label,
     });
   }
+
   async requestUserAttention(requestType) {
     let requestType_ = null;
     if (requestType) {
-      if (requestType === 1 /* Critical */) {
+      if (requestType === 1) {
         requestType_ = { type: "Critical" };
       } else {
         requestType_ = { type: "Informational" };
       }
     }
-    return invokeTauriCommand({
-      __tauriModule: "Window",
-      message: {
-        cmd: "manage",
-        data: {
-          label: this.label,
-          cmd: {
-            type: "requestUserAttention",
-            payload: requestType_
-          }
-        }
-      }
+
+    return window.__TAURI_INVOKE__("plugin:window|request_user_attention", {
+      label: this.label,
+      value: requestType_,
     });
   }
+
   async setResizable(resizable) {
-    return invokeTauriCommand({
-      __tauriModule: "Window",
-      message: {
-        cmd: "manage",
-        data: {
-          label: this.label,
-          cmd: {
-            type: "setResizable",
-            payload: resizable
-          }
-        }
-      }
+    return window.__TAURI_INVOKE__("plugin:window|set_resizable", {
+      label: this.label,
+      value: resizable,
     });
   }
+
+  async setMaximizable(maximizable) {
+    return window.__TAURI_INVOKE__("plugin:window|set_maximizable", {
+      label: this.label,
+      value: maximizable,
+    });
+  }
+
+  async setMinimizable(minimizable) {
+    return window.__TAURI_INVOKE__("plugin:window|set_minimizable", {
+      label: this.label,
+      value: minimizable,
+    });
+  }
+
+  async setClosable(closable) {
+    return window.__TAURI_INVOKE__("plugin:window|set_closable", {
+      label: this.label,
+      value: closable,
+    });
+  }
+
   async setTitle(title) {
-    return invokeTauriCommand({
-      __tauriModule: "Window",
-      message: {
-        cmd: "manage",
-        data: {
-          label: this.label,
-          cmd: {
-            type: "setTitle",
-            payload: title
-          }
-        }
-      }
+    return window.__TAURI_INVOKE__("plugin:window|set_title", {
+      label: this.label,
+      value: title,
     });
   }
+
   async maximize() {
-    return invokeTauriCommand({
-      __tauriModule: "Window",
-      message: {
-        cmd: "manage",
-        data: {
-          label: this.label,
-          cmd: {
-            type: "maximize"
-          }
-        }
-      }
+    return window.__TAURI_INVOKE__("plugin:window|maximize", {
+      label: this.label,
     });
   }
   async unmaximize() {
-    return invokeTauriCommand({
-      __tauriModule: "Window",
-      message: {
-        cmd: "manage",
-        data: {
-          label: this.label,
-          cmd: {
-            type: "unmaximize"
-          }
-        }
-      }
+    return window.__TAURI_INVOKE__("plugin:window|unmaximize", {
+      label: this.label,
     });
   }
+
   async toggleMaximize() {
-    return invokeTauriCommand({
-      __tauriModule: "Window",
-      message: {
-        cmd: "manage",
-        data: {
-          label: this.label,
-          cmd: {
-            type: "toggleMaximize"
-          }
-        }
-      }
+    return window.__TAURI_INVOKE__("plugin:window|toggle_maximize", {
+      label: this.label,
     });
   }
+
   async minimize() {
-    return invokeTauriCommand({
-      __tauriModule: "Window",
-      message: {
-        cmd: "manage",
-        data: {
-          label: this.label,
-          cmd: {
-            type: "minimize"
-          }
-        }
-      }
+    return window.__TAURI_INVOKE__("plugin:window|minimize", {
+      label: this.label,
     });
   }
+
   async unminimize() {
-    return invokeTauriCommand({
-      __tauriModule: "Window",
-      message: {
-        cmd: "manage",
-        data: {
-          label: this.label,
-          cmd: {
-            type: "unminimize"
-          }
-        }
-      }
+    return window.__TAURI_INVOKE__("plugin:window|unminimize", {
+      label: this.label,
     });
   }
+
   async show() {
-    return invokeTauriCommand({
-      __tauriModule: "Window",
-      message: {
-        cmd: "manage",
-        data: {
-          label: this.label,
-          cmd: {
-            type: "show"
-          }
-        }
-      }
+    return window.__TAURI_INVOKE__("plugin:window|show", {
+      label: this.label,
     });
   }
+
   async hide() {
-    return invokeTauriCommand({
-      __tauriModule: "Window",
-      message: {
-        cmd: "manage",
-        data: {
-          label: this.label,
-          cmd: {
-            type: "hide"
-          }
-        }
-      }
+    return window.__TAURI_INVOKE__("plugin:window|hide", {
+      label: this.label,
     });
   }
+
   async close() {
-    return invokeTauriCommand({
-      __tauriModule: "Window",
-      message: {
-        cmd: "manage",
-        data: {
-          label: this.label,
-          cmd: {
-            type: "close"
-          }
-        }
-      }
+    return window.__TAURI_INVOKE__("plugin:window|close", {
+      label: this.label,
     });
   }
+
   async setDecorations(decorations) {
-    return invokeTauriCommand({
-      __tauriModule: "Window",
-      message: {
-        cmd: "manage",
-        data: {
-          label: this.label,
-          cmd: {
-            type: "setDecorations",
-            payload: decorations
-          }
-        }
-      }
+    return window.__TAURI_INVOKE__("plugin:window|set_decorations", {
+      label: this.label,
+      value: decorations,
     });
   }
+
+  // TODO:
+  async setShadow(enable) {
+    return window.__TAURI_INVOKE__("plugin:window|set_shadow", {
+      label: this.label,
+      value: enable,
+    });
+  }
+
+  // TODO:
+  async setEffects(effects) {
+    return window.__TAURI_INVOKE__("plugin:window|set_effects", {
+      label: this.label,
+      value: effects,
+    });
+  }
+
+  // TODO:
+  async clearEffects() {
+    return window.__TAURI_INVOKE__("plugin:window|set_effects", {
+      label: this.label,
+      value: null,
+    });
+  }
+
   async setAlwaysOnTop(alwaysOnTop) {
-    return invokeTauriCommand({
-      __tauriModule: "Window",
-      message: {
-        cmd: "manage",
-        data: {
-          label: this.label,
-          cmd: {
-            type: "setAlwaysOnTop",
-            payload: alwaysOnTop
-          }
-        }
-      }
+    return window.__TAURI_INVOKE__("plugin:window|set_always_on_top", {
+      label: this.label,
+      value: alwaysOnTop,
     });
   }
+
+  async setContentProtected(protected_) {
+    return window.__TAURI_INVOKE__("plugin:window|set_content_protected", {
+      label: this.label,
+      value: protected_,
+    });
+  }
+
   async setSize(size) {
-    if (!size || size.type !== "Logical" && size.type !== "Physical") {
-      throw new Error(
-        "the `size` argument must be either a LogicalSize or a PhysicalSize instance"
-      );
+    if (!size || (size.type !== "Logical" && size.type !== "Physical")) {
+      throw new Error("the `size` argument must be either a LogicalSize or a PhysicalSize instance");
     }
-    return invokeTauriCommand({
-      __tauriModule: "Window",
-      message: {
-        cmd: "manage",
+
+    return window.__TAURI_INVOKE__("plugin:window|set_size", {
+      label: this.label,
+      value: {
+        type: size.type,
         data: {
-          label: this.label,
-          cmd: {
-            type: "setSize",
-            payload: {
-              type: size.type,
-              data: {
-                width: size.width,
-                height: size.height
-              }
-            }
-          }
-        }
-      }
+          width: size.width,
+          height: size.height,
+        },
+      },
     });
   }
+
   async setMinSize(size) {
     if (size && size.type !== "Logical" && size.type !== "Physical") {
-      throw new Error(
-        "the `size` argument must be either a LogicalSize or a PhysicalSize instance"
-      );
+      throw new Error("the `size` argument must be either a LogicalSize or a PhysicalSize instance");
     }
-    return invokeTauriCommand({
-      __tauriModule: "Window",
-      message: {
-        cmd: "manage",
-        data: {
-          label: this.label,
-          cmd: {
-            type: "setMinSize",
-            payload: size ? {
-              type: size.type,
-              data: {
-                width: size.width,
-                height: size.height
-              }
-            } : null
+
+    return window.__TAURI_INVOKE__("plugin:window|set_min_size", {
+      label: this.label,
+      value: size
+        ? {
+            type: size.type,
+            data: {
+              width: size.width,
+              height: size.height,
+            },
           }
-        }
-      }
+        : null,
     });
   }
+
   async setMaxSize(size) {
     if (size && size.type !== "Logical" && size.type !== "Physical") {
-      throw new Error(
-        "the `size` argument must be either a LogicalSize or a PhysicalSize instance"
-      );
+      throw new Error("the `size` argument must be either a LogicalSize or a PhysicalSize instance");
     }
-    return invokeTauriCommand({
-      __tauriModule: "Window",
-      message: {
-        cmd: "manage",
-        data: {
-          label: this.label,
-          cmd: {
-            type: "setMaxSize",
-            payload: size ? {
-              type: size.type,
-              data: {
-                width: size.width,
-                height: size.height
-              }
-            } : null
+
+    return window.__TAURI_INVOKE__("plugin:window|set_max_size", {
+      label: this.label,
+      value: size
+        ? {
+            type: size.type,
+            data: {
+              width: size.width,
+              height: size.height,
+            },
           }
-        }
-      }
+        : null,
     });
   }
+
   async setPosition(position) {
-    if (!position || position.type !== "Logical" && position.type !== "Physical") {
-      throw new Error(
-        "the `position` argument must be either a LogicalPosition or a PhysicalPosition instance"
-      );
+    if (!position || (position.type !== "Logical" && position.type !== "Physical")) {
+      throw new Error("the `position` argument must be either a LogicalPosition or a PhysicalPosition instance");
     }
-    return invokeTauriCommand({
-      __tauriModule: "Window",
-      message: {
-        cmd: "manage",
+
+    return window.__TAURI_INVOKE__("plugin:window|set_position", {
+      label: this.label,
+      value: {
+        type: position.type,
         data: {
-          label: this.label,
-          cmd: {
-            type: "setPosition",
-            payload: {
-              type: position.type,
-              data: {
-                x: position.x,
-                y: position.y
-              }
-            }
-          }
-        }
-      }
+          x: position.x,
+          y: position.y,
+        },
+      },
     });
   }
+
   async setFullscreen(fullscreen) {
-    return invokeTauriCommand({
-      __tauriModule: "Window",
-      message: {
-        cmd: "manage",
-        data: {
-          label: this.label,
-          cmd: {
-            type: "setFullscreen",
-            payload: fullscreen
-          }
-        }
-      }
+    return window.__TAURI_INVOKE__("plugin:window|set_fullscreen", {
+      label: this.label,
+      value: fullscreen,
     });
   }
+
   async setFocus() {
-    return invokeTauriCommand({
-      __tauriModule: "Window",
-      message: {
-        cmd: "manage",
-        data: {
-          label: this.label,
-          cmd: {
-            type: "setFocus"
-          }
-        }
-      }
+    return window.__TAURI_INVOKE__("plugin:window|set_focus", {
+      label: this.label,
     });
   }
+
   async setIcon(icon) {
-    return invokeTauriCommand({
-      __tauriModule: "Window",
-      message: {
-        cmd: "manage",
-        data: {
-          label: this.label,
-          cmd: {
-            type: "setIcon",
-            payload: {
-              icon: typeof icon === "string" ? icon : Array.from(icon)
-            }
-          }
-        }
-      }
+    return window.__TAURI_INVOKE__("plugin:window|set_icon", {
+      label: this.label,
+      value: typeof icon === "string" ? icon : Array.from(icon),
     });
   }
+
   async setSkipTaskbar(skip) {
-    return invokeTauriCommand({
-      __tauriModule: "Window",
-      message: {
-        cmd: "manage",
-        data: {
-          label: this.label,
-          cmd: {
-            type: "setSkipTaskbar",
-            payload: skip
-          }
-        }
-      }
+    return window.__TAURI_INVOKE__("plugin:window|set_skip_taskbar", {
+      label: this.label,
+      value: skip,
     });
   }
+
   async setCursorGrab(grab) {
-    return invokeTauriCommand({
-      __tauriModule: "Window",
-      message: {
-        cmd: "manage",
-        data: {
-          label: this.label,
-          cmd: {
-            type: "setCursorGrab",
-            payload: grab
-          }
-        }
-      }
+    return window.__TAURI_INVOKE__("plugin:window|set_cursor_grab", {
+      label: this.label,
+      value: grab,
     });
   }
+
   async setCursorVisible(visible) {
-    return invokeTauriCommand({
-      __tauriModule: "Window",
-      message: {
-        cmd: "manage",
-        data: {
-          label: this.label,
-          cmd: {
-            type: "setCursorVisible",
-            payload: visible
-          }
-        }
-      }
+    return window.__TAURI_INVOKE__("plugin:window|set_cursor_visible", {
+      label: this.label,
+      value: visible,
     });
   }
+
   async setCursorIcon(icon) {
-    return invokeTauriCommand({
-      __tauriModule: "Window",
-      message: {
-        cmd: "manage",
-        data: {
-          label: this.label,
-          cmd: {
-            type: "setCursorIcon",
-            payload: icon
-          }
-        }
-      }
+    return window.__TAURI_INVOKE__("plugin:window|set_cursor_icon", {
+      label: this.label,
+      value: icon,
     });
   }
+
   async setCursorPosition(position) {
-    if (!position || position.type !== "Logical" && position.type !== "Physical") {
-      throw new Error(
-        "the `position` argument must be either a LogicalPosition or a PhysicalPosition instance"
-      );
+    if (!position || (position.type !== "Logical" && position.type !== "Physical")) {
+      throw new Error("the `position` argument must be either a LogicalPosition or a PhysicalPosition instance");
     }
-    return invokeTauriCommand({
-      __tauriModule: "Window",
-      message: {
-        cmd: "manage",
+
+    return window.__TAURI_INVOKE__("plugin:window|set_cursor_position", {
+      label: this.label,
+      value: {
+        type: position.type,
         data: {
-          label: this.label,
-          cmd: {
-            type: "setCursorPosition",
-            payload: {
-              type: position.type,
-              data: {
-                x: position.x,
-                y: position.y
-              }
-            }
-          }
-        }
-      }
+          x: position.x,
+          y: position.y,
+        },
+      },
     });
   }
+
   async setIgnoreCursorEvents(ignore) {
-    return invokeTauriCommand({
-      __tauriModule: "Window",
-      message: {
-        cmd: "manage",
-        data: {
-          label: this.label,
-          cmd: {
-            type: "setIgnoreCursorEvents",
-            payload: ignore
-          }
-        }
-      }
+    return window.__TAURI_INVOKE__("plugin:window|set_ignore_cursor_events", {
+      label: this.label,
+      value: ignore,
     });
   }
+
   async startDragging() {
-    return invokeTauriCommand({
-      __tauriModule: "Window",
-      message: {
-        cmd: "manage",
-        data: {
-          label: this.label,
-          cmd: {
-            type: "startDragging"
-          }
-        }
-      }
+    return window.__TAURI_INVOKE__("plugin:window|start_dragging", {
+      label: this.label,
     });
   }
+
   async onResized(handler) {
-    return this.listen("tauri://resize" /* WINDOW_RESIZED */, handler);
+    return this.listen(TauriEvent.WINDOW_RESIZED, (e) => {
+      e.payload = mapPhysicalSize(e.payload);
+      handler(e);
+    });
   }
+
   async onMoved(handler) {
-    return this.listen("tauri://move" /* WINDOW_MOVED */, handler);
+    return this.listen(TauriEvent.WINDOW_MOVED, (e) => {
+      e.payload = mapPhysicalPosition(e.payload);
+      handler(e);
+    });
   }
+
   async onCloseRequested(handler) {
-    return this.listen("tauri://close-requested" /* WINDOW_CLOSE_REQUESTED */, (event) => {
+    return this.listen(TauriEvent.WINDOW_CLOSE_REQUESTED, (event) => {
       const evt = new CloseRequestedEvent(event);
       void Promise.resolve(handler(evt)).then(() => {
         if (!evt.isPreventDefault()) {
@@ -826,179 +614,113 @@ var WindowManager = class extends WebviewWindowHandle {
       });
     });
   }
+
   async onFocusChanged(handler) {
-    const unlistenFocus = await this.listen(
-      "tauri://focus" /* WINDOW_FOCUS */,
-      (event) => {
-        handler({ ...event, payload: true });
-      }
-    );
-    const unlistenBlur = await this.listen(
-      "tauri://blur" /* WINDOW_BLUR */,
-      (event) => {
-        handler({ ...event, payload: false });
-      }
-    );
+    const unlistenFocus = await this.listen(TauriEvent.WINDOW_FOCUS, (event) => {
+      handler({ ...event, payload: true });
+    });
+    const unlistenBlur = await this.listen(TauriEvent.WINDOW_BLUR, (event) => {
+      handler({ ...event, payload: false });
+    });
     return () => {
       unlistenFocus();
       unlistenBlur();
     };
   }
+
   async onScaleChanged(handler) {
-    return this.listen(
-      "tauri://scale-change" /* WINDOW_SCALE_FACTOR_CHANGED */,
-      handler
-    );
+    return this.listen(TauriEvent.WINDOW_SCALE_FACTOR_CHANGED, handler);
   }
+
   async onMenuClicked(handler) {
-    return this.listen("tauri://menu" /* MENU */, handler);
+    return this.listen(TauriEvent.MENU, handler);
   }
+
   async onFileDropEvent(handler) {
-    const unlistenFileDrop = await this.listen(
-      "tauri://file-drop" /* WINDOW_FILE_DROP */,
-      (event) => {
-        handler({ ...event, payload: { type: "drop", paths: event.payload } });
-      }
-    );
-    const unlistenFileHover = await this.listen(
-      "tauri://file-drop-hover" /* WINDOW_FILE_DROP_HOVER */,
-      (event) => {
-        handler({ ...event, payload: { type: "hover", paths: event.payload } });
-      }
-    );
-    const unlistenCancel = await this.listen(
-      "tauri://file-drop-cancelled" /* WINDOW_FILE_DROP_CANCELLED */,
-      (event) => {
-        handler({ ...event, payload: { type: "cancel" } });
-      }
-    );
+    const unlistenFileDrop = await this.listen(TauriEvent.WINDOW_FILE_DROP, (event) => {
+      handler({ ...event, payload: { type: "drop", paths: event.payload } });
+    });
+
+    const unlistenFileHover = await this.listen(TauriEvent.WINDOW_FILE_DROP_HOVER, (event) => {
+      handler({ ...event, payload: { type: "hover", paths: event.payload } });
+    });
+
+    const unlistenCancel = await this.listen(TauriEvent.WINDOW_FILE_DROP_CANCELLED, (event) => {
+      handler({ ...event, payload: { type: "cancel" } });
+    });
+
     return () => {
       unlistenFileDrop();
       unlistenFileHover();
       unlistenCancel();
     };
   }
+
   async onThemeChanged(handler) {
-    return this.listen("tauri://theme-changed" /* WINDOW_THEME_CHANGED */, handler);
+    return this.listen(TauriEvent.WINDOW_THEME_CHANGED, handler);
   }
-};
-var CloseRequestedEvent = class {
-  constructor(event) {
-    this._preventDefault = false;
-    this.event = event.event;
-    this.windowLabel = event.windowLabel;
-    this.id = event.id;
-  }
-  preventDefault() {
-    this._preventDefault = true;
-  }
-  isPreventDefault() {
-    return this._preventDefault;
-  }
-};
-var WebviewWindow = class extends WindowManager {
+}
+
+class Window extends WindowManager {
   constructor(label, options = {}) {
     super(label);
+
     if (!options?.skip) {
-      invokeTauriCommand({
-        __tauriModule: "Window",
-        message: {
-          cmd: "createWebview",
-          data: {
-            options: {
-              label,
-              ...options
-            }
-          }
-        }
-      }).then(async () => this.emit("tauri://created")).catch(async (e) => this.emit("tauri://error", e));
+      window
+        .__TAURI_INVOKE__("plugin:window|create", {
+          options: {
+            ...options,
+            label,
+          },
+        })
+        .then(async () => this.emit("tauri://created"))
+        .catch(async (e) => this.emit("tauri://error", e));
     }
   }
+
   static getByLabel(label) {
     if (getAll().some((w) => w.label === label)) {
-      return new WebviewWindow(label, { skip: true });
+      return new Window(label, { skip: true });
     }
     return null;
   }
-};
-var appWindow;
-if ("__TAURI_METADATA__" in window) {
-  appWindow = new WebviewWindow(
-    window.__TAURI_METADATA__.__currentWindow.label,
-    {
-      skip: true
-    }
-  );
-} else {
-  console.warn(
-    `Could not find "window.__TAURI_METADATA__". The "appWindow" value will reference the "main" window label.
-Note that this is not an issue if running this frontend on a browser instead of a Tauri window.`
-  );
-  appWindow = new WebviewWindow("main", {
-    skip: true
-  });
 }
+
 function mapMonitor(m) {
-  return m === null ? null : {
-    name: m.name,
-    scaleFactor: m.scaleFactor,
-    position: new PhysicalPosition(m.position.x, m.position.y),
-    size: new PhysicalSize(m.size.width, m.size.height)
-  };
+  return m === null
+    ? null
+    : {
+        name: m.name,
+        scaleFactor: m.scaleFactor,
+        osition: new PhysicalPosition(m.position.x, m.position.y),
+        size: new PhysicalSize(m.size.width, m.size.height),
+      };
 }
+
 async function currentMonitor() {
-  return invokeTauriCommand({
-    __tauriModule: "Window",
-    message: {
-      cmd: "manage",
-      data: {
-        cmd: {
-          type: "currentMonitor"
-        }
-      }
-    }
-  }).then(mapMonitor);
+  return window.__TAURI_INVOKE__("plugin:window|current_monitor").then(mapMonitor);
 }
+
 async function primaryMonitor() {
-  return invokeTauriCommand({
-    __tauriModule: "Window",
-    message: {
-      cmd: "manage",
-      data: {
-        cmd: {
-          type: "primaryMonitor"
-        }
-      }
-    }
-  }).then(mapMonitor);
+  return window.__TAURI_INVOKE__("plugin:window|primary_monitor").then(mapMonitor);
 }
+
 async function availableMonitors() {
-  return invokeTauriCommand({
-    __tauriModule: "Window",
-    message: {
-      cmd: "manage",
-      data: {
-        cmd: {
-          type: "availableMonitors"
-        }
-      }
-    }
-  }).then((ms) => ms.map(mapMonitor));
+  return window.__TAURI_INVOKE__("plugin:window|available_monitors").then((ms) => ms.map(mapMonitor));
 }
+
 export {
-  CloseRequestedEvent,
-  LogicalPosition,
-  LogicalSize,
+  Window,
+  WindowHandle,
+  WindowManager,
   PhysicalPosition,
   PhysicalSize,
-  UserAttentionType,
-  WebviewWindow,
-  WebviewWindowHandle,
-  WindowManager,
-  appWindow,
-  availableMonitors,
-  currentMonitor,
-  getAll,
+  LogicalPosition,
+  LogicalSize,
+  CloseRequestedEvent,
   getCurrent,
-  primaryMonitor
+  getAll,
+  currentMonitor,
+  primaryMonitor,
+  availableMonitors,
 };
