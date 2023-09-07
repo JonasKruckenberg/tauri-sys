@@ -38,14 +38,13 @@ use url::Url;
 /// ```
 ///
 /// @return the URL that can be used as source on the webview.
-#[inline(always)]
 pub async fn convert_file_src(file_path: &str, protocol: Option<&str>) -> crate::Result<Url> {
     let js_val = inner::convertFileSrc(file_path, protocol).await?;
 
     Ok(serde_wasm_bindgen::from_value(js_val)?)
 }
 
-/// Sends a message to the backend.
+/// Sends a message to the backend. Returns the deserializable from the response.
 ///
 /// # Example
 ///
@@ -59,15 +58,27 @@ pub async fn convert_file_src(file_path: &str, protocol: Option<&str>) -> crate:
 ///
 /// invoke("login", &User { user: "tauri", password: "poiwe3h4r5ip3yrhtew9ty" }).await;
 /// ```
-///
-/// @param cmd The command name.
-/// @param args The optional arguments to pass to the command.
-/// @return A promise resolving or rejecting to the backend response.
-#[inline(always)]
 pub async fn invoke<A: Serialize, R: DeserializeOwned>(cmd: &str, args: &A) -> crate::Result<R> {
     let raw = inner::invoke(cmd, serde_wasm_bindgen::to_value(args)?).await?;
 
     serde_wasm_bindgen::from_value(raw).map_err(Into::into)
+}
+
+/// Sends a message to the backend. Returns the bytes from the response.
+///
+/// ```rust,no_run
+/// use tauri_api::tauri::invoke;
+///
+/// struct Book<'a> {
+///     id: &'a str,
+/// }
+///
+/// invoke("get_cover_art", &Book { id: "L5761325M" }).await;
+/// ```
+pub async fn invoke_bytes<A: Serialize>(cmd: &str, args: &A) -> crate::Result<Vec<u8>> {
+    let raw = inner::invoke(cmd, serde_wasm_bindgen::to_value(args)?).await?;
+
+    Ok(js_sys::Uint8Array::new(&raw).to_vec())
 }
 
 /// Transforms a callback function to a string identifier that can be passed to the backend.
@@ -75,7 +86,6 @@ pub async fn invoke<A: Serialize, R: DeserializeOwned>(cmd: &str, args: &A) -> c
 /// The backend uses the identifier to `eval()` the callback.
 ///
 /// @return A unique identifier associated with the callback function.
-#[inline(always)]
 pub async fn transform_callback<T: DeserializeOwned>(
     callback: &dyn Fn(T),
     once: bool,
