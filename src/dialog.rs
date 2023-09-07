@@ -1,26 +1,5 @@
-//! Native system dialogs for opening and saving files.
-//!
-//! The APIs must be added to tauri.allowlist.dialog in tauri.conf.json:
-//! ```json
-//! {
-//!     "tauri": {
-//!         "allowlist": {
-//!             "dialog": {
-//!                 "all": true, // enable all dialog APIs
-//!                 "open": true, // enable file open API
-//!                 "save": true // enable file save API
-//!                 "message": true,
-//!                 "ask": true,
-//!                 "confirm": true
-//!             }
-//!         }
-//!     }
-//! }
-//! ```
-//! It is recommended to allowlist only the APIs you use for optimal bundle size and security.
-
 use js_sys::Array;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 
 use crate::utils::ArrayIterator;
@@ -28,6 +7,11 @@ use crate::utils::ArrayIterator;
 struct DialogFilter<'a> {
     extensions: &'a [&'a str],
     name: &'a str,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+struct PickFileResponse {
+    path: String,
 }
 
 /// The file dialog builder.
@@ -145,12 +129,15 @@ impl<'a> FileDialogBuilder<'a> {
     /// # Ok(())
     /// # }
     /// ```
-    ///
-    /// Requires [`allowlist > dialog > open`](https://tauri.app/v1/api/config#dialogallowlistconfig.open) to be enabled.
     pub async fn pick_file(&self) -> crate::Result<Option<PathBuf>> {
         let raw = inner::open(serde_wasm_bindgen::to_value(&self)?).await?;
 
-        Ok(serde_wasm_bindgen::from_value(raw)?)
+        if raw.is_null() {
+            return Ok(None);
+        }
+
+        Ok(serde_wasm_bindgen::from_value::<PickFileResponse>(raw)
+            .map(|res| Some(PathBuf::from(res.path)))?)
     }
 
     /// Shows the dialog to select multiple files.
@@ -165,21 +152,26 @@ impl<'a> FileDialogBuilder<'a> {
     /// # Ok(())
     /// # }
     /// ```
-    ///
-    /// Requires [`allowlist > dialog > open`](https://tauri.app/v1/api/config#dialogallowlistconfig.open) to be enabled.
-    pub async fn pick_files(&mut self) -> crate::Result<Option<impl Iterator<Item = PathBuf>>> {
+    pub async fn pick_files(&mut self) -> crate::Result<Option<Vec<PathBuf>>> {
         self.multiple = true;
 
         let raw = inner::open(serde_wasm_bindgen::to_value(&self)?).await?;
 
-        if let Ok(files) = Array::try_from(raw) {
-            let files =
-                ArrayIterator::new(files).map(|raw| serde_wasm_bindgen::from_value(raw).unwrap());
-
-            Ok(Some(files))
-        } else {
-            Ok(None)
+        if raw.is_null() {
+            return Ok(None);
         }
+
+        let files = Array::try_from(raw)
+            .map(|files| {
+                files
+                    .into_iter()
+                    .map(|raw| serde_wasm_bindgen::from_value::<PickFileResponse>(raw).unwrap())
+                    .map(|res| PathBuf::from(res.path))
+                    .collect::<Vec<PathBuf>>()
+            })
+            .unwrap_or_else(|_| Vec::<PathBuf>::new());
+
+        Ok(Some(files))
     }
 
     /// Shows the dialog to select a single folder.
@@ -194,8 +186,6 @@ impl<'a> FileDialogBuilder<'a> {
     /// # Ok(())
     /// # }
     /// ```
-    ///
-    /// Requires [`allowlist > dialog > open`](https://tauri.app/v1/api/config#dialogallowlistconfig.open) to be enabled.
     pub async fn pick_folder(&mut self) -> crate::Result<Option<PathBuf>> {
         self.directory = true;
 
@@ -216,17 +206,17 @@ impl<'a> FileDialogBuilder<'a> {
     /// # Ok(())
     /// # }
     /// ```
-    ///
-    /// Requires [`allowlist > dialog > open`](https://tauri.app/v1/api/config#dialogallowlistconfig.open) to be enabled.
-    pub async fn pick_folders(&mut self) -> crate::Result<Option<impl Iterator<Item = PathBuf>>> {
+    pub async fn pick_folders(&mut self) -> crate::Result<Option<Vec<PathBuf>>> {
         self.directory = true;
         self.multiple = true;
 
         let raw = inner::open(serde_wasm_bindgen::to_value(&self)?).await?;
 
         if let Ok(files) = Array::try_from(raw) {
-            let files =
-                ArrayIterator::new(files).map(|raw| serde_wasm_bindgen::from_value(raw).unwrap());
+            let files = files
+                .into_iter()
+                .map(|raw| serde_wasm_bindgen::from_value(raw).unwrap())
+                .collect::<Vec<_>>();
 
             Ok(Some(files))
         } else {
@@ -252,8 +242,6 @@ impl<'a> FileDialogBuilder<'a> {
     /// # Ok(())
     /// # }
     /// ```
-    ///
-    /// Requires [`allowlist > dialog > save`](https://tauri.app/v1/api/config#dialogallowlistconfig.save) to be enabled.
     pub async fn save(&self) -> crate::Result<Option<PathBuf>> {
         let raw = inner::save(serde_wasm_bindgen::to_value(&self)?).await?;
 
@@ -274,14 +262,18 @@ pub enum MessageDialogKind {
 }
 
 /// A builder for message dialogs.
-#[derive(Debug, Default, Clone, Copy, Hash, Serialize)]
-pub struct MessageDialogBuilder<'a> {
-    title: Option<&'a str>,
+#[derive(Debug, Default, Clone, Hash, Serialize)]
+pub struct MessageDialogBuilder {
+    title: Option<String>,
     #[serde(rename = "type")]
     kind: MessageDialogKind,
+    #[serde(rename = "okLabel")]
+    ok_button_label: Option<String>,
+    #[serde(rename = "cancelLabel")]
+    cancel_button_label: Option<String>
 }
 
-impl<'a> MessageDialogBuilder<'a> {
+impl<'a> MessageDialogBuilder {
     pub fn new() -> Self {
         Self::default()
     }
@@ -298,7 +290,7 @@ impl<'a> MessageDialogBuilder<'a> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn set_title(&mut self, title: &'a str) -> &mut Self {
+    pub fn set_title(&mut self, title: String) -> &mut Self {
         self.title = Some(title);
         self
     }
@@ -320,6 +312,16 @@ impl<'a> MessageDialogBuilder<'a> {
         self
     }
 
+    pub fn set_ok_label(&mut self, label: String) -> &mut Self {
+        self.ok_button_label = Some(label);
+        self
+    }
+
+    pub fn set_cancel_label(&mut self, label: String) -> &mut Self {
+        self.cancel_button_label = Some(label);
+        self
+    }
+
     /// Shows a message dialog with an `Ok` button.
     ///
     /// # Example
@@ -332,9 +334,7 @@ impl<'a> MessageDialogBuilder<'a> {
     /// # Ok(())
     /// # }
     /// ```
-    ///
-    /// Requires [`allowlist > dialog > message`](https://tauri.app/v1/api/config#dialogallowlistconfig.message) to be enabled.
-    pub async fn message(&self, message: &str) -> crate::Result<()> {
+    pub async fn message(&self, message: String) -> crate::Result<()> {
         Ok(inner::message(message, serde_wasm_bindgen::to_value(&self)?).await?)
     }
 
@@ -350,9 +350,7 @@ impl<'a> MessageDialogBuilder<'a> {
     /// # Ok(())
     /// # }
     /// ```
-    ///
-    /// Requires [`allowlist > dialog > ask`](https://tauri.app/v1/api/config#dialogallowlistconfig.ask) to be enabled.
-    pub async fn ask(&self, message: &str) -> crate::Result<bool> {
+    pub async fn ask(&self, message: String) -> crate::Result<bool> {
         let raw = inner::ask(message, serde_wasm_bindgen::to_value(&self)?).await?;
 
         Ok(serde_wasm_bindgen::from_value(raw)?)
@@ -370,9 +368,7 @@ impl<'a> MessageDialogBuilder<'a> {
     /// # Ok(())
     /// # }
     /// ```
-    ///
-    /// Requires [`allowlist > dialog > confirm`](https://tauri.app/v1/api/config#dialogallowlistconfig.confirm) to be enabled.
-    pub async fn confirm(&self, message: &str) -> crate::Result<bool> {
+    pub async fn confirm(&self, message: String) -> crate::Result<bool> {
         let raw = inner::confirm(message, serde_wasm_bindgen::to_value(&self)?).await?;
 
         Ok(serde_wasm_bindgen::from_value(raw)?)
@@ -385,13 +381,13 @@ mod inner {
     #[wasm_bindgen(module = "/src/dialog.js")]
     extern "C" {
         #[wasm_bindgen(catch)]
-        pub async fn ask(message: &str, options: JsValue) -> Result<JsValue, JsValue>;
+        pub async fn ask(message: String, options: JsValue) -> Result<JsValue, JsValue>;
         #[wasm_bindgen(catch)]
-        pub async fn confirm(message: &str, options: JsValue) -> Result<JsValue, JsValue>;
+        pub async fn confirm(message: String, options: JsValue) -> Result<JsValue, JsValue>;
         #[wasm_bindgen(catch)]
         pub async fn open(options: JsValue) -> Result<JsValue, JsValue>;
         #[wasm_bindgen(catch)]
-        pub async fn message(message: &str, option: JsValue) -> Result<(), JsValue>;
+        pub async fn message(message: String, option: JsValue) -> Result<(), JsValue>;
         #[wasm_bindgen(catch)]
         pub async fn save(options: JsValue) -> Result<JsValue, JsValue>;
     }

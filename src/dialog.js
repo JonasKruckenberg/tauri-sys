@@ -1,111 +1,94 @@
-// tauri/tooling/api/src/tauri.ts
-function uid() {
-  return window.crypto.getRandomValues(new Uint32Array(1))[0];
-}
-function transformCallback(callback, once = false) {
-  const identifier = uid();
-  const prop = `_${identifier}`;
-  Object.defineProperty(window, prop, {
-    value: (result) => {
-      if (once) {
-        Reflect.deleteProperty(window, prop);
-      }
-      return callback?.(result);
-    },
-    writable: false,
-    configurable: true
-  });
-  return identifier;
-}
-async function invoke(cmd, args = {}) {
-  return new Promise((resolve, reject) => {
-    const callback = transformCallback((e) => {
-      resolve(e);
-      Reflect.deleteProperty(window, `_${error}`);
-    }, true);
-    const error = transformCallback((e) => {
-      reject(e);
-      Reflect.deleteProperty(window, `_${callback}`);
-    }, true);
-    window.__TAURI_IPC__({
-      cmd,
-      callback,
-      error,
-      ...args
-    });
-  });
-}
-
-// tauri/tooling/api/src/helpers/tauri.ts
-async function invokeTauriCommand(command) {
-  return invoke("tauri", command);
-}
-
-// tauri/tooling/api/src/dialog.ts
 async function open(options = {}) {
   if (typeof options === "object") {
     Object.freeze(options);
   }
-  return invokeTauriCommand({
-    __tauriModule: "Dialog",
-    message: {
-      cmd: "openDialog",
-      options
-    }
-  });
+  return window.__TAURI_INVOKE__("plugin:dialog|open", { options });
 }
+
 async function save(options = {}) {
   if (typeof options === "object") {
     Object.freeze(options);
   }
-  return invokeTauriCommand({
-    __tauriModule: "Dialog",
-    message: {
-      cmd: "saveDialog",
-      options
-    }
-  });
+  return window.__TAURI_INVOKE__("plugin:dialog|save", { options });
 }
-async function message(message2, options) {
+
+async function message(message, options) {
+  var _a, _b;
   const opts = typeof options === "string" ? { title: options } : options;
-  return invokeTauriCommand({
-    __tauriModule: "Dialog",
-    message: {
-      cmd: "messageDialog",
-      message: message2.toString(),
-      title: opts?.title?.toString(),
-      type: opts?.type
-    }
+  return window.__TAURI_INVOKE__("plugin:dialog|message", {
+    message: message.toString(),
+    title:
+      (_a = opts === null || opts === void 0 ? void 0 : opts.title) === null ||
+      _a === void 0
+        ? void 0
+        : _a.toString(),
+    type: opts === null || opts === void 0 ? void 0 : opts.type,
+    okButtonLabel:
+      (_b = opts === null || opts === void 0 ? void 0 : opts.okLabel) ===
+        null || _b === void 0
+        ? void 0
+        : _b.toString(),
   });
 }
-async function ask(message2, options) {
+
+async function ask(message, options) {
+  var _a, _b, _c, _d, _e;
   const opts = typeof options === "string" ? { title: options } : options;
-  return invokeTauriCommand({
-    __tauriModule: "Dialog",
-    message: {
-      cmd: "askDialog",
-      message: message2.toString(),
-      title: opts?.title?.toString(),
-      type: opts?.type
-    }
+  return window.__TAURI_INVOKE__("plugin:dialog|ask", {
+    message: message.toString(),
+    title:
+      (_a = opts === null || opts === void 0 ? void 0 : opts.title) === null ||
+      _a === void 0
+        ? void 0
+        : _a.toString(),
+    type: opts === null || opts === void 0 ? void 0 : opts.type,
+    okButtonLabel:
+      (_c =
+        (_b = opts === null || opts === void 0 ? void 0 : opts.okLabel) ===
+          null || _b === void 0
+          ? void 0
+          : _b.toString()) !== null && _c !== void 0
+        ? _c
+        : "Yes",
+    cancelButtonLabel:
+      (_e =
+        (_d = opts === null || opts === void 0 ? void 0 : opts.cancelLabel) ===
+          null || _d === void 0
+          ? void 0
+          : _d.toString()) !== null && _e !== void 0
+        ? _e
+        : "No",
   });
 }
-async function confirm(message2, options) {
+
+async function confirm(message, options) {
+  var _a, _b, _c, _d, _e;
   const opts = typeof options === "string" ? { title: options } : options;
-  return invokeTauriCommand({
-    __tauriModule: "Dialog",
-    message: {
-      cmd: "confirmDialog",
-      message: message2.toString(),
-      title: opts?.title?.toString(),
-      type: opts?.type
-    }
+  return window.__TAURI_INVOKE__("plugin:dialog|confirm", {
+    message: message.toString(),
+    title:
+      (_a = opts === null || opts === void 0 ? void 0 : opts.title) === null ||
+      _a === void 0
+        ? void 0
+        : _a.toString(),
+    type: opts === null || opts === void 0 ? void 0 : opts.type,
+    okButtonLabel:
+      (_c =
+        (_b = opts === null || opts === void 0 ? void 0 : opts.okLabel) ===
+          null || _b === void 0
+          ? void 0
+          : _b.toString()) !== null && _c !== void 0
+        ? _c
+        : "Ok",
+    cancelButtonLabel:
+      (_e =
+        (_d = opts === null || opts === void 0 ? void 0 : opts.cancelLabel) ===
+          null || _d === void 0
+          ? void 0
+          : _d.toString()) !== null && _e !== void 0
+        ? _e
+        : "Cancel",
   });
 }
-export {
-  ask,
-  confirm,
-  message,
-  open,
-  save
-};
+
+export { ask, confirm, message, open, save };
