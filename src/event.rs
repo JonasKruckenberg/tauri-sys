@@ -5,7 +5,6 @@ use futures::{
     Future, FutureExt, Stream, StreamExt,
 };
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
-use serde_wasm_bindgen::to_value;
 use std::fmt::Debug;
 use wasm_bindgen::{prelude::Closure, JsValue};
 

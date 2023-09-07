@@ -1,97 +1,64 @@
-// tauri/tooling/api/src/tauri.ts
-function uid() {
-  return window.crypto.getRandomValues(new Uint32Array(1))[0];
-}
-function transformCallback(callback, once = false) {
-  const identifier = uid();
-  const prop = `_${identifier}`;
-  Object.defineProperty(window, prop, {
-    value: (result) => {
-      if (once) {
-        Reflect.deleteProperty(window, prop);
-      }
-      return callback?.(result);
-    },
-    writable: false,
-    configurable: true
-  });
-  return identifier;
-}
-async function invoke(cmd, args = {}) {
-  return new Promise((resolve, reject) => {
-    const callback = transformCallback((e) => {
-      resolve(e);
-      Reflect.deleteProperty(window, `_${error}`);
-    }, true);
-    const error = transformCallback((e) => {
-      reject(e);
-      Reflect.deleteProperty(window, `_${callback}`);
-    }, true);
-    window.__TAURI_IPC__({
-      cmd,
-      callback,
-      error,
-      ...args
+class Channel {
+  id;
+  __TAURI_CHANNEL_MARKER__ = true;
+  #onmessage = () => {};
+
+  constructor() {
+    this.id = window.__TAURI__.transformCallback((response) => {
+      this.#onmessage(response);
     });
-  });
+  }
+
+  set onmessage(handler) {
+    this.#onmessage = handler;
+  }
+
+  get onmessage() {
+    return this.#onmessage;
+  }
+
+  toJSON() {
+    return `__CHANNEL__:${this.id}`;
+  }
 }
 
-// tauri/tooling/api/src/helpers/tauri.ts
-async function invokeTauriCommand(command) {
-  return invoke("tauri", command);
-}
-
-// tauri/tooling/api/src/globalShortcut.ts
 async function register(shortcut, handler) {
-  return invokeTauriCommand({
-    __tauriModule: "GlobalShortcut",
-    message: {
-      cmd: "register",
-      shortcut,
-      handler: transformCallback(handler)
-    }
+  const h = new Channel();
+  h.onmessage = handler;
+
+  return window.__TAURI_INVOKE__("plugin:globalShortcut|register", {
+    shortcut,
+    handler: h,
+  }).then(() => {
+    console.log('return unregister');
+    return async () => unregister(shortcut);
   });
 }
+
 async function registerAll(shortcuts, handler) {
-  return invokeTauriCommand({
-    __tauriModule: "GlobalShortcut",
-    message: {
-      cmd: "registerAll",
-      shortcuts,
-      handler: transformCallback(handler)
-    }
+  const h = new Channel();
+  h.onmessage = handler;
+
+  return window.__TAURI_INVOKE__("plugin:globalShortcut|register_all", {
+    shortcuts,
+    handler: h,
   });
 }
+
 async function isRegistered(shortcut) {
-  return invokeTauriCommand({
-    __tauriModule: "GlobalShortcut",
-    message: {
-      cmd: "isRegistered",
-      shortcut
-    }
+  return window.__TAURI_INVOKE__("plugin:globalShortcut|is_registered", {
+    shortcut,
   });
 }
+
 async function unregister(shortcut) {
-  return invokeTauriCommand({
-    __tauriModule: "GlobalShortcut",
-    message: {
-      cmd: "unregister",
-      shortcut
-    }
+  return window.__TAURI_INVOKE__("plugin:globalShortcut|unregister", {
+    shortcut,
   });
 }
+
 async function unregisterAll() {
-  return invokeTauriCommand({
-    __tauriModule: "GlobalShortcut",
-    message: {
-      cmd: "unregisterAll"
-    }
-  });
+  return window.__TAURI_INVOKE__("plugin:globalShortcut|unregister_all");
 }
-export {
-  isRegistered,
-  register,
-  registerAll,
-  unregister,
-  unregisterAll
-};
+
+export { register, registerAll, isRegistered, unregister, unregisterAll };

@@ -63,7 +63,6 @@ pub async fn is_registered(shortcut: &str) -> crate::Result<bool> {
 /// Register a global shortcut.
 ///
 /// The returned Future will automatically clean up it's underlying event listener when dropped, so no manual unlisten function needs to be called.
-/// See [Differences to the JavaScript API](../index.html#differences-to-the-javascript-api) for details.
 ///
 /// # Examples
 ///
@@ -72,9 +71,9 @@ pub async fn is_registered(shortcut: &str) -> crate::Result<bool> {
 /// use web_sys::console;
 ///
 /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
-/// let events = register("CommandOrControl+Shift+C").await?;
+/// let mut events = register("CommandOrControl+Shift+C").await?;
 ///
-/// while let Some(_) in events.next().await {
+/// while let Some(_) = events.next().await {
 ///     console::log_1(&"Shortcut triggered".into());
 /// }
 /// # Ok(())
