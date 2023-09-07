@@ -1,8 +1,15 @@
+//! Native system dialogs for opening and saving files.
+//!
+//! The Dialog plugin must be installed and configured.
+//! ```rust
+//! tauri::Builder::default()
+//!   .plugin(tauri_plugin_dialog::init())
+//!   .run(tauri::generate_context!())
+//! ```
 use js_sys::Array;
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 
-use crate::utils::ArrayIterator;
 #[derive(Debug, Clone, Copy, Hash, Serialize)]
 struct DialogFilter<'a> {
     extensions: &'a [&'a str],
