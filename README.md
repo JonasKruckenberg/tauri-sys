@@ -21,7 +21,7 @@
 This crate is not yet published to crates.io, so you need to use it from git. You also need a global installation of [`esbuild`].
 
 ```toml
-tauri-sys = { git = "https://github.com/JonasKruckenberg/tauri-sys" }
+tauri-sys = { git = "https://github.com/LetrixZ/tauri-sys" }
 ```
 
 ## Usage
@@ -44,21 +44,18 @@ fn main() {
 }
 ```
 
+## Plugins
+
+Some plugins are now separated from the Tauri core. https://github.com/tauri-apps/plugins-workspace\
+`app`, `event`, `mocks`, `path` and `tauri` are still part of the core.
+
 ## Features
 
-All modules are gated by accordingly named Cargo features. It is recommended you keep this synced with the features enabled in your [Tauri Allowlist] but no automated tool for this exists (yet).
+Bindings are behind features. Use `all` to enable all features or use the name of the plugin as the feature to enable it.
 
-- **all**: Enables all modules.
-- **app**: Enables the `app` module.
-- **clipboard**: Enables the `clipboard` module.
-- **dialog**: Enables the `dialog` module.
-- **event**: Enables the `event` module.
-- **mocks**: Enables the `mocks` module.
-- **tauri**: Enables the `tauri` module.
+## Are we Tauri v2 yet?
 
-## Are we Tauri v2s yet?
-
-These API bindings are not completely on-par with `@tauri-apps/api` yet, but here is the current status-quo:
+These API bindings are not completely on-par with `@tauri-apps/api` and the rest of the plugins yet, but here is the current status-quo:
 
 - [x] `app`
 - [ ] `cli`
@@ -72,6 +69,7 @@ These API bindings are not completely on-par with `@tauri-apps/api` yet, but her
 - [x] `notification`
 - [x] `os`
 - [ ] `path`
+- [x] `positioner`
 - [x] `process`
 - [ ] `shell`
 - [x] `tauri`
