@@ -56,7 +56,7 @@ All modules are gated by accordingly named Cargo features. It is recommended you
 - **mocks**: Enables the `mocks` module.
 - **tauri**: Enables the `tauri` module.
 
-## Are we Tauri yet?
+## Are we Tauri v2s yet?
 
 These API bindings are not completely on-par with `@tauri-apps/api` yet, but here is the current status-quo:
 
@@ -68,10 +68,10 @@ These API bindings are not completely on-par with `@tauri-apps/api` yet, but her
 - [ ] `fs`
 - [x] `global_shortcut`
 - [ ] `http`
-- [x] `mocks`
+- [ ] `mocks`
 - [x] `notification`
 - [x] `os`
-- [x] `path`
+- [ ] `path`
 - [x] `process`
 - [ ] `shell`
 - [x] `tauri`
