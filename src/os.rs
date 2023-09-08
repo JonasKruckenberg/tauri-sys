@@ -1,5 +1,5 @@
 //! Provides operating system-related utility methods and properties.
-//! 
+//!
 //! The APIs must be added to tauri.allowlist.os in tauri.conf.json:
 //! ```json
 //! {
@@ -47,8 +47,8 @@ pub enum Arch {
 pub enum Platform {
     #[serde(rename = "linux")]
     Linux,
-    #[serde(rename = "darwin")]
-    Darwin,
+    #[serde(rename = "macos")]
+    Macos,
     #[serde(rename = "ios")]
     Ios,
     #[serde(rename = "freebsd")]
@@ -63,18 +63,30 @@ pub enum Platform {
     Solaris,
     #[serde(rename = "android")]
     Android,
-    #[serde(rename = "win32")]
-    Win32,
+    #[serde(rename = "windows")]
+    Windows,
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 pub enum OsKind {
-    #[serde(rename = "Linux")]
+    #[serde(rename = "linux")]
     Linux,
-    #[serde(rename = "Darwin")]
-    Darwin,
-    #[serde(rename = "Windows_NT")]
-    WindowsNT,
+    #[serde(rename = "macos")]
+    Macos,
+    #[serde(rename = "windows")]
+    Windows,
+    #[serde(rename = "ios")]
+    Ios,
+    #[serde(rename = "android")]
+    Android,
+}
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+pub enum Family {
+    #[serde(rename = "unix")]
+    Unix,
+    #[serde(rename = "windows")]
+    Windows,
 }
 
 /// Returns the operating system CPU architecture for which the tauri app was compiled.
@@ -93,10 +105,10 @@ pub async fn platform() -> crate::Result<Platform> {
     Ok(serde_wasm_bindgen::from_value(raw)?)
 }
 
-/// Returns the operating system's default directory for temporary files.
+/// Returns the operating system's family.
 #[inline(always)]
-pub async fn tempdir() -> crate::Result<PathBuf> {
-    let raw = inner::tempdir().await?;
+pub async fn family() -> crate::Result<PathBuf> {
+    let raw = inner::family().await?;
 
     Ok(serde_wasm_bindgen::from_value(raw)?)
 }
@@ -117,6 +129,30 @@ pub async fn version() -> crate::Result<String> {
     Ok(serde_wasm_bindgen::from_value(raw)?)
 }
 
+/// Returns the system's locale.
+#[inline(always)]
+pub async fn locale() -> crate::Result<String> {
+    let raw = inner::locale().await?;
+
+    Ok(serde_wasm_bindgen::from_value(raw)?)
+}
+
+/// Returns the executable extension.
+#[inline(always)]
+pub async fn executable_ext() -> crate::Result<String> {
+    let raw = inner::executable_ext().await?;
+
+    Ok(serde_wasm_bindgen::from_value(raw)?)
+}
+
+/// Returns the hostname.
+#[inline(always)]
+pub async fn hostname() -> crate::Result<String> {
+    let raw = inner::hostname().await?;
+
+    Ok(serde_wasm_bindgen::from_value(raw)?)
+}
+
 mod inner {
     use wasm_bindgen::prelude::*;
 
@@ -127,10 +163,16 @@ mod inner {
         #[wasm_bindgen(catch)]
         pub async fn platform() -> Result<JsValue, JsValue>;
         #[wasm_bindgen(catch)]
-        pub async fn tempdir() -> Result<JsValue, JsValue>;
+        pub async fn family() -> Result<JsValue, JsValue>;
         #[wasm_bindgen(catch, js_name = "type")]
         pub async fn kind() -> Result<JsValue, JsValue>;
         #[wasm_bindgen(catch)]
         pub async fn version() -> Result<JsValue, JsValue>;
+        #[wasm_bindgen(catch)]
+        pub async fn locale() -> Result<JsValue, JsValue>;
+        #[wasm_bindgen(catch, js_name = "exeExtension")]
+        pub async fn executable_ext() -> Result<JsValue, JsValue>;
+        #[wasm_bindgen(catch)]
+        pub async fn hostname() -> Result<JsValue, JsValue>;
     }
 }
