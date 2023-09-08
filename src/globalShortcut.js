@@ -29,9 +29,6 @@ async function register(shortcut, handler) {
   return window.__TAURI_INVOKE__("plugin:globalShortcut|register", {
     shortcut,
     handler: h,
-  }).then(() => {
-    console.log('return unregister');
-    return async () => unregister(shortcut);
   });
 }
 
