@@ -46,7 +46,8 @@ fn main() {
 
 ## Plugins
 
-Some plugins are now separated from the Tauri core. https://github.com/tauri-apps/plugins-workspace\
+Some plugins are now separated from the Tauri core. https://github.com/tauri-apps/plugins-workspace
+
 `app`, `event`, `mocks`, `path` and `tauri` are still part of the core.
 
 ## Features
