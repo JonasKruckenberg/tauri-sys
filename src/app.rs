@@ -1,20 +1,4 @@
 //! Get application metadata.
-//! 
-//! he APIs must be added to tauri.allowlist.app in tauri.conf.json:
-//! ```json
-//! {
-//!     "tauri": {
-//!         "allowlist": {
-//!             "app": {
-//!                 "all": true, // enable all app APIs
-//!                 "show": true,
-//!                 "hide": true
-//!             }
-//!         }
-//!     }
-//! }
-//! ```
-//! It is recommended to allowlist only the APIs you use for optimal bundle size and security.
 
 use semver::Version;
 

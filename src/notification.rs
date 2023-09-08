@@ -1,7 +1,7 @@
 //! Send toast notifications (brief auto-expiring OS window element) to your user. Can also be used with the Notification Web API.
-//! 
+//!
 //! The APIs must be added to tauri.allowlist.notification in tauri.conf.json:
-//! 
+//!
 //! ```json
 //! {
 //!     "tauri": {
@@ -83,18 +83,21 @@ impl<'a> Notification<'a> {
     }
 
     /// Sets the notification title.
-    pub fn set_title(&mut self, title: &'a str) {
+    pub fn set_title(&mut self, title: &'a str) -> &mut Self {
         self.title = Some(title);
+        self
     }
 
     /// Sets the notification body.
-    pub fn set_body(&mut self, body: &'a str) {
+    pub fn set_body(&mut self, body: &'a str) -> &mut Self {
         self.body = Some(body);
+        self
     }
 
     /// Sets the notification icon.
-    pub fn set_icon(&mut self, icon: &'a str) {
+    pub fn set_icon(&mut self, icon: &'a str) -> &mut Self {
         self.icon = Some(icon);
+        self
     }
 
     /// Shows the notification.
