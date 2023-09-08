@@ -1,18 +1,4 @@
 //! The path module provides utilities for working with file and directory paths.
-//! 
-//! The APIs must be added to tauri.allowlist.path in tauri.conf.json:
-//! ```json
-//! {
-//!     "tauri": {
-//!         "allowlist": {
-//!             "path": {
-//!                 "all": true, // enable all Path APIs
-//!             }
-//!         }
-//!     }
-//! }
-//! ```
-//! It is recommended to allowlist only the APIs you use for optimal bundle size and security.
 
 use std::path::PathBuf;
 use wasm_bindgen::JsValue;
