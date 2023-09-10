@@ -127,6 +127,8 @@ pub mod dialog;
 mod error;
 #[cfg(feature = "event")]
 pub mod event;
+#[cfg(feature = "fs")]
+pub mod fs;
 #[cfg(feature = "global_shortcut")]
 pub mod global_shortcut;
 #[cfg(feature = "mocks")]

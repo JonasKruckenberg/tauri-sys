@@ -23,20 +23,6 @@
 //! # Ok(())
 //! # }
 //! ```
-//!
-//! The APIs must be added to tauri.allowlist.globalShortcut in tauri.conf.json:
-//!
-//! ```json
-//! {
-//!     "tauri": {
-//!         "allowlist": {
-//!             "globalShortcut": {
-//!                 "all": true // enable all global shortcut APIs
-//!             }
-//!         }
-//!     }
-//! }
-//! ```
 //! It is recommended to allowlist only the APIs you use for optimal bundle size and security.
 
 use futures::{channel::mpsc, Stream, StreamExt};
