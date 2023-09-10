@@ -29,7 +29,7 @@ use serde_repr::*;
 use std::path::{Path, PathBuf};
 use std::str;
 
-#[derive(Serialize_repr)]
+#[derive(Serialize_repr, Clone, PartialEq, Eq, Debug)]
 #[repr(u16)]
 pub enum BaseDirectory {
     Audio = 1,
@@ -59,25 +59,25 @@ pub enum BaseDirectory {
     AppLog = 25,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone, PartialEq, Debug)]
 pub struct FileEntry {
     pub path: PathBuf,
     pub name: Option<String>,
     pub children: Option<Vec<FileEntry>>,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Clone, PartialEq, Debug)]
 struct FsDirOptions {
     pub dir: Option<BaseDirectory>,
     pub recursive: Option<bool>,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Clone, PartialEq, Debug)]
 struct FsOptions {
     pub dir: Option<BaseDirectory>,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Clone, PartialEq, Debug)]
 struct FsTextFileOption {
     pub contents: String,
     path: PathBuf,
