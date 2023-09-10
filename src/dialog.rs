@@ -1,6 +1,6 @@
 //! Native system dialogs for opening and saving files.
 //!
-//! The APIs must be added to tauri.allowlist.dialog in tauri.conf.json:
+//! The APIs must be added to `tauri.allowlist.dialog` in `tauri.conf.json`:
 //! ```json
 //! {
 //!     "tauri": {

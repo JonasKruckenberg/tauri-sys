@@ -12,6 +12,7 @@ log = "0.4.17"
 semver = {version = "1.0.14", optional = true, features = ["serde"]}
 serde = {version = "1.0.140", features = ["derive"]}
 serde-wasm-bindgen = "0.4.3"
+serde_repr = "0.1.10"
 thiserror = "1.0.37"
 url = {version = "2.3.1", optional = true, features = ["serde"]}
 wasm-bindgen = {version = "0.2.82", features = ["serde_json"]}
@@ -25,11 +26,12 @@ wasm-bindgen-test = "0.3.33"
 all-features = true
 
 [features]
-all = ["app", "clipboard", "event", "mocks", "tauri", "window", "process", "dialog", "os", "notification", "path", "updater", "global_shortcut"]
+all = ["app", "clipboard", "event", "fs", "mocks", "tauri", "window", "process", "dialog", "os", "notification", "path", "updater", "global_shortcut"]
 app = ["dep:semver"]
 clipboard = []
 dialog = []
 event = ["dep:futures"]
+fs = []
 global_shortcut = []
 mocks = []
 notification = []

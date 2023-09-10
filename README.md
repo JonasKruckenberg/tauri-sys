@@ -53,6 +53,7 @@ All modules are gated by accordingly named Cargo features. It is recommended you
 - **clipboard**: Enables the `clipboard` module.
 - **dialog**: Enables the `dialog` module.
 - **event**: Enables the `event` module.
+- **fs**: Enables the `fs` module.
 - **mocks**: Enables the `mocks` module.
 - **tauri**: Enables the `tauri` module.
 
@@ -65,7 +66,7 @@ These API bindings are not completely on-par with `@tauri-apps/api` yet, but her
 - [x] `clipboard`
 - [x] `dialog`
 - [x] `event`
-- [ ] `fs`
+- [x] `fs`
 - [x] `global_shortcut`
 - [ ] `http`
 - [x] `mocks`
