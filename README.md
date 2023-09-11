@@ -63,7 +63,7 @@ These API bindings are not completely on-par with `@tauri-apps/api` and the rest
 - [x] `clipboard`
 - [x] `dialog`
 - [x] `event`
-- [ ] `fs`
+- [x] `fs`
 - [x] `global_shortcut`
 - [ ] `http`
 - [ ] `mocks`
@@ -73,8 +73,14 @@ These API bindings are not completely on-par with `@tauri-apps/api` and the rest
 - [x] `positioner`
 - [x] `process`
 - [ ] `shell`
+- [ ] `sql`
+- [ ] `store`
+- [ ] `stronghold`
 - [x] `tauri`
+- [ ] `upload`
 - [ ] `updater`
+- [ ] `websocket`
+- [ ] `window-state`
 - [x] `window`
 
 The current API also very closely mirrors the JS API even though that might not be the most ergonomic choice, ideas for improving the API with quality-of-life features beyond the regular JS API interface are very welcome.
