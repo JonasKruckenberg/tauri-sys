@@ -156,7 +156,7 @@ impl<T> Stream for Listen<T> {
 /// }
 ///
 /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
-/// const event = once::<LoadedPayload>("loaded", EventOptions::new()).await?;
+/// let event = once::<LoadedPayload>("loaded", EventOptions::new()).await?;
 ///
 /// console::log_1!(&format!("App is loaded, loggedIn: {}, token: {}", event.payload.logged_in, event.payload.token).into());
 /// # Ok(())

@@ -143,6 +143,8 @@ pub mod path;
 pub mod positioner;
 #[cfg(feature = "process")]
 pub mod process;
+#[cfg(feature = "store")]
+pub mod store;
 #[cfg(feature = "tauri")]
 pub mod tauri;
 #[cfg(feature = "updater")]
