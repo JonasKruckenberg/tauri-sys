@@ -74,7 +74,7 @@ These API bindings are not completely on-par with `@tauri-apps/api` and the rest
 - [x] `process`
 - [ ] `shell`
 - [ ] `sql`
-- [ ] `store`
+- [x] `store`
 - [ ] `stronghold`
 - [x] `tauri`
 - [ ] `upload`
