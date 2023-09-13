@@ -9,7 +9,7 @@ use wasm_bindgen::{prelude::Closure, JsValue};
 #[derive(Debug, Clone, PartialEq)]
 pub struct KeyValuePair<T> {
     key: String,
-    value: T,
+    value: Option<T>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -162,14 +162,14 @@ impl Store {
     ///     console::log_1(&format!("New value: {}", event).into());
     /// }
     /// ```
-    pub async fn on_key_change<T>(self, key: &str) -> crate::Result<impl Stream<Item = T>>
+    pub async fn on_key_change<T>(self, key: &str) -> crate::Result<impl Stream<Item = Option<T>>>
     where
         T: DeserializeOwned + 'static,
     {
-        let (tx, rx) = mpsc::unbounded::<T>();
+        let (tx, rx) = mpsc::unbounded::<Option<T>>();
 
         let closure = Closure::<dyn FnMut(JsValue)>::new(move |raw| {
-            let _ = tx.unbounded_send(serde_wasm_bindgen::from_value(raw).unwrap());
+            let _ = tx.unbounded_send(serde_wasm_bindgen::from_value(raw).unwrap_or(None));
         });
         let unlisten = self.0.onKeyChange(key, &closure).await?;
         closure.forget();
@@ -207,7 +207,7 @@ impl Store {
         let closure = Closure::<dyn FnMut(JsValue, JsValue)>::new(move |key, value| {
             let _ = tx.unbounded_send(KeyValuePair {
                 key: serde_wasm_bindgen::from_value(key).unwrap(),
-                value: serde_wasm_bindgen::from_value(value).unwrap(),
+                value: serde_wasm_bindgen::from_value(value).unwrap_or(None),
             });
         });
         let unlisten = self.0.onChange(&closure).await?;
