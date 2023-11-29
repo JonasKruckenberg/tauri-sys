@@ -92,7 +92,7 @@ where
     let mut test = Some(props.test);
     let render_test = create_signal(false);
 
-    let run_test = |_| {
+    let run_test = move |_| {
         render_test.set(true);
     };
 
