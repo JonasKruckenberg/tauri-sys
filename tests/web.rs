@@ -75,9 +75,13 @@ async fn test_get_version() {
 
     let version = get_version().await;
 
-    assert_eq!(version.major, 1);
-    assert_eq!(version.minor, 0);
-    assert_eq!(version.patch, 0)
+    if let Ok(version) = version {
+        assert_eq!(version.major, 1);
+        assert_eq!(version.minor, 0);
+        assert_eq!(version.patch, 0)
+    } else {
+        panic!("failed to get version")
+    }
 }
 
 /**

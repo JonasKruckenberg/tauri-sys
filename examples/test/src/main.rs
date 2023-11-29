@@ -31,22 +31,19 @@ async fn exit_with_error(e: String) {
 }
 
 #[derive(Props)]
-pub struct TestProps<'a, F>
-where
-    F: Future<Output = anyhow::Result<()>> + 'a,
-{
-    name: &'a str,
+pub struct TestProps<F> {
+    name: &'static str,
     test: F,
 }
 
 #[component]
-pub async fn TestInner<'a, G: Html, F>(cx: Scope<'a>, props: TestProps<'a, F>) -> View<G>
+pub async fn TestInner<G: Html, F>(props: TestProps<F>) -> View<G>
 where
-    F: Future<Output = anyhow::Result<()>> + 'a,
+    F: Future<Output = anyhow::Result<()>> + 'static,
 {
     let res = props.test.await;
 
-    view! { cx,
+    view! {
         tr {
             td { code { (props.name.to_string()) } }
             td { (if let Err(e) = &res {
@@ -66,11 +63,11 @@ where
 }
 
 #[component]
-pub fn Test<'a, G: Html, F>(cx: Scope<'a>, props: TestProps<'a, F>) -> View<G>
+pub fn Test<G: Html, F>(props: TestProps<F>) -> View<G>
 where
-    F: Future<Output = anyhow::Result<()>> + 'a,
+    F: Future<Output = anyhow::Result<()>> + 'static,
 {
-    let fallback = view! { cx,
+    let fallback = view! {
         tr {
             td { code { (props.name.to_string()) } }
             td {
@@ -79,35 +76,35 @@ where
         }
     };
 
-    view! { cx,
+    view! {
         Suspense(fallback=fallback) {
-            TestInner(name=props.name, test=props.test)
+            TestInner(name= props.name, test=props.test)
         }
     }
 }
 
 #[cfg(not(feature = "ci"))]
 #[component]
-pub fn InteractiveTest<'a, G: Html, F>(cx: Scope<'a>, props: TestProps<'a, F>) -> View<G>
+pub fn InteractiveTest<G: Html, F>(props: TestProps<F>) -> View<G>
 where
-    F: Future<Output = anyhow::Result<()>> + 'a,
+    F: Future<Output = anyhow::Result<()>> + 'static,
 {
     let mut test = Some(props.test);
-    let render_test = create_signal(cx, false);
+    let render_test = create_signal(false);
 
     let run_test = |_| {
         render_test.set(true);
     };
 
-    view! { cx,
-        (if *render_test.get() {
+    view! {
+        (if render_test.get() {
             let test = test.take().unwrap();
 
-            view! { cx,
+            view! {
                 Test(name=props.name, test=test)
             }
         } else {
-            view! { cx,
+            view! {
                 tr {
                     td { code { (props.name.to_string()) } }
                     td {
@@ -121,24 +118,22 @@ where
 
 #[cfg(feature = "ci")]
 #[component]
-pub async fn InteractiveTest<'a, G: Html, F>(cx: Scope<'a>, _props: TestProps<'a, F>) -> View<G>
+pub async fn InteractiveTest<'a, G: Html, F>(_props: TestProps<'a, F>) -> View<G>
 where
     F: Future<Output = anyhow::Result<()>> + 'a,
 {
-    view! { cx, "Interactive tests are not run in CI mode" }
+    view! { "Interactive tests are not run in CI mode" }
 }
 
 #[component]
-pub async fn Terminate<'a, G: Html>(cx: Scope<'a>) -> View<G> {
+pub async fn Terminate<G: Html>() -> View<G> {
     #[cfg(feature = "ci")]
     sycamore::suspense::await_suspense(cx, async {
         tauri_sys::process::exit(0).await;
     })
     .await;
 
-    view! {
-        cx,
-    }
+    view! {}
 }
 
 static LOGGER: TauriLogger = TauriLogger;
@@ -155,8 +150,8 @@ fn main() {
         wasm_bindgen_futures::spawn_local(exit_with_error(format!("{}", info)));
     }));
 
-    sycamore::render(|cx| {
-        view! { cx,
+    sycamore::render(|| {
+        view! {
             table {
                 tbody {
                     // Suspense(fallback=view!{ cx, "Running Tests..." }) {

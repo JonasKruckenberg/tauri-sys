@@ -15,8 +15,8 @@ serde-wasm-bindgen = "0.4.3"
 serde_repr = "0.1.10"
 thiserror = "1.0.37"
 url = {version = "2.3.1", optional = true, features = ["serde"]}
-wasm-bindgen = {version = "0.2.82", features = ["serde_json"]}
-wasm-bindgen-futures = "0.4.32"
+wasm-bindgen = {version = "0.2.83", features = ["serde_json"]}
+wasm-bindgen-futures = "0.4.33"
 
 [dev-dependencies]
 tauri-sys = {path = ".", features = ["all"]}
