@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
 tauri-sys = { path = "../../", features = ["all"] }
-sycamore = { git = "http://github.com/sycamore-rs/sycamore", rev="16acf8eb9a24f695146482be3be22eee14085657", features = ["suspense", "trace", "ssr"] }
+sycamore = { git = "http://github.com/zakpatterson/sycamore", rev="3885435034994c126f7b073f4cf53d4842ce42c9", features = ["suspense", "trace", "ssr"] }
 anyhow = "1.0.66"
 console_error_panic_hook = "0.1.7"
 wasm-bindgen = {version = "0.2.83", features = ["serde_json"]}
