@@ -1,5 +1,7 @@
+const invoke = window.__TAURI__.primitives.invoke;
+
 async function writeText(text, opts) {
-  return window.__TAURI_INVOKE__("plugin:clipboard|write", {
+  return invoke("plugin:clipboard|write", {
     data: {
       kind: "PlainText",
       options: {
@@ -11,7 +13,7 @@ async function writeText(text, opts) {
 }
 
 async function readText() {
-  const kind = await window.__TAURI_INVOKE__("plugin:clipboard|read");
+  const kind = await invoke("plugin:clipboard|read");
   return kind.options;
 }
 

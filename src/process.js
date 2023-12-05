@@ -1,9 +1,11 @@
+const invoke = window.__TAURI__.primitives.invoke;
+
 async function exit(code = 0) {
-  return window.__TAURI_INVOKE__("plugin:process|exit", { code });
+  return invoke("plugin:process|exit", { code });
 }
 
 async function relaunch() {
-  return window.__TAURI_INVOKE__("plugin:process|restart");
+  return invoke("plugin:process|restart");
 }
 
 export { exit, relaunch };

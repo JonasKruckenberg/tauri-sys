@@ -1,12 +1,14 @@
+const invoke = window.__TAURI__.primitives.invoke;
+
 async function readTextFile(filePath, options = {}) {
-  return await window.__TAURI_INVOKE__("plugin:fs|read_text_file", {
+  return await invoke("plugin:fs|read_text_file", {
     path: filePath,
     options,
   });
 }
 
 async function readBinaryFile(filePath, options = {}) {
-  const arr = await window.__TAURI_INVOKE__("plugin:fs|read_file", {
+  const arr = await invoke("plugin:fs|read_file", {
     path: filePath,
     options,
   });
@@ -37,7 +39,7 @@ async function writeTextFile(path, contents, options) {
     fileOptions = contents;
   }
 
-  return await window.__TAURI_INVOKE__("plugin:fs|write_file", {
+  return await invoke("plugin:fs|write_file", {
     path: file.path,
     contents: Array.from(new TextEncoder().encode(file.contents)),
     options: fileOptions,
@@ -67,7 +69,7 @@ async function writeBinaryFile(path, contents, options) {
     file.contents = contents ?? [];
   }
 
-  return await window.__TAURI_INVOKE__("plugin:fs|write_file", {
+  return await invoke("plugin:fs|write_file", {
     path: file.path,
     contents: Array.from(file.contents instanceof ArrayBuffer ? new Uint8Array(file.contents) : file.contents),
     options: fileOptions,
@@ -75,28 +77,28 @@ async function writeBinaryFile(path, contents, options) {
 }
 
 async function readDir(dir, options = {}) {
-  return await window.__TAURI_INVOKE__("plugin:fs|read_dir", {
+  return await invoke("plugin:fs|read_dir", {
     path: dir,
     options,
   });
 }
 
 async function createDir(dir, options = {}) {
-  return await window.__TAURI_INVOKE__("plugin:fs|create_dir", {
+  return await invoke("plugin:fs|create_dir", {
     path: dir,
     options,
   });
 }
 
 async function removeDir(dir, options = {}) {
-  return await window.__TAURI_INVOKE__("plugin:fs|remove_dir", {
+  return await invoke("plugin:fs|remove_dir", {
     path: dir,
     options,
   });
 }
 
 async function copyFile(source, destination, options = {}) {
-  return await window.__TAURI_INVOKE__("plugin:fs|copy_file", {
+  return await invoke("plugin:fs|copy_file", {
     source,
     destination,
     options,
@@ -104,14 +106,14 @@ async function copyFile(source, destination, options = {}) {
 }
 
 async function removeFile(file, options = {}) {
-  return await window.__TAURI_INVOKE__("plugin:fs|remove_file", {
+  return await invoke("plugin:fs|remove_file", {
     path: file,
     options,
   });
 }
 
 async function renameFile(oldPath, newPath, options = {}) {
-  return await window.__TAURI_INVOKE__("plugin:fs|rename_file", {
+  return await invoke("plugin:fs|rename_file", {
     oldPath,
     newPath,
     options,
@@ -119,11 +121,11 @@ async function renameFile(oldPath, newPath, options = {}) {
 }
 
 async function exists(path, options = {}) {
-  return await window.__TAURI_INVOKE__("plugin:fs|exists", { path, options });
+  return await invoke("plugin:fs|exists", { path, options });
 }
 
 async function metadata(path) {
-  return await window.__TAURI_INVOKE__("plugin:fs|metadata", {
+  return await invoke("plugin:fs|metadata", {
     path,
   });
 }

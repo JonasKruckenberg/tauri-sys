@@ -1,5 +1,7 @@
+const invoke = window.__TAURI__.primitives.invoke;
+
 async function moveWindow(to) {
-  await window.__TAURI_INVOKE__("plugin:positioner|move_window", {
+  await invoke("plugin:positioner|move_window", {
     position: parseInt(to),
   });
 }

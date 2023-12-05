@@ -1,3 +1,5 @@
+const invoke = window.__TAURI__.primitives.invoke;
+
 class Channel {
   id;
   __TAURI_CHANNEL_MARKER__ = true;
@@ -26,7 +28,7 @@ async function register(shortcut, handler) {
   const h = new Channel();
   h.onmessage = handler;
 
-  return window.__TAURI_INVOKE__("plugin:globalShortcut|register", {
+  return invoke("plugin:globalShortcut|register", {
     shortcut,
     handler: h,
   });
@@ -36,26 +38,26 @@ async function registerAll(shortcuts, handler) {
   const h = new Channel();
   h.onmessage = handler;
 
-  return window.__TAURI_INVOKE__("plugin:globalShortcut|register_all", {
+  return invoke("plugin:globalShortcut|register_all", {
     shortcuts,
     handler: h,
   });
 }
 
 async function isRegistered(shortcut) {
-  return window.__TAURI_INVOKE__("plugin:globalShortcut|is_registered", {
+  return invoke("plugin:globalShortcut|is_registered", {
     shortcut,
   });
 }
 
 async function unregister(shortcut) {
-  return window.__TAURI_INVOKE__("plugin:globalShortcut|unregister", {
+  return invoke("plugin:globalShortcut|unregister", {
     shortcut,
   });
 }
 
 async function unregisterAll() {
-  return window.__TAURI_INVOKE__("plugin:globalShortcut|unregister_all");
+  return invoke("plugin:globalShortcut|unregister_all");
 }
 
 export { register, registerAll, isRegistered, unregister, unregisterAll };

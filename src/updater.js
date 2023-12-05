@@ -1,3 +1,5 @@
+const invoke = window.__TAURI__.primitives.invoke;
+
 class Channel {
   id;
   __TAURI_CHANNEL_MARKER__ = true;
@@ -44,7 +46,7 @@ class Update {
       channel.onmessage = onEvent;
     }
 
-    return window.__TAURI_INVOKE__("plugin:updater|download_and_install", {
+    return invoke("plugin:updater|download_and_install", {
       onEvent: channel,
     });
   }
@@ -55,9 +57,7 @@ async function check(options) {
     options.headers = Array.from(new Headers(options.headers).entries());
   }
 
-  return window
-    .__TAURI_INVOKE__("plugin:updater|check", { ...options })
-    .then((meta) => (meta.available ? new Update(meta) : null));
+  return window.__TAURI_INVOKE__("plugin:updater|check", { ...options }).then((meta) => (meta.available ? new Update(meta) : null));
 }
 
 export { Update, check };

@@ -1,6 +1,8 @@
+const invoke = window.__TAURI__.primitives.invoke;
+
 // tauri/tooling/api/src/helpers/event.ts
 async function _unlisten(event, eventId) {
-  await window.__TAURI_INVOKE__("plugin:event|unlisten", {
+  await invoke("plugin:event|unlisten", {
     event,
     eventId,
   });
@@ -30,7 +32,7 @@ async function once(event, handler, options) {
 }
 
 async function emit(event, payload, options) {
-  await window.__TAURI_INVOKE__("plugin:event|emit", {
+  await invoke("plugin:event|emit", {
     event,
     windowLabel: options?.target,
     payload,
@@ -182,7 +184,7 @@ class WindowHandle {
 
 class WindowManager extends WindowHandle {
   async scaleFactor() {
-    return window.__TAURI_INVOKE__("plugin:window|scale_factor", {
+    return invoke("plugin:window|scale_factor", {
       label: this.label,
     });
   }
@@ -220,79 +222,79 @@ class WindowManager extends WindowHandle {
   }
 
   async isFullscreen() {
-    return window.__TAURI_INVOKE__("plugin:window|is_fullscreen", {
+    return invoke("plugin:window|is_fullscreen", {
       label: this.label,
     });
   }
 
   async isMinimized() {
-    return window.__TAURI_INVOKE__("plugin:window|is_minimized", {
+    return invoke("plugin:window|is_minimized", {
       label: this.label,
     });
   }
 
   async isMaximized() {
-    return window.__TAURI_INVOKE__("plugin:window|is_maximized", {
+    return invoke("plugin:window|is_maximized", {
       label: this.label,
     });
   }
 
   async isFocused() {
-    return window.__TAURI_INVOKE__("plugin:window|is_focused", {
+    return invoke("plugin:window|is_focused", {
       label: this.label,
     });
   }
 
   async isDecorated() {
-    return window.__TAURI_INVOKE__("plugin:window|is_decorated", {
+    return invoke("plugin:window|is_decorated", {
       label: this.label,
     });
   }
 
   async isResizable() {
-    return window.__TAURI_INVOKE__("plugin:window|is_resizable", {
+    return invoke("plugin:window|is_resizable", {
       label: this.label,
     });
   }
 
   async isMaximizable() {
-    return window.__TAURI_INVOKE__("plugin:window|is_maximizable", {
+    return invoke("plugin:window|is_maximizable", {
       label: this.label,
     });
   }
 
   async isMinimizable() {
-    return window.__TAURI_INVOKE__("plugin:window|is_minimizable", {
+    return invoke("plugin:window|is_minimizable", {
       label: this.label,
     });
   }
 
   async isClosable() {
-    return window.__TAURI_INVOKE__("plugin:window|is_closable", {
+    return invoke("plugin:window|is_closable", {
       label: this.label,
     });
   }
 
   async isVisible() {
-    return window.__TAURI_INVOKE__("plugin:window|is_visible", {
+    return invoke("plugin:window|is_visible", {
       label: this.label,
     });
   }
 
   async title() {
-    return window.__TAURI_INVOKE__("plugin:window|title", {
+    return invoke("plugin:window|title", {
       label: this.label,
     });
   }
 
   async theme() {
-    return window.__TAURI_INVOKE__("plugin:window|theme", {
+    return invoke("plugin:window|theme", {
       label: this.label,
     });
   }
 
   async center() {
-    return window.__TAURI_INVOKE__("plugin:window|center", {
+    return invoke("plugin:window|center", {
       label: this.label,
     });
   }
@@ -307,96 +309,96 @@ class WindowManager extends WindowHandle {
       }
     }
 
-    return window.__TAURI_INVOKE__("plugin:window|request_user_attention", {
+    return invoke("plugin:window|request_user_attention", {
       label: this.label,
       value: requestType_,
     });
   }
 
   async setResizable(resizable) {
-    return window.__TAURI_INVOKE__("plugin:window|set_resizable", {
+    return invoke("plugin:window|set_resizable", {
       label: this.label,
       value: resizable,
     });
   }
 
   async setMaximizable(maximizable) {
-    return window.__TAURI_INVOKE__("plugin:window|set_maximizable", {
+    return invoke("plugin:window|set_maximizable", {
       label: this.label,
       value: maximizable,
     });
   }
 
   async setMinimizable(minimizable) {
-    return window.__TAURI_INVOKE__("plugin:window|set_minimizable", {
+    return invoke("plugin:window|set_minimizable", {
       label: this.label,
       value: minimizable,
     });
   }
 
   async setClosable(closable) {
-    return window.__TAURI_INVOKE__("plugin:window|set_closable", {
+    return invoke("plugin:window|set_closable", {
       label: this.label,
       value: closable,
     });
   }
 
   async setTitle(title) {
-    return window.__TAURI_INVOKE__("plugin:window|set_title", {
+    return invoke("plugin:window|set_title", {
       label: this.label,
       value: title,
     });
   }
 
   async maximize() {
-    return window.__TAURI_INVOKE__("plugin:window|maximize", {
+    return invoke("plugin:window|maximize", {
       label: this.label,
     });
   }
   async unmaximize() {
-    return window.__TAURI_INVOKE__("plugin:window|unmaximize", {
+    return invoke("plugin:window|unmaximize", {
       label: this.label,
     });
   }
 
   async toggleMaximize() {
-    return window.__TAURI_INVOKE__("plugin:window|toggle_maximize", {
+    return invoke("plugin:window|toggle_maximize", {
       label: this.label,
     });
   }
 
   async minimize() {
-    return window.__TAURI_INVOKE__("plugin:window|minimize", {
+    return invoke("plugin:window|minimize", {
       label: this.label,
     });
   }
 
   async unminimize() {
-    return window.__TAURI_INVOKE__("plugin:window|unminimize", {
+    return invoke("plugin:window|unminimize", {
       label: this.label,
     });
   }
 
   async show() {
-    return window.__TAURI_INVOKE__("plugin:window|show", {
+    return invoke("plugin:window|show", {
       label: this.label,
     });
   }
 
   async hide() {
-    return window.__TAURI_INVOKE__("plugin:window|hide", {
+    return invoke("plugin:window|hide", {
       label: this.label,
     });
   }
 
   async close() {
-    return window.__TAURI_INVOKE__("plugin:window|close", {
+    return invoke("plugin:window|close", {
       label: this.label,
     });
   }
 
   async setDecorations(decorations) {
-    return window.__TAURI_INVOKE__("plugin:window|set_decorations", {
+    return invoke("plugin:window|set_decorations", {
       label: this.label,
       value: decorations,
     });
@@ -404,7 +406,7 @@ class WindowManager extends WindowHandle {
 
   // TODO:
   async setShadow(enable) {
-    return window.__TAURI_INVOKE__("plugin:window|set_shadow", {
+    return invoke("plugin:window|set_shadow", {
       label: this.label,
       value: enable,
     });
@@ -412,7 +414,7 @@ class WindowManager extends WindowHandle {
 
   // TODO:
   async setEffects(effects) {
-    return window.__TAURI_INVOKE__("plugin:window|set_effects", {
+    return invoke("plugin:window|set_effects", {
       label: this.label,
       value: effects,
     });
@@ -420,21 +422,21 @@ class WindowManager extends WindowHandle {
 
   // TODO:
   async clearEffects() {
-    return window.__TAURI_INVOKE__("plugin:window|set_effects", {
+    return invoke("plugin:window|set_effects", {
       label: this.label,
       value: null,
     });
   }
 
   async setAlwaysOnTop(alwaysOnTop) {
-    return window.__TAURI_INVOKE__("plugin:window|set_always_on_top", {
+    return invoke("plugin:window|set_always_on_top", {
       label: this.label,
       value: alwaysOnTop,
     });
   }
 
   async setContentProtected(protected_) {
-    return window.__TAURI_INVOKE__("plugin:window|set_content_protected", {
+    return invoke("plugin:window|set_content_protected", {
       label: this.label,
       value: protected_,
     });
@@ -445,7 +447,7 @@ class WindowManager extends WindowHandle {
       throw new Error("the `size` argument must be either a LogicalSize or a PhysicalSize instance");
     }
 
-    return window.__TAURI_INVOKE__("plugin:window|set_size", {
+    return invoke("plugin:window|set_size", {
       label: this.label,
       value: {
         type: size.type,
@@ -462,7 +464,7 @@ class WindowManager extends WindowHandle {
       throw new Error("the `size` argument must be either a LogicalSize or a PhysicalSize instance");
     }
 
-    return window.__TAURI_INVOKE__("plugin:window|set_min_size", {
+    return invoke("plugin:window|set_min_size", {
       label: this.label,
       value: size
         ? {
@@ -481,7 +483,7 @@ class WindowManager extends WindowHandle {
       throw new Error("the `size` argument must be either a LogicalSize or a PhysicalSize instance");
     }
 
-    return window.__TAURI_INVOKE__("plugin:window|set_max_size", {
+    return invoke("plugin:window|set_max_size", {
       label: this.label,
       value: size
         ? {
@@ -500,7 +502,7 @@ class WindowManager extends WindowHandle {
       throw new Error("the `position` argument must be either a LogicalPosition or a PhysicalPosition instance");
     }
 
-    return window.__TAURI_INVOKE__("plugin:window|set_position", {
+    return invoke("plugin:window|set_position", {
       label: this.label,
       value: {
         type: position.type,
@@ -513,48 +515,48 @@ class WindowManager extends WindowHandle {
   }
 
   async setFullscreen(fullscreen) {
-    return window.__TAURI_INVOKE__("plugin:window|set_fullscreen", {
+    return invoke("plugin:window|set_fullscreen", {
       label: this.label,
       value: fullscreen,
     });
   }
 
   async setFocus() {
-    return window.__TAURI_INVOKE__("plugin:window|set_focus", {
+    return invoke("plugin:window|set_focus", {
       label: this.label,
     });
   }
 
   async setIcon(icon) {
-    return window.__TAURI_INVOKE__("plugin:window|set_icon", {
+    return invoke("plugin:window|set_icon", {
       label: this.label,
       value: typeof icon === "string" ? icon : Array.from(icon),
     });
   }
 
   async setSkipTaskbar(skip) {
-    return window.__TAURI_INVOKE__("plugin:window|set_skip_taskbar", {
+    return invoke("plugin:window|set_skip_taskbar", {
       label: this.label,
       value: skip,
     });
   }
 
   async setCursorGrab(grab) {
-    return window.__TAURI_INVOKE__("plugin:window|set_cursor_grab", {
+    return invoke("plugin:window|set_cursor_grab", {
       label: this.label,
       value: grab,
     });
   }
 
   async setCursorVisible(visible) {
-    return window.__TAURI_INVOKE__("plugin:window|set_cursor_visible", {
+    return invoke("plugin:window|set_cursor_visible", {
       label: this.label,
       value: visible,
     });
   }
 
   async setCursorIcon(icon) {
-    return window.__TAURI_INVOKE__("plugin:window|set_cursor_icon", {
+    return invoke("plugin:window|set_cursor_icon", {
       label: this.label,
       value: icon,
     });
@@ -565,7 +567,7 @@ class WindowManager extends WindowHandle {
       throw new Error("the `position` argument must be either a LogicalPosition or a PhysicalPosition instance");
     }
 
-    return window.__TAURI_INVOKE__("plugin:window|set_cursor_position", {
+    return invoke("plugin:window|set_cursor_position", {
       label: this.label,
       value: {
         type: position.type,
@@ -578,14 +580,14 @@ class WindowManager extends WindowHandle {
   }
 
   async setIgnoreCursorEvents(ignore) {
-    return window.__TAURI_INVOKE__("plugin:window|set_ignore_cursor_events", {
+    return invoke("plugin:window|set_ignore_cursor_events", {
       label: this.label,
       value: ignore,
     });
   }
 
   async startDragging() {
-    return window.__TAURI_INVOKE__("plugin:window|start_dragging", {
+    return invoke("plugin:window|start_dragging", {
       label: this.label,
     });
   }
@@ -698,15 +700,15 @@ function mapMonitor(m) {
 }
 
 async function currentMonitor() {
-  return window.__TAURI_INVOKE__("plugin:window|current_monitor").then(mapMonitor);
+  return invoke("plugin:window|current_monitor").then(mapMonitor);
 }
 
 async function primaryMonitor() {
-  return window.__TAURI_INVOKE__("plugin:window|primary_monitor").then(mapMonitor);
+  return invoke("plugin:window|primary_monitor").then(mapMonitor);
 }
 
 async function availableMonitors() {
-  return window.__TAURI_INVOKE__("plugin:window|available_monitors").then((ms) => ms.map(mapMonitor));
+  return invoke("plugin:window|available_monitors").then((ms) => ms.map(mapMonitor));
 }
 
 export {

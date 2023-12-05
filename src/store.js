@@ -1,5 +1,7 @@
+const invoke = window.__TAURI__.primitives.invoke;
+
 async function _unlisten(event, eventId) {
-  await window.__TAURI_INVOKE__("plugin:event|unlisten", {
+  await invoke("plugin:event|unlisten", {
     event,
     eventId,
   });
@@ -25,7 +27,7 @@ export class Store {
   }
 
   async set(key, value) {
-    return await window.__TAURI_INVOKE__("plugin:store|set", {
+    return await invoke("plugin:store|set", {
       path: this.path,
       key,
       value,
@@ -33,72 +35,72 @@ export class Store {
   }
 
   async get(key) {
-    return await window.__TAURI_INVOKE__("plugin:store|get", {
+    return await invoke("plugin:store|get", {
       path: this.path,
       key,
     });
   }
 
   async has(key) {
-    return await window.__TAURI_INVOKE__("plugin:store|has", {
+    return await invoke("plugin:store|has", {
       path: this.path,
       key,
     });
   }
 
   async delete(key) {
-    return await window.__TAURI_INVOKE__("plugin:store|delete", {
+    return await invoke("plugin:store|delete", {
       path: this.path,
       key,
     });
   }
 
   async clear() {
-    return await window.__TAURI_INVOKE__("plugin:store|clear", {
+    return await invoke("plugin:store|clear", {
       path: this.path,
     });
   }
 
   async reset() {
-    return await window.__TAURI_INVOKE__("plugin:store|reset", {
+    return await invoke("plugin:store|reset", {
       path: this.path,
     });
   }
 
   async keys() {
-    return await window.__TAURI_INVOKE__("plugin:store|keys", {
+    return await invoke("plugin:store|keys", {
       path: this.path,
     });
   }
 
   async values() {
-    return await window.__TAURI_INVOKE__("plugin:store|values", {
+    return await invoke("plugin:store|values", {
       path: this.path,
     });
   }
 
   async entries() {
     console.log("path", this.path);
-    return await window.__TAURI_INVOKE__("plugin:store|entries", {
+    return await invoke("plugin:store|entries", {
       path: this.path,
     });
   }
 
   async length() {
     console.log("path", this.path);
-    return await window.__TAURI_INVOKE__("plugin:store|length", {
+    return await invoke("plugin:store|length", {
       path: this.path,
     });
   }
 
   async load() {
-    return await window.__TAURI_INVOKE__("plugin:store|load", {
+    return await invoke("plugin:store|load", {
       path: this.path,
     });
   }
 
   async save() {
-    return await window.__TAURI_INVOKE__("plugin:store|save", {
+    return await invoke("plugin:store|save", {
       path: this.path,
     });
   }

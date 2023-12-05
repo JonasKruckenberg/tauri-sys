@@ -1,5 +1,7 @@
+const invoke = window.__TAURI__.primitives.invoke;
+
 async function getMatches() {
-  return await window.__TAURI_INVOKE__("plugin:cli|cli_matches");
+  return await invoke("plugin:cli|cli_matches");
 }
 
 export { getMatches };

@@ -1,19 +1,20 @@
+const invoke = window.__TAURI__.primitives.invoke;
+
 async function _unlisten(event, eventId) {
-  await window.__TAURI_INVOKE__("plugin:event|unlisten", {
+  await invoke("plugin:event|unlisten", {
     event,
     eventId,
   });
 }
 
 async function listen(event, handler, options) {
-  return window.__TAURI_INVOKE__("plugin:event|listen", {
-      event,
-      windowLabel: options?.target,
-      handler: window.__TAURI__.transformCallback(handler),
-    })
-    .then((eventId) => {
-      return async () => _unlisten(event, eventId);
-    });
+  return invoke("plugin:event|listen", {
+    event,
+    windowLabel: options?.target,
+    handler: window.__TAURI__.transformCallback(handler),
+  }).then((eventId) => {
+    return async () => _unlisten(event, eventId);
+  });
 }
 
 async function once(event, handler, options) {
@@ -28,7 +29,7 @@ async function once(event, handler, options) {
 }
 
 async function emit(event, payload, options) {
-  await window.__TAURI_INVOKE__("plugin:event|emit", {
+  await invoke("plugin:event|emit", {
     event,
     windowLabel: options?.target,
     payload,
