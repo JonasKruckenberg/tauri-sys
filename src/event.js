@@ -1,4 +1,4 @@
-const invoke = window.__TAURI__.primitives.invoke;
+const { invoke, transformCallback } = window.__TAURI__.primitives;
 
 async function _unlisten(event, eventId) {
   await invoke("plugin:event|unlisten", {
@@ -11,7 +11,7 @@ async function listen(event, handler, options) {
   return invoke("plugin:event|listen", {
     event,
     windowLabel: options?.target,
-    handler: window.__TAURI__.transformCallback(handler),
+    handler: transformCallback(handler),
   }).then((eventId) => {
     return async () => _unlisten(event, eventId);
   });

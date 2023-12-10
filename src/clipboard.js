@@ -1,4 +1,4 @@
-const invoke = window.__TAURI__.primitives.invoke;
+const { invoke } = window.__TAURI__.primitives;
 
 async function writeText(text, opts) {
   return invoke("plugin:clipboard|write", {

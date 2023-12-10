@@ -1,4 +1,4 @@
-const invoke = window.__TAURI__.primitives.invoke;
+const { invoke } = window.__TAURI__.primitives;
 
 async function open(options) {
   if (typeof options === "object") {

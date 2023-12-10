@@ -1,4 +1,4 @@
-const invoke = window.__TAURI__.primitives.invoke;
+const { invoke, transformCallback } = window.__TAURI__.primitives;
 
 class Channel {
   id;
@@ -6,7 +6,7 @@ class Channel {
   #onmessage = () => {};
 
   constructor() {
-    this.id = window.__TAURI__.transformCallback((response) => {
+    this.id = transformCallback((response) => {
       this.#onmessage(response);
     });
   }

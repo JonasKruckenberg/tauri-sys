@@ -83,6 +83,7 @@ pub async fn emit<T: Serialize>(
 /// # Example
 ///
 /// ```rust,no_run
+/// use futures::StreamExt;
 /// use tauri_api::event::{listen, EventOptions};
 /// use web_sys::console;
 ///

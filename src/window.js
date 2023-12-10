@@ -1,4 +1,4 @@
-const invoke = window.__TAURI__.primitives.invoke;
+const { invoke, transformCallback } = window.__TAURI__.primitives;
 
 // tauri/tooling/api/src/helpers/event.ts
 async function _unlisten(event, eventId) {
@@ -9,15 +9,13 @@ async function _unlisten(event, eventId) {
 }
 
 async function listen(event, handler, options) {
-  return window
-    .__TAURI_INVOKE__("plugin:event|listen", {
-      event,
-      windowLabel: options?.target,
-      handler: window.__TAURI__.transformCallback(handler),
-    })
-    .then((eventId) => {
-      return async () => _unlisten(event, eventId);
-    });
+  return invoke("plugin:event|listen", {
+    event,
+    windowLabel: options?.target,
+    handler: transformCallback(handler),
+  }).then((eventId) => {
+    return async () => _unlisten(event, eventId);
+  });
 }
 
 async function once(event, handler, options) {
@@ -114,13 +112,13 @@ class CloseRequestedEvent {
 }
 
 function getCurrent() {
-  return new Window(window.__TAURI_METADATA__.__currentWindow.label, {
+  return new Window(window.__TAURI_INTERNALS__.currentWindow.label, {
     skip: true,
   });
 }
 
 function getAll() {
-  return window.__TAURI_METADATA__.__windows.map(
+  return window.__TAURI_INTERNALS__.windows.map(
     (w) =>
       new Window(w.label, {
         skip: true,

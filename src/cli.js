@@ -1,4 +1,4 @@
-const invoke = window.__TAURI__.primitives.invoke;
+const { invoke } = window.__TAURI__.primitives;
 
 async function getMatches() {
   return await invoke("plugin:cli|cli_matches");

@@ -1,4 +1,4 @@
-const invoke = window.__TAURI__.primitives.invoke;
+const { invoke } = window.__TAURI__.primitives;
 
 async function readTextFile(filePath, options = {}) {
   return await invoke("plugin:fs|read_text_file", {
