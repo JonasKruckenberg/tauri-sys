@@ -794,7 +794,7 @@ impl WebviewWindow {
     /// The returned Future will automatically clean up it's underlying event listener when dropped, so no manual unlisten function needs to be called.
     /// See [Differences to the JavaScript API](../index.html#differences-to-the-javascript-api) for details.
     #[inline(always)]
-    pub async fn listen<T, H>(&self, event: &str) -> crate::Result<impl Stream<Item = Event<T>>>
+    pub async fn listen<T>(&self, event: &str) -> crate::Result<impl Stream<Item = Event<T>>>
     where
         T: DeserializeOwned + 'static,
     {
