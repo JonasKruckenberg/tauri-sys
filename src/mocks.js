@@ -19,12 +19,24 @@ function mockWindows(current, ...additionalWindows) {
     __currentWindow: { label: current }
   };
 }
+function mockConvertFileSrc(osName, windowsProtocolScheme = "https") {
+  window.__TAURI__ = window.__TAURI__ ?? {};
+  window.__TAURI__.convertFileSrc = function(filePath, protocol = "asset") {
+    const path = encodeURIComponent(filePath);
+    return osName === "windows" ? `${windowsProtocolScheme}://${protocol}.localhost/${path}` : `${protocol}://localhost/${path}`;
+  };
+}
 function clearMocks() {
-  delete window.__TAURI_IPC__;
-  delete window.__TAURI_METADATA__;
+  if (window.__TAURI__?.convertFileSrc)
+    delete window.__TAURI__.convertFileSrc;
+  if (window.__TAURI_IPC__)
+    delete window.__TAURI_IPC__;
+  if (window.__TAURI_METADATA__)
+    delete window.__TAURI_METADATA__;
 }
 export {
   clearMocks,
+  mockConvertFileSrc,
   mockIPC,
   mockWindows
 };

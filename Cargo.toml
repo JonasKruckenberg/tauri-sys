@@ -6,21 +6,21 @@ version = "0.1.0"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-futures = { version = "0.3.25", optional = true }
-js-sys = "0.3.59"
-log = "0.4.17"
-semver = {version = "1.0.14", optional = true, features = ["serde"]}
-serde = {version = "1.0.140", features = ["derive"]}
-serde-wasm-bindgen = "0.4.3"
-serde_repr = "0.1.10"
-thiserror = "1.0.37"
-url = {version = "2.3.1", optional = true, features = ["serde"]}
-wasm-bindgen = {version = "0.2.82", features = ["serde_json"]}
-wasm-bindgen-futures = "0.4.32"
+futures = { version = "0.3.29", optional = true }
+js-sys = "0.3.66"
+log = "0.4.20"
+semver = {version = "1.0.20", optional = true, features = ["serde"]}
+serde = {version = "1.0.193", features = ["derive"]}
+serde-wasm-bindgen = "0.6.3"
+serde_repr = "0.1.17"
+thiserror = "1.0.50"
+url = {version = "2.5.0", optional = true, features = ["serde"]}
+wasm-bindgen = {version = "0.2.89", features = ["serde_json"]}
+wasm-bindgen-futures = "0.4.39"
 
 [dev-dependencies]
 tauri-sys = {path = ".", features = ["all"]}
-wasm-bindgen-test = "0.3.33"
+wasm-bindgen-test = "0.3.39"
 
 [package.metadata.docs.rs]
 all-features = true

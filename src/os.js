@@ -88,9 +88,18 @@ async function tempdir() {
     }
   });
 }
+async function locale() {
+  return invokeTauriCommand({
+    __tauriModule: "Os",
+    message: {
+      cmd: "locale"
+    }
+  });
+}
 export {
   EOL,
   arch,
+  locale,
   platform,
   tempdir,
   type,

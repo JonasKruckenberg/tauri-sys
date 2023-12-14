@@ -74,7 +74,8 @@ async function message(message2, options) {
       cmd: "messageDialog",
       message: message2.toString(),
       title: opts?.title?.toString(),
-      type: opts?.type
+      type: opts?.type,
+      buttonLabel: opts?.okLabel?.toString()
     }
   });
 }
@@ -86,7 +87,11 @@ async function ask(message2, options) {
       cmd: "askDialog",
       message: message2.toString(),
       title: opts?.title?.toString(),
-      type: opts?.type
+      type: opts?.type,
+      buttonLabels: [
+        opts?.okLabel?.toString() ?? "Yes",
+        opts?.cancelLabel?.toString() ?? "No"
+      ]
     }
   });
 }
@@ -98,7 +103,11 @@ async function confirm(message2, options) {
       cmd: "confirmDialog",
       message: message2.toString(),
       title: opts?.title?.toString(),
-      type: opts?.type
+      type: opts?.type,
+      buttonLabels: [
+        opts?.okLabel?.toString() ?? "Ok",
+        opts?.cancelLabel?.toString() ?? "Cancel"
+      ]
     }
   });
 }

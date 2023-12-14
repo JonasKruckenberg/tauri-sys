@@ -8,3 +8,7 @@ ignore = ["./src-tauri"]
 address = "127.0.0.1"
 port = 1420
 open = false
+
+[tools]
+# Default wasm-bindgen version to download.
+wasm_bindgen = "0.2.89"

@@ -7,13 +7,13 @@ edition = "2021"
 [dependencies]
 tauri-sys = { path = "../../", features = ["all"] }
 sycamore = { git = "https://github.com/sycamore-rs/sycamore", rev = "abd556cbc02047042dad2ebd04405e455a9b11b2", features = ["suspense"] }
-anyhow = "1.0.66"
+anyhow = "1.0.75"
 console_error_panic_hook = "0.1.7"
-wasm-bindgen-futures = "0.4.32"
-serde = { version = "1.0.147", features = ["derive"] }
-log = { version = "0.4.17", features = ["serde"] }
-futures = "0.3.25"
-gloo-timers = { version = "0.2.4", features = ["futures"] }
+wasm-bindgen-futures = "0.4.39"
+serde = { version = "1.0.193", features = ["derive"] }
+log = { version = "0.4.20", features = ["serde"] }
+futures = "0.3.29"
+gloo-timers = { version = "0.3", features = ["futures"] }
 
 [features]
 ci = []

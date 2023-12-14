@@ -48,40 +48,47 @@ var ResponseType = /* @__PURE__ */ ((ResponseType2) => {
   ResponseType2[ResponseType2["Binary"] = 3] = "Binary";
   return ResponseType2;
 })(ResponseType || {});
+async function formBody(data) {
+  const form = {};
+  const append = async (key, v) => {
+    if (v !== null) {
+      let r;
+      if (typeof v === "string") {
+        r = v;
+      } else if (v instanceof Uint8Array || Array.isArray(v)) {
+        r = Array.from(v);
+      } else if (v instanceof File) {
+        r = {
+          file: Array.from(new Uint8Array(await v.arrayBuffer())),
+          mime: v.type,
+          fileName: v.name
+        };
+      } else if (typeof v.file === "string") {
+        r = { file: v.file, mime: v.mime, fileName: v.fileName };
+      } else {
+        r = { file: Array.from(v.file), mime: v.mime, fileName: v.fileName };
+      }
+      form[String(key)] = r;
+    }
+  };
+  if (data instanceof FormData) {
+    for (const [key, value] of data) {
+      await append(key, value);
+    }
+  } else {
+    for (const [key, value] of Object.entries(data)) {
+      await append(key, value);
+    }
+  }
+  return form;
+}
 var Body = class {
   constructor(type, payload) {
     this.type = type;
     this.payload = payload;
   }
   static form(data) {
-    const form = {};
-    const append = (key, v) => {
-      if (v !== null) {
-        let r;
-        if (typeof v === "string") {
-          r = v;
-        } else if (v instanceof Uint8Array || Array.isArray(v)) {
-          r = Array.from(v);
-        } else if (v instanceof File) {
-          r = { file: v.name, mime: v.type, fileName: v.name };
-        } else if (typeof v.file === "string") {
-          r = { file: v.file, mime: v.mime, fileName: v.fileName };
-        } else {
-          r = { file: Array.from(v.file), mime: v.mime, fileName: v.fileName };
-        }
-        form[String(key)] = r;
-      }
-    };
-    if (data instanceof FormData) {
-      for (const [key, value] of data) {
-        append(key, value);
-      }
-    } else {
-      for (const [key, value] of Object.entries(data)) {
-        append(key, value);
-      }
-    }
-    return new Body("Form", form);
+    return new Body("Form", data);
   }
   static json(data) {
     return new Body("Json", data);
@@ -123,6 +130,9 @@ var Client = class {
     const jsonResponse = !options.responseType || options.responseType === 1 /* JSON */;
     if (jsonResponse) {
       options.responseType = 2 /* Text */;
+    }
+    if (options.body?.type === "Form") {
+      options.body.payload = await formBody(options.body.payload);
     }
     return invokeTauriCommand({
       __tauriModule: "Http",

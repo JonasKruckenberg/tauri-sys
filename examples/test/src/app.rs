@@ -25,8 +25,8 @@ pub async fn get_tauri_version() -> anyhow::Result<()> {
     let version = app::get_tauri_version().await?;
 
     ensure!(version.major == 1);
-    ensure!(version.minor == 2);
-    ensure!(version.patch == 0);
+    ensure!(version.minor == 5);
+    ensure!(version.patch == 3);
     ensure!(version.build.is_empty());
     ensure!(version.pre.is_empty());
 

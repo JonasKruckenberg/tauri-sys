@@ -36,8 +36,7 @@ async function invoke(cmd, args = {}) {
   });
 }
 function convertFileSrc(filePath, protocol = "asset") {
-  const path = encodeURIComponent(filePath);
-  return navigator.userAgent.includes("Windows") ? `https://${protocol}.localhost/${path}` : `${protocol}://localhost/${path}`;
+  return window.__TAURI__.convertFileSrc(filePath, protocol);
 }
 export {
   convertFileSrc,

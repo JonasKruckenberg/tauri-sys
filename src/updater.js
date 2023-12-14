@@ -113,11 +113,12 @@ async function installUpdate() {
     function onStatusChange(statusResult) {
       if (statusResult.error) {
         cleanListener();
-        return reject(statusResult.error);
+        reject(statusResult.error);
+        return;
       }
       if (statusResult.status === "DONE") {
         cleanListener();
-        return resolve();
+        resolve();
       }
     }
     onUpdaterEvent(onStatusChange).then((fn) => {
@@ -143,7 +144,7 @@ async function checkUpdate() {
   return new Promise((resolve, reject) => {
     function onUpdateAvailable(manifest) {
       cleanListener();
-      return resolve({
+      resolve({
         manifest,
         shouldUpdate: true
       });
@@ -151,11 +152,12 @@ async function checkUpdate() {
     function onStatusChange(statusResult) {
       if (statusResult.error) {
         cleanListener();
-        return reject(statusResult.error);
+        reject(statusResult.error);
+        return;
       }
       if (statusResult.status === "UPTODATE") {
         cleanListener();
-        return resolve({
+        resolve({
           shouldUpdate: false
         });
       }
