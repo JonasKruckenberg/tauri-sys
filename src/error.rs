@@ -3,15 +3,15 @@ use wasm_bindgen::JsValue;
 
 #[derive(Clone, Eq, PartialEq, Debug, thiserror::Error)]
 pub enum Error {
-    #[error("JS Binding: {0}")]
-    Binding(String),
-    #[error("JSON: {0}")]
+    #[error("Command returned Error: {0}")]
+    Command(String),
+    #[error("Failed to parse JSON: {0}")]
     Serde(String),
     #[cfg(any(feature = "event", feature = "window"))]
     #[error("Oneshot cancelled: {0}")]
     OneshotCanceled(#[from] futures::channel::oneshot::Canceled),
     #[cfg(feature = "fs")]
-    #[error("could not convert path to string")]
+    #[error("Could not convert path to string")]
     Utf8(PathBuf),
 }
 
@@ -23,6 +23,6 @@ impl From<serde_wasm_bindgen::Error> for Error {
 
 impl From<JsValue> for Error {
     fn from(e: JsValue) -> Self {
-        Self::Binding(format!("{:?}", e))
+        Self::Command(format!("{:?}", e))
     }
 }

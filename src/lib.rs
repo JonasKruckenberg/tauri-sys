@@ -148,7 +148,7 @@ pub mod updater;
 #[cfg(feature = "window")]
 pub mod window;
 
-pub(crate) use error::Error;
+pub use error::Error;
 pub(crate) type Result<T> = core::result::Result<T, Error>;
 
 #[cfg(any(feature = "dialog", feature = "window"))]
