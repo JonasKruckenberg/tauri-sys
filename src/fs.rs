@@ -420,7 +420,7 @@ pub async fn rename_file(
 /// ```rust,no_run
 /// use tauri_sys::fs;
 ///
-/// fs::write_binary_file(path, contents, BaseDirectory::Download).expect("could not writet binary file");
+/// fs::write_binary_file(path, contents, BaseDirectory::Download).expect("could not writes binary file");
 /// ```
 ///
 /// Requires [`allowlist > fs > writeBinaryFile`](https://tauri.app/v1/api/js/fs) to be enabled.
@@ -448,7 +448,7 @@ pub async fn write_binary_file(
 /// ```rust,no_run
 /// use tauri_sys::fs;
 ///
-/// fs::write_text_file(path, contents, BaseDirectory::Download).expect("could not writet binary file");
+/// fs::write_text_file(path, contents, BaseDirectory::Download).expect("could not writes binary file");
 /// ```
 ///
 /// Requires [`allowlist > fs > writeTextFile`](https://tauri.app/v1/api/js/fs) to be enabled.

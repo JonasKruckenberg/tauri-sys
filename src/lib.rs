@@ -78,7 +78,7 @@
 //! #### Streams are buffered
 //!
 //! Streams, much like iterators, are poll-based meaning the caller is responsible for advancing it.
-//! This allows greater flexibilty as you can freely decide *when* to process events.
+//! This allows greater flexibility as you can freely decide *when* to process events.
 //! Event streams are internally backed by an unbounded queue so events are buffered until read,
 //! so no events are getting lost even if you temporarily pause processing.
 //!
