@@ -73,7 +73,7 @@ async fn test_get_version() {
         Ok("1.0.0")
     });
 
-    let version = get_version().await;
+    let version = get_version().await.unwrap();
 
     assert_eq!(version.major, 1);
     assert_eq!(version.minor, 0);
