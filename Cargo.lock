@@ -4284,7 +4284,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c1e124130aee3fb58c5bdd6b639a0509486b0338acaaae0c84a5124b0f588b7f"
 dependencies = [
  "cfg-if",
- "serde_json",
  "wasm-bindgen-macro",
 ]
 
