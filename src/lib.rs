@@ -1,4 +1,4 @@
-//! Bindings to the [`Tauri API`](https://tauri.app/v1/api/js/) for projects using [`wasm-bindgen`](https://github.com/rustwasm/wasm-bindgen)
+//! Bindings to the [`Tauri API`](https://v2.tauri.app) for projects using [`wasm-bindgen`](https://github.com/rustwasm/wasm-bindgen)
 //!
 //! Tauri is a framework for building tiny, blazing fast, and secure cross-platform applications.
 //! Developers can integrate any front-end framework that compiles to HTML, JS and CSS for building their user interface.
@@ -13,7 +13,7 @@
 //!
 //! ## Event Listeners
 //!
-//! Event Listeners, such as [`event::listen`] module or [`window::WebviewWindow::listen`],
+//! Event Listeners, such as [`event::listen`] module,
 //! are modeled as async streams of data using the [`futures::Stream`] trait instead of using callbacks.
 //! Streams have multiple advantages over callbacks:
 //!
@@ -21,39 +21,6 @@
 //!
 //! Streams are essentially the async equivalent of the standard [`Iterator`] and therefore expose a very similar set of combinator functions.
 //! This means streams are much more versatile and ergonomic than simple callbacks.
-//!
-//! For example, we can use Stream combinators and various utility functions
-//! to replicate the `registerAll` function that unregisters the shortcuts after 20 seconds:
-//!
-//! ```rust
-//! use futures::{future, stream, Stream, StreamExt};
-//! use std::time::Duration;
-//! use tauri_sys::global_shortcut;
-//!
-//! async fn register_with_shortcut<'a>(
-//!     shortcut: &'a str,
-//! ) -> anyhow::Result<impl Stream<Item = &'a str>> {
-//!     let stream = global_shortcut::register(shortcut).await?;
-//!
-//!     Ok(stream.map(move |_| shortcut))
-//! }
-//!
-//! async fn register_all() {
-//!     let shortcuts = ["CommandOrControl+Shift+C", "Ctrl+Alt+F12"];
-//!
-//!     let timeout = gloo_timers::future::sleep(Duration::from_secs(20));
-//!
-//!     // await the futures that creates the streams, exiting early if any future resolves with an error
-//!     let streams = future::try_join_all(shortcuts.map(register_with_shortcut)).await?;
-//!
-//!     // combine all streams into one
-//!     let mut events = stream::select_all(streams).take_until(timeout);
-//!
-//!     while let Some(shortcut) = events.next().await {
-//!         log::debug!("Shortcut {} triggered", shortcut);
-//!     }
-//! }
-//! ```
 //!
 //! #### Automatic cleanup
 //!
@@ -118,65 +85,39 @@
 //! abort_handle.abort();
 //! ```
 
-#[cfg(feature = "app")]
-pub mod app;
-#[cfg(feature = "clipboard")]
-pub mod clipboard;
-#[cfg(feature = "dialog")]
-pub mod dialog;
 mod error;
 #[cfg(feature = "event")]
 pub mod event;
-#[cfg(feature = "fs")]
-pub mod fs;
-#[cfg(feature = "global_shortcut")]
-pub mod global_shortcut;
-#[cfg(feature = "mocks")]
-pub mod mocks;
-#[cfg(feature = "notification")]
-pub mod notification;
-#[cfg(feature = "os")]
-pub mod os;
-#[cfg(feature = "path")]
-pub mod path;
-#[cfg(feature = "process")]
-pub mod process;
-#[cfg(feature = "tauri")]
-pub mod tauri;
-#[cfg(feature = "updater")]
-pub mod updater;
-#[cfg(feature = "window")]
-pub mod window;
 
 pub use error::Error;
 pub(crate) type Result<T> = core::result::Result<T, Error>;
 
-#[cfg(any(feature = "dialog", feature = "window"))]
-pub(crate) mod utils {
-    pub struct ArrayIterator {
-        pos: u32,
-        arr: js_sys::Array,
-    }
+// #[cfg(any(feature = "window"))]
+// pub(crate) mod utils {
+//     pub struct ArrayIterator {
+//         pos: u32,
+//         arr: js_sys::Array,
+//     }
 
-    impl ArrayIterator {
-        pub fn new(arr: js_sys::Array) -> Self {
-            Self { pos: 0, arr }
-        }
-    }
+//     impl ArrayIterator {
+//         pub fn new(arr: js_sys::Array) -> Self {
+//             Self { pos: 0, arr }
+//         }
+//     }
 
-    impl Iterator for ArrayIterator {
-        type Item = wasm_bindgen::JsValue;
+//     impl Iterator for ArrayIterator {
+//         type Item = wasm_bindgen::JsValue;
 
-        fn next(&mut self) -> Option<Self::Item> {
-            let raw = self.arr.get(self.pos);
+//         fn next(&mut self) -> Option<Self::Item> {
+//             let raw = self.arr.get(self.pos);
 
-            if raw.is_undefined() {
-                None
-            } else {
-                self.pos += 1;
+//             if raw.is_undefined() {
+//                 None
+//             } else {
+//                 self.pos += 1;
 
-                Some(raw)
-            }
-        }
-    }
-}
+//                 Some(raw)
+//             }
+//         }
+//     }
+// }

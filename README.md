@@ -21,7 +21,8 @@
 This crate is not yet published to crates.io, so you need to use it from git. You also need a global installation of [`esbuild`].
 
 ```toml
-tauri-sys = { git = "https://github.com/JonasKruckenberg/tauri-sys" }
+tauri-sys = { git = "https://github.com/JonasKruckenberg/tauri-sys" } // v1, main repo
+tauri-sys = { git = "https://github.com/bicarlsen/tauri-sys" } // v2 branch
 ```
 
 ## Usage
@@ -49,35 +50,24 @@ fn main() {
 All modules are gated by accordingly named Cargo features. It is recommended you keep this synced with the features enabled in your [Tauri Allowlist] but no automated tool for this exists (yet).
 
 - **all**: Enables all modules.
-- **app**: Enables the `app` module.
-- **clipboard**: Enables the `clipboard` module.
-- **dialog**: Enables the `dialog` module.
 - **event**: Enables the `event` module.
-- **fs**: Enables the `fs` module.
-- **mocks**: Enables the `mocks` module.
-- **tauri**: Enables the `tauri` module.
 
 ## Are we Tauri yet?
 
 These API bindings are not completely on-par with `@tauri-apps/api` yet, but here is the current status-quo:
 
-- [x] `app`
-- [ ] `cli`
-- [x] `clipboard`
-- [x] `dialog`
+- [ ] `app`
+- [ ] `core`
+- [ ] `dpi`
 - [x] `event`
-- [x] `fs`
-- [x] `global_shortcut`
-- [ ] `http`
-- [x] `mocks`
-- [x] `notification`
-- [x] `os`
-- [x] `path`
-- [x] `process`
-- [ ] `shell`
-- [x] `tauri`
-- [ ] `updater`
-- [x] `window`
+- [ ] `image`
+- [ ] `menu`
+- [ ] `mocks`
+- [ ] `path`
+- [ ] `tray`
+- [ ] `webview`
+- [ ] `webviewWindow`
+- [ ] `window`
 
 The current API also very closely mirrors the JS API even though that might not be the most ergonomic choice, ideas for improving the API with quality-of-life features beyond the regular JS API interface are very welcome.
 

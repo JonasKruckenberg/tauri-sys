@@ -17,8 +17,22 @@ pub struct Event<T> {
     pub id: f32,
     /// Event payload
     pub payload: T,
-    /// The label of the window that emitted this event
-    pub window_label: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
+#[serde(tag = "kind", content = "label")]
+pub enum EventTarget {
+    Any,
+    AnyLabel(String),
+    App,
+    Window(String),
+    Webview(String),
+    WebviewWindow(String),
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
+struct Options {
+    target: EventTarget,
 }
 
 /// Emits an event to the backend.
@@ -46,8 +60,42 @@ pub async fn emit<T: Serialize>(event: &str, payload: &T) -> crate::Result<()> {
     Ok(())
 }
 
+/// Emits an event to the backend.
+///
+/// # Example
+///
+/// ```rust,no_run
+/// use tauri_api::event::{EventTarget, emit_to};
+/// use serde::Serialize;
+///
+/// #[derive(Serialize)]
+/// struct Payload {
+///     logged_in: bool,
+///     token: String
+/// }
+///
+/// emit_to(EventTarget::Any, "frontend-loaded", &Payload { logged_in: true, token: "authToken" }).await;
+/// ```
+///
+/// @param event Event name. Must include only alphanumeric characters, `-`, `/`, `:` and `_`.
+#[inline(always)]
+pub async fn emit_to<T: Serialize>(
+    target: &EventTarget,
+    event: &str,
+    payload: &T,
+) -> crate::Result<()> {
+    inner::emitTo(
+        serde_wasm_bindgen::to_value(target)?,
+        event,
+        serde_wasm_bindgen::to_value(payload)?,
+    )
+    .await?;
+
+    Ok(())
+}
+
 /// Listen to an event from the backend.
-/// 
+///
 /// The returned Future will automatically clean up it's underlying event listener when dropped, so no manual unlisten function needs to be called.
 /// See [Differences to the JavaScript API](../index.html#differences-to-the-javascript-api) for details.
 ///
@@ -56,8 +104,9 @@ pub async fn emit<T: Serialize>(event: &str, payload: &T) -> crate::Result<()> {
 /// ```rust,no_run
 /// use tauri_api::event::listen;
 /// use web_sys::console;
+/// use futures::StreamExt;
 ///
-/// let events = listen::<String>("error");
+/// let events = listen::<String>("error", EventTarget::Any);
 ///
 /// while let Some(event) = events.next().await {
 ///     console::log_1(&format!("Got error in window {}, payload: {}", event.window_label, event.payload).into());
@@ -73,7 +122,59 @@ where
     let closure = Closure::<dyn FnMut(JsValue)>::new(move |raw| {
         let _ = tx.unbounded_send(serde_wasm_bindgen::from_value(raw).unwrap());
     });
-    let unlisten = inner::listen(event, &closure).await?;
+    let unlisten = inner::listen(
+        event,
+        &closure,
+        serde_wasm_bindgen::to_value(&Options {
+            target: EventTarget::Any,
+        })?,
+    )
+    .await?;
+    closure.forget();
+
+    Ok(Listen {
+        rx,
+        unlisten: js_sys::Function::from(unlisten),
+    })
+}
+
+/// Listen to an event from the backend.
+///
+/// The returned Future will automatically clean up it's underlying event listener when dropped, so no manual unlisten function needs to be called.
+/// See [Differences to the JavaScript API](../index.html#differences-to-the-javascript-api) for details.
+///
+/// # Example
+///
+/// ```rust,no_run
+/// use tauri_api::event::{EventTarget, listen_to};
+/// use web_sys::console;
+/// use futures::StreamExt;
+///
+/// let events = listen_to::<String>("error", EventTarget::Any);
+///
+/// while let Some(event) = events.next().await {
+///     console::log_1(&format!("Got error in window {}, payload: {}", event.window_label, event.payload).into());
+/// }
+/// ```
+#[inline(always)]
+pub async fn listen_to<T>(
+    event: &str,
+    target: EventTarget,
+) -> crate::Result<impl Stream<Item = Event<T>>>
+where
+    T: DeserializeOwned + 'static,
+{
+    let (tx, rx) = mpsc::unbounded::<Event<T>>();
+
+    let closure = Closure::<dyn FnMut(JsValue)>::new(move |raw| {
+        let _ = tx.unbounded_send(serde_wasm_bindgen::from_value(raw).unwrap());
+    });
+    let unlisten = inner::listen(
+        event,
+        &closure,
+        serde_wasm_bindgen::to_value(&Options { target })?,
+    )
+    .await?;
     closure.forget();
 
     Ok(Listen {
@@ -109,7 +210,7 @@ impl<T> Stream for Listen<T> {
 ///
 /// The returned Future will automatically clean up it's underlying event listener when dropped, so no manual unlisten function needs to be called.
 /// See [Differences to the JavaScript API](../index.html#differences-to-the-javascript-api) for details.
-/// 
+///
 /// # Example
 ///
 /// ```rust,no_run
@@ -122,10 +223,10 @@ impl<T> Stream for Listen<T> {
 ///   logged_in: bool,
 ///   token: String
 /// }
-/// 
+///
 /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// const event = once::<LoadedPayload>("loaded").await?;
-/// 
+///
 /// console::log_1!(&format!("App is loaded, loggedIn: {}, token: {}", event.payload.logged_in, event.payload.token).into());
 /// # Ok(())
 /// # }
@@ -140,7 +241,65 @@ where
     let closure: Closure<dyn FnMut(JsValue)> = Closure::once(move |raw| {
         let _ = tx.send(serde_wasm_bindgen::from_value(raw).unwrap());
     });
-    let unlisten = inner::once(event, &closure).await?;
+    let unlisten = inner::once(
+        event,
+        &closure,
+        serde_wasm_bindgen::to_value(&Options {
+            target: EventTarget::Any,
+        })?,
+    )
+    .await?;
+    closure.forget();
+
+    let fut = Once {
+        rx,
+        unlisten: js_sys::Function::from(unlisten),
+    };
+
+    fut.await
+}
+
+/// Listen to an one-off event from the backend.
+///
+/// The returned Future will automatically clean up it's underlying event listener when dropped, so no manual unlisten function needs to be called.
+/// See [Differences to the JavaScript API](../index.html#differences-to-the-javascript-api) for details.
+///
+/// # Example
+///
+/// ```rust,no_run
+/// use tauri_api::event::{EventTarget, once_to};
+/// use serde::Deserialize;
+/// use web_sys::console;
+///
+/// #[derive(Deserialize)]
+/// interface LoadedPayload {
+///   logged_in: bool,
+///   token: String
+/// }
+///
+/// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
+/// const event = once_to::<LoadedPayload>("loaded", EventTarget::Any).await?;
+///
+/// console::log_1!(&format!("App is loaded, loggedIn: {}, token: {}", event.payload.logged_in, event.payload.token).into());
+/// # Ok(())
+/// # }
+/// ```
+#[inline(always)]
+pub async fn once_to<T>(event: &str, target: EventTarget) -> crate::Result<Event<T>>
+where
+    T: DeserializeOwned + 'static,
+{
+    let (tx, rx) = oneshot::channel::<Event<T>>();
+
+    let closure: Closure<dyn FnMut(JsValue)> = Closure::once(move |raw| {
+        let _ = tx.send(serde_wasm_bindgen::from_value(raw).unwrap());
+    });
+    let unlisten = inner::once(
+        event,
+        &closure,
+        serde_wasm_bindgen::to_value(&Options { target })?,
+    )
+    .await?;
     closure.forget();
 
     let fut = Once {
@@ -186,14 +345,18 @@ mod inner {
         #[wasm_bindgen(catch)]
         pub async fn emit(event: &str, payload: JsValue) -> Result<(), JsValue>;
         #[wasm_bindgen(catch)]
+        pub async fn emitTo(target: JsValue, event: &str, payload: JsValue) -> Result<(), JsValue>;
+        #[wasm_bindgen(catch)]
         pub async fn listen(
             event: &str,
             handler: &Closure<dyn FnMut(JsValue)>,
+            options: JsValue,
         ) -> Result<JsValue, JsValue>;
         #[wasm_bindgen(catch)]
         pub async fn once(
             event: &str,
             handler: &Closure<dyn FnMut(JsValue)>,
+            options: JsValue,
         ) -> Result<JsValue, JsValue>;
     }
 }
