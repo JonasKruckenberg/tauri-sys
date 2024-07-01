@@ -59,7 +59,7 @@ All modules are gated by accordingly named Cargo features. It is recommended you
 These API bindings are not completely on-par with `@tauri-apps/api` yet, but here is the current status-quo:
 
 - [ ] `app`
-- [-] `core`
+- [x] `core` (partial implementation)
 - [ ] `dpi`
 - [x] `event`
 - [ ] `image`
