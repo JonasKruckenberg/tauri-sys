@@ -51,6 +51,7 @@ fn main() {
 All modules are gated by accordingly named Cargo features. It is recommended you keep this synced with the features enabled in your [Tauri Allowlist] but no automated tool for this exists (yet).
 
 - **all**: Enables all modules.
+- **core**: Enables the `core` module. (Only `invoke` and `convertFileSrc` currently implemented.)
 - **event**: Enables the `event` module.
 
 ## Are we Tauri yet?
@@ -58,7 +59,7 @@ All modules are gated by accordingly named Cargo features. It is recommended you
 These API bindings are not completely on-par with `@tauri-apps/api` yet, but here is the current status-quo:
 
 - [ ] `app`
-- [ ] `core`
+- [-] `core`
 - [ ] `dpi`
 - [x] `event`
 - [ ] `image`

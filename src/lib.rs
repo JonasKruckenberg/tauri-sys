@@ -89,8 +89,11 @@ mod error;
 #[cfg(feature = "event")]
 pub mod event;
 
+#[cfg(feature = "core")]
+pub mod core;
+
 pub use error::Error;
-pub(crate) type Result<T> = core::result::Result<T, Error>;
+pub(crate) type Result<T> = std::result::Result<T, Error>;
 
 // #[cfg(any(feature = "window"))]
 // pub(crate) mod utils {
