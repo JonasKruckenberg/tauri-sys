@@ -23,7 +23,7 @@ This crate is not yet published to crates.io, so you need to use it from git. Yo
 ```toml
 tauri-sys = { git = "https://github.com/JonasKruckenberg/tauri-sys" } // tauri v1 api, main repo
 // OR
-tauri-sys = { git = "https://github.com/bicarlsen/tauri-sys", branch = "v2" } // tauri v2 api
+tauri-sys = { git = "https://github.com/JonasKruckenberg/tauri-sys", branch = "v2" } // tauri v2 api
 ```
 
 ## Usage
