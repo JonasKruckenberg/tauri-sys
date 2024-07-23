@@ -55,25 +55,25 @@ impl<T> Stream for Listen<T> {
 
 pub(crate) struct DragDropListen {
     pub rx: mpsc::UnboundedReceiver<Event<DragDropEvent>>,
-    pub unlisten_drag: js_sys::Function,
+    pub unlisten_enter: js_sys::Function,
     pub unlisten_drop: js_sys::Function,
-    pub unlisten_drag_over: js_sys::Function,
-    pub unlisten_cancel: js_sys::Function,
+    pub unlisten_over: js_sys::Function,
+    pub unlisten_leave: js_sys::Function,
 }
 
 impl Drop for DragDropListen {
     fn drop(&mut self) {
         log::debug!("Calling unlisten for listen callback");
-        self.unlisten_drag
+        self.unlisten_enter
             .call0(&wasm_bindgen::JsValue::NULL)
             .unwrap();
         self.unlisten_drop
             .call0(&wasm_bindgen::JsValue::NULL)
             .unwrap();
-        self.unlisten_drag_over
+        self.unlisten_over
             .call0(&wasm_bindgen::JsValue::NULL)
             .unwrap();
-        self.unlisten_cancel
+        self.unlisten_leave
             .call0(&wasm_bindgen::JsValue::NULL)
             .unwrap();
     }
@@ -97,10 +97,10 @@ struct WindowLabel {
 
 #[derive(Deserialize, Debug)]
 pub enum DragDropEvent {
-    Dragged(DragDropPayload),
-    DragOver(DragOverPayload),
-    Dropped(DragDropPayload),
-    Cancelled,
+    Enter(DragDropPayload),
+    Over(DragOverPayload),
+    Drop(DragDropPayload),
+    Leave,
 }
 
 #[derive(Deserialize, Debug)]
@@ -340,12 +340,12 @@ impl Window {
                 let _ = tx.unbounded_send(Event {
                     event,
                     id,
-                    payload: DragDropEvent::Dragged(payload),
+                    payload: DragDropEvent::Enter(payload),
                 });
             })
         };
         let unlisten = event::inner::listen(
-            event::DRAG,
+            event::DRAG_ENTER,
             &closure,
             serde_wasm_bindgen::to_value(&event::Options {
                 target: event::EventTarget::Window(self.label.clone()),
@@ -354,7 +354,7 @@ impl Window {
         .await?;
         closure.forget();
 
-        let unlisten_drag = js_sys::Function::from(unlisten);
+        let unlisten_enter = js_sys::Function::from(unlisten);
 
         let closure = {
             let tx = tx.clone();
@@ -364,12 +364,12 @@ impl Window {
                 let _ = tx.unbounded_send(Event {
                     event,
                     id,
-                    payload: DragDropEvent::Dropped(payload),
+                    payload: DragDropEvent::Drop(payload),
                 });
             })
         };
         let unlisten = event::inner::listen(
-            event::DROP,
+            event::DRAG_DROP,
             &closure,
             serde_wasm_bindgen::to_value(&event::Options {
                 target: event::EventTarget::Window(self.label.clone()),
@@ -388,12 +388,12 @@ impl Window {
                 let _ = tx.unbounded_send(Event {
                     event,
                     id,
-                    payload: DragDropEvent::DragOver(payload),
+                    payload: DragDropEvent::Over(payload),
                 });
             })
         };
         let unlisten = event::inner::listen(
-            event::DROP_OVER,
+            event::DRAG_OVER,
             &closure,
             serde_wasm_bindgen::to_value(&event::Options {
                 target: event::EventTarget::Window(self.label.clone()),
@@ -402,7 +402,7 @@ impl Window {
         .await?;
         closure.forget();
 
-        let unlisten_drag_over = js_sys::Function::from(unlisten);
+        let unlisten_over = js_sys::Function::from(unlisten);
 
         let closure = {
             let tx = tx.clone();
@@ -412,12 +412,12 @@ impl Window {
                 let _ = tx.unbounded_send(Event {
                     event,
                     id,
-                    payload: DragDropEvent::Cancelled,
+                    payload: DragDropEvent::Leave,
                 });
             })
         };
         let unlisten = event::inner::listen(
-            event::DROP_CANCELLED,
+            event::DRAG_LEAVE,
             &closure,
             serde_wasm_bindgen::to_value(&event::Options {
                 target: event::EventTarget::Window(self.label.clone()),
@@ -426,14 +426,14 @@ impl Window {
         .await?;
         closure.forget();
 
-        let unlisten_cancel = js_sys::Function::from(unlisten);
+        let unlisten_leave = js_sys::Function::from(unlisten);
 
         Ok(DragDropListen {
             rx,
-            unlisten_drag,
+            unlisten_enter,
             unlisten_drop,
-            unlisten_drag_over,
-            unlisten_cancel,
+            unlisten_over,
+            unlisten_leave,
         })
     }
 }

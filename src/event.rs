@@ -17,10 +17,10 @@ pub const WINDOW_SCALE_FACTOR_CHANGED: &str = "tauri://scale-change";
 pub const WINDOW_THEME_CHANGED: &str = "tauri://theme-changed";
 pub const WINDOW_CREATED: &str = "tauri://window-created";
 pub const WEBVIEW_CREATED: &str = "tauri://webview-created";
-pub const DRAG: &str = "tauri://drag";
-pub const DROP: &str = "tauri://drop";
-pub const DROP_OVER: &str = "tauri://drop-over";
-pub const DROP_CANCELLED: &str = "tauri://drag-cancelled";
+pub const DRAG_ENTER: &str = "tauri://drag-enter";
+pub const DRAG_OVER: &str = "tauri://drag-over";
+pub const DRAG_DROP: &str = "tauri://drag-drop";
+pub const DRAG_LEAVE: &str = "tauri://drag-leave";
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
