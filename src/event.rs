@@ -1,5 +1,4 @@
 //! The event system allows you to emit events to the backend and listen to events from it.
-
 use futures::{
     channel::{mpsc, oneshot},
     Future, FutureExt, Stream, StreamExt,
@@ -8,13 +7,28 @@ use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use std::fmt::Debug;
 use wasm_bindgen::{prelude::Closure, JsValue};
 
+pub const WINDOW_RESIZED: &str = "tauri://resize";
+pub const WINDOW_MOVED: &str = "tauri://move";
+pub const WINDOW_CLOSE_REQUESTED: &str = "tauri://close-requested";
+pub const WINDOW_DESTROYED: &str = "tauri://destroyed";
+pub const WINDOW_FOCUS: &str = "tauri://focus";
+pub const WINDOW_BLUR: &str = "tauri://blur";
+pub const WINDOW_SCALE_FACTOR_CHANGED: &str = "tauri://scale-change";
+pub const WINDOW_THEME_CHANGED: &str = "tauri://theme-changed";
+pub const WINDOW_CREATED: &str = "tauri://window-created";
+pub const WEBVIEW_CREATED: &str = "tauri://webview-created";
+pub const DRAG: &str = "tauri://drag";
+pub const DROP: &str = "tauri://drop";
+pub const DROP_OVER: &str = "tauri://drop-over";
+pub const DROP_CANCELLED: &str = "tauri://drag-cancelled";
+
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Event<T> {
     /// Event name
     pub event: String,
     /// Event identifier used to unlisten
-    pub id: f32,
+    pub id: isize,
     /// Event payload
     pub payload: T,
 }
@@ -31,8 +45,8 @@ pub enum EventTarget {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
-struct Options {
-    target: EventTarget,
+pub(crate) struct Options {
+    pub target: EventTarget,
 }
 
 /// Emits an event to the backend.
@@ -334,7 +348,7 @@ impl<T> Future for Once<T> {
     }
 }
 
-mod inner {
+pub(crate) mod inner {
     use wasm_bindgen::{
         prelude::{wasm_bindgen, Closure},
         JsValue,
