@@ -14,7 +14,7 @@ use futures::{
     Future, FutureExt, Stream, StreamExt,
 };
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
-use std::{any::Any, collections::HashMap};
+use std::{any::Any, collections::HashMap, path::PathBuf};
 use wasm_bindgen::{prelude::Closure, JsValue};
 
 /// Events that are emitted right here instead of by the created window.
@@ -105,12 +105,12 @@ pub enum DragDropEvent {
 
 #[derive(Deserialize, Debug)]
 pub struct DragDropPayload {
-    paths: Vec<String>,
+    paths: Vec<PathBuf>,
     position: dpi::PhysicalPosition,
 }
 
 impl DragDropPayload {
-    pub fn paths(&self) -> &Vec<String> {
+    pub fn paths(&self) -> &Vec<PathBuf> {
         &self.paths
     }
 
