@@ -92,6 +92,12 @@ pub mod event;
 #[cfg(feature = "core")]
 pub mod core;
 
+#[cfg(feature = "dpi")]
+pub mod dpi;
+
+#[cfg(feature = "window")]
+pub mod window;
+
 pub use error::Error;
 pub(crate) type Result<T> = std::result::Result<T, Error>;
 

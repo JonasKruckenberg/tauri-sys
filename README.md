@@ -53,6 +53,7 @@ All modules are gated by accordingly named Cargo features. It is recommended you
 - **all**: Enables all modules.
 - **core**: Enables the `core` module. (Only `invoke` and `convertFileSrc` currently implemented.)
 - **event**: Enables the `event` module.
+- **window**: Enables the `windows` module. (~20% implemented)
 
 ## Are we Tauri yet?
 
@@ -60,7 +61,7 @@ These API bindings are not completely on-par with `@tauri-apps/api` yet, but her
 
 - [ ] `app`
 - [x] `core` (partial implementation)
-- [ ] `dpi`
+- [x] `dpi`
 - [x] `event`
 - [ ] `image`
 - [ ] `menu`
@@ -69,7 +70,7 @@ These API bindings are not completely on-par with `@tauri-apps/api` yet, but her
 - [ ] `tray`
 - [ ] `webview`
 - [ ] `webviewWindow`
-- [ ] `window`
+- [x] `window` (partial implementation)
 
 The current API also very closely mirrors the JS API even though that might not be the most ergonomic choice, ideas for improving the API with quality-of-life features beyond the regular JS API interface are very welcome.
 

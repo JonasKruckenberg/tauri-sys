@@ -43,7 +43,6 @@ mod inner {
 
     #[wasm_bindgen(module = "/src/core.js")]
     extern "C" {
-        #[wasm_bindgen]
         pub async fn invoke(cmd: &str, args: JsValue) -> JsValue;
         #[wasm_bindgen(js_name = "invoke", catch)]
         pub async fn invoke_result(cmd: &str, args: JsValue) -> Result<JsValue, JsValue>;

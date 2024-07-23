@@ -55,28 +55,9 @@ async function once(event, handler, options) {
 	)
 }
 
-// tauri/tooling/api/src/event.ts
-var TauriEvent = /* @__PURE__ */ ((TauriEvent2) => {
-	TauriEvent2["WINDOW_RESIZED"] = 'tauri://resize';
-	TauriEvent2["WINDOW_MOVED"] = 'tauri://move';
-	TauriEvent2["WINDOW_CLOSE_REQUESTED"] = 'tauri://close-requested';
-	TauriEvent2["WINDOW_DESTROYED"] = 'tauri://destroyed';
-	TauriEvent2["WINDOW_FOCUS"] = 'tauri://focus';
-	TauriEvent2["WINDOW_BLUR"] = 'tauri://blur';
-	TauriEvent2["WINDOW_SCALE_FACTOR_CHANGED"] = 'tauri://scale-change';
-	TauriEvent2["WINDOW_THEME_CHANGED"] = 'tauri://theme-changed';
-	TauriEvent2["WINDOW_CREATED"] = 'tauri://window-created';
-	TauriEvent2["WEBVIEW_CREATED"] = 'tauri://webview-created';
-	TauriEvent2["DRAG"] = 'tauri://drag';
-	TauriEvent2["DROP"] = 'tauri://drop';
-	TauriEvent2["DROP_OVER"] = 'tauri://drop-over';
-	TauriEvent2["DROP_CANCELLED"] = 'tauri://drag-cancelled';
-	return TauriEvent2;
-})(TauriEvent || {});
 export {
-	TauriEvent,
 	emit,
 	emitTo,
 	listen,
-	once
+	once,
 };

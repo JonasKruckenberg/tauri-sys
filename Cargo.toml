@@ -24,9 +24,11 @@ wasm-bindgen-test = "0.3.42"
 all-features = true
 
 [features]
-all = ["core", "event"]
+all = ["core", "dpi", "event", "window"]
 core = []
+dpi = []
 event = ["dep:futures"]
+window = ["dpi", "event"]
 
 [workspace]
 members = ["examples/test", "examples/test/src-tauri"]
