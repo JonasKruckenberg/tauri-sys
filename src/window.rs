@@ -324,14 +324,11 @@ impl Window {
     /// The listener is triggered when the user hovers the selected files on the webview,
     /// drops the files or cancels the operation.
     ///
-    /// You need to call unlisten if your handler goes out of scope e.g. the component is unmounted
-    /// unlisten();
-    ///
     /// # Returns
     /// Function to unlisten to the event.
     /// Note that removing the listener is required if your listener goes out of scope e.g. the component is unmounted.
     pub async fn on_drag_drop_event(
-        &mut self,
+        &self,
     ) -> crate::Result<impl Stream<Item = Event<DragDropEvent>>> {
         let (tx, rx) = mpsc::unbounded::<Event<DragDropEvent>>();
 
