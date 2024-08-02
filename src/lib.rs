@@ -95,6 +95,9 @@ pub mod core;
 #[cfg(feature = "dpi")]
 pub mod dpi;
 
+#[cfg(feature = "menu")]
+pub mod menu;
+
 #[cfg(feature = "window")]
 pub mod window;
 

@@ -1,4 +1,7 @@
 // tauri/tooling/api/src/core.ts
+function transformCallback(callback, once = false) {
+	return window.__TAURI_INTERNALS__.transformCallback(callback, once)
+}
 async function invoke(cmd, args = {}) {
 	// NB: `options` ignored as not used here.
 	return window.__TAURI_INTERNALS__.invoke(cmd, args)
@@ -8,5 +11,6 @@ function convertFileSrc(filePath, protocol = 'asset') {
 }
 export {
 	invoke,
-	convertFileSrc
+	convertFileSrc,
+	transformCallback,
 }

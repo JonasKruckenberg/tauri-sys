@@ -51,8 +51,9 @@ fn main() {
 All modules are gated by accordingly named Cargo features. It is recommended you keep this synced with the features enabled in your [Tauri Allowlist] but no automated tool for this exists (yet).
 
 - **all**: Enables all modules.
-- **core**: Enables the `core` module. (Only `invoke` and `convertFileSrc` currently implemented.)
+- **core**: Enables the `core` module. (~70% implmented)
 - **event**: Enables the `event` module.
+- **menu**: Enables the `menu` module. (~20% implemented)
 - **window**: Enables the `windows` module. (~20% implemented)
 
 ## Are we Tauri yet?
@@ -64,7 +65,7 @@ These API bindings are not completely on-par with `@tauri-apps/api` yet, but her
 - [x] `dpi`
 - [x] `event`
 - [ ] `image`
-- [ ] `menu`
+- [x] `menu` (partial implementation)
 - [ ] `mocks`
 - [ ] `path`
 - [ ] `tray`
@@ -73,6 +74,9 @@ These API bindings are not completely on-par with `@tauri-apps/api` yet, but her
 - [x] `window` (partial implementation)
 
 The current API also very closely mirrors the JS API even though that might not be the most ergonomic choice, ideas for improving the API with quality-of-life features beyond the regular JS API interface are very welcome.
+
+## Examples
+The [`examples/leptos`] crate provides examples of how to use most of the implemented functionality.
 
 [wasm-bindgen]: https://github.com/rustwasm/wasm-bindgen
 [tauri allowlist]: https://tauri.app/v1/api/config#allowlistconfig

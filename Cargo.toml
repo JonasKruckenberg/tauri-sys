@@ -6,6 +6,7 @@ version = "0.2.0"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+derive_more = "0.99.18"
 futures = { version = "0.3.30", optional = true }
 js-sys = "0.3.69"
 log = "0.4.21"
@@ -24,10 +25,11 @@ wasm-bindgen-test = "0.3.42"
 all-features = true
 
 [features]
-all = ["core", "dpi", "event", "window"]
+all = ["core", "dpi", "event", "menu", "window"]
 core = []
 dpi = []
 event = ["dep:futures"]
+menu = ["core", "window"]
 window = ["dpi", "event"]
 
 [workspace]
