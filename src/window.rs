@@ -1,4 +1,4 @@
-//! Provides APIs to create windows, communicate with other windows and manipulate the current window.
+//! Provides APIs to create windows, communicate with other windows, and manipulate the current window.
 //!
 //! ## Window events
 //! Events can be listened to using [`Window::listen`].
@@ -90,8 +90,8 @@ impl Stream for DragDropListen {
     }
 }
 
-#[derive(Deserialize)]
-struct WindowLabel {
+#[derive(Serialize, Deserialize)]
+pub(crate) struct WindowLabel {
     label: String,
 }
 
