@@ -75,6 +75,9 @@ These API bindings are not completely on-par with `@tauri-apps/api` yet, but her
 
 The current API also very closely mirrors the JS API even though that might not be the most ergonomic choice, ideas for improving the API with quality-of-life features beyond the regular JS API interface are very welcome.
 
+## Examples
+The [`examples/leptos`] crate provides examples of how to use most of the implemented functionality.
+
 [wasm-bindgen]: https://github.com/rustwasm/wasm-bindgen
 [tauri allowlist]: https://tauri.app/v1/api/config#allowlistconfig
 [`esbuild`]: https://esbuild.github.io/getting-started/#install-esbuild
