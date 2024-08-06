@@ -1,10 +1,9 @@
 //! Common functionality
-use std::collections::HashMap;
-
-use futures::{channel::mpsc, future::FusedFuture, Stream, StreamExt};
-use serde::{de::DeserializeOwned, ser::SerializeStruct, Serialize};
+use serde::{de::DeserializeOwned, Serialize};
 use serde_wasm_bindgen as swb;
 use wasm_bindgen::{prelude::Closure, JsValue};
+
+pub use channel::{Channel, Message};
 
 pub async fn invoke<T>(command: &str, args: impl Serialize) -> T
 where
@@ -40,54 +39,77 @@ pub fn convert_file_src_with_protocol(
         .unwrap()
 }
 
-// TODO: Could cause memory leak because handler is never released.
-#[derive(Debug)]
-pub struct Channel<T> {
-    id: usize,
-    rx: mpsc::UnboundedReceiver<T>,
-}
+mod channel {
+    use super::inner;
+    use futures::{channel::mpsc, Stream, StreamExt};
+    use serde::{de::DeserializeOwned, ser::SerializeStruct, Deserialize, Serialize};
+    use wasm_bindgen::{prelude::Closure, JsValue};
 
-impl<T> Channel<T> {
-    pub fn new() -> Self
-    where
-        T: DeserializeOwned + 'static,
-    {
-        let (tx, rx) = mpsc::unbounded::<T>();
-        let closure = Closure::<dyn FnMut(JsValue)>::new(move |raw| {
-            let _ = tx.unbounded_send(serde_wasm_bindgen::from_value(raw).unwrap());
-        });
+    #[derive(derive_more::Deref, Deserialize, Debug)]
+    pub struct Message<T> {
+        id: usize,
 
-        let id = inner::transform_callback(&closure, false);
-        closure.forget();
-
-        Channel { id, rx }
+        #[deref]
+        message: T,
     }
 
-    pub fn id(&self) -> usize {
-        self.id
+    impl<T> Message<T> {
+        pub fn id(&self) -> usize {
+            self.id
+        }
     }
-}
 
-impl<T> Serialize for Channel<T> {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        let mut map = serializer.serialize_struct("Channel", 2)?;
-        map.serialize_field("__TAURI_CHANNEL_MARKER__", &true)?;
-        map.serialize_field("id", &self.id)?;
-        map.end()
+    // TODO: Could cause memory leak because handler is never released.
+    #[derive(Debug)]
+    pub struct Channel<T> {
+        id: usize,
+        rx: mpsc::UnboundedReceiver<Message<T>>,
     }
-}
 
-impl<T> Stream for Channel<T> {
-    type Item = T;
+    impl<T> Channel<T> {
+        pub fn new() -> Self
+        where
+            T: DeserializeOwned + 'static,
+        {
+            let (tx, rx) = mpsc::unbounded::<Message<T>>();
+            let closure = Closure::<dyn FnMut(JsValue)>::new(move |raw| {
+                let _ = tx.unbounded_send(serde_wasm_bindgen::from_value(raw).unwrap());
+            });
 
-    fn poll_next(
-        mut self: std::pin::Pin<&mut Self>,
-        cx: &mut std::task::Context<'_>,
-    ) -> std::task::Poll<Option<Self::Item>> {
-        self.rx.poll_next_unpin(cx)
+            let id = inner::transform_callback(&closure, false);
+            closure.forget();
+
+            Channel { id, rx }
+        }
+
+        pub fn id(&self) -> usize {
+            self.id
+        }
+    }
+
+    impl<T> Serialize for Channel<T> {
+        fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where
+            S: serde::Serializer,
+        {
+            let mut map = serializer.serialize_struct("Channel", 2)?;
+            map.serialize_field("__TAURI_CHANNEL_MARKER__", &true)?;
+            map.serialize_field("id", &self.id)?;
+            map.end()
+        }
+    }
+
+    impl<T> Stream for Channel<T> {
+        type Item = T;
+
+        fn poll_next(
+            mut self: std::pin::Pin<&mut Self>,
+            cx: &mut std::task::Context<'_>,
+        ) -> std::task::Poll<Option<Self::Item>> {
+            self.rx
+                .poll_next_unpin(cx)
+                .map(|item| item.map(|value| value.message))
+        }
     }
 }
 

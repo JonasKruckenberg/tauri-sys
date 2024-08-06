@@ -1,2 +1,3 @@
-target
-dist
+/dist/
+/target/
+/Cargo.lock
