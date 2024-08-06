@@ -10,7 +10,7 @@ type Rid = usize;
 pub struct Menu {
     rid: Rid,
     id: MenuId,
-    channel: Option<core::Channel<Message<String>>>,
+    channel: Option<core::Channel<String>>,
 }
 
 impl Menu {
@@ -18,20 +18,20 @@ impl Menu {
         #[derive(Serialize)]
         struct Args {
             kind: String,
-            options: MenuOptions,
+            options: NewMenuOptions,
             handler: ChannelId,
         }
 
-        let options = MenuOptions {
-            id: Some(id.into()),
-        };
-
         let channel = core::Channel::new();
+        let options = NewMenuOptions {
+            id: Some(id.into()),
+            items: vec![],
+        };
 
         let (rid, id) = core::invoke::<(Rid, String)>(
             "plugin:menu|new",
             Args {
-                kind: ItemKind::Menu.as_str().to_string(),
+                kind: ItemId::Menu.as_str().to_string(),
                 options,
                 handler: ChannelId::from(&channel),
             },
@@ -43,6 +43,48 @@ impl Menu {
             id: id.into(),
             channel: Some(channel),
         }
+    }
+
+    pub async fn with_items(items: Vec<NewMenuItem>) -> (Self, Vec<Option<core::Channel<String>>>) {
+        #[derive(Serialize)]
+        struct Args {
+            kind: String,
+            options: NewMenuOptions,
+            handler: ChannelId,
+        }
+
+        let channel = core::Channel::new();
+        let (items, item_channels) = items
+            .into_iter()
+            .map(|mut item| match item {
+                NewMenuItem::MenuItemsOptions(ref mut value) => {
+                    let channel = core::Channel::new();
+                    value.set_handler_channel_id(channel.id());
+                    (item, Some(channel))
+                }
+            })
+            .unzip();
+
+        let options = NewMenuOptions { id: None, items };
+        let (rid, id) = core::invoke::<(Rid, String)>(
+            "plugin:menu|new",
+            Args {
+                kind: ItemId::Menu.as_str().to_string(),
+                options,
+                handler: ChannelId::from(&channel),
+            },
+        )
+        .await;
+
+        log::debug!("1");
+        (
+            Self {
+                rid,
+                id: id.into(),
+                channel: Some(channel),
+            },
+            item_channels,
+        )
     }
 
     pub async fn default() -> Self {
@@ -61,7 +103,7 @@ impl Menu {
     }
 
     pub fn kind() -> &'static str {
-        ItemKind::Menu.as_str()
+        ItemId::Menu.as_str()
     }
 }
 
@@ -109,7 +151,7 @@ impl Menu {
 }
 
 impl Menu {
-    pub fn listen(&mut self) -> Option<&mut core::Channel<Message<String>>> {
+    pub fn listen(&mut self) -> Option<&mut core::Channel<String>> {
         self.channel.as_mut()
     }
 }
@@ -131,26 +173,24 @@ impl From<&'static str> for MenuId {
     }
 }
 
-#[derive(derive_more::Deref, Deserialize, Debug)]
-pub struct Message<T> {
-    id: usize,
-
-    #[deref]
-    message: T,
+#[derive(Serialize)]
+struct NewMenuOptions {
+    id: Option<MenuId>,
+    items: Vec<NewMenuItem>,
 }
 
-impl<T> Message<T> {
-    pub fn id(&self) -> usize {
-        self.id
-    }
+#[derive(Serialize, derive_more::From)]
+#[serde(untagged)]
+pub enum NewMenuItem {
+    MenuItemsOptions(item::MenuItemOptions),
 }
 
 #[derive(Serialize)]
-struct MenuOptions {
-    id: Option<MenuId>,
+enum OptionsKind {
+    MenuItem(item::MenuItemOptions),
 }
 
-enum ItemKind {
+enum ItemId {
     MenuItem,
     Predefined,
     Check,
@@ -159,7 +199,7 @@ enum ItemKind {
     Menu,
 }
 
-impl ItemKind {
+impl ItemId {
     pub fn as_str(&self) -> &'static str {
         match self {
             Self::MenuItem => "MenuItem",
@@ -195,15 +235,14 @@ impl Serialize for ChannelId {
 }
 
 pub mod item {
-    use super::{ChannelId, ItemKind, MenuId, Message, Rid};
+    use super::{ChannelId, ItemId, MenuId, Rid};
     use crate::core;
-    use futures::{Stream, StreamExt};
-    use serde::Serialize;
+    use serde::{ser::SerializeStruct, Serialize};
 
     pub struct MenuItem {
         rid: Rid,
         id: MenuId,
-        channel: core::Channel<Message<String>>,
+        channel: core::Channel<String>,
     }
 
     impl MenuItem {
@@ -227,7 +266,7 @@ pub mod item {
             let (rid, id) = core::invoke::<(Rid, String)>(
                 "plugin:menu|new",
                 Args {
-                    kind: ItemKind::MenuItem.as_str().to_string(),
+                    kind: ItemId::MenuItem.as_str().to_string(),
                     options,
                     handler: ChannelId::from(&channel),
                 },
@@ -248,16 +287,12 @@ pub mod item {
         }
 
         pub fn kind() -> &'static str {
-            ItemKind::MenuItem.as_str()
+            ItemId::MenuItem.as_str()
         }
     }
 
     impl MenuItem {
-        // pub fn listen(&mut self) -> impl Stream<Item = Message<String>> {
-        //     self.channel.map(|message| message.message)
-        // }
-
-        pub fn listen(&mut self) -> &mut core::Channel<Message<String>> {
+        pub fn listen(&mut self) -> &mut core::Channel<String> {
             &mut self.channel
         }
     }
@@ -275,6 +310,10 @@ pub mod item {
 
         /// Specify an accelerator for the new menu item.
         accelerator: Option<String>,
+
+        /// Id to the channel handler.
+        #[serde(rename = "handler")]
+        handler_channel_id: Option<HandlerChannelId>,
     }
 
     impl MenuItemOptions {
@@ -284,6 +323,7 @@ pub mod item {
                 text: text.into(),
                 enabled: None,
                 accelerator: None,
+                handler_channel_id: None,
             }
         }
 
@@ -300,6 +340,26 @@ pub mod item {
         pub fn set_accelerator(&mut self, accelerator: impl Into<String>) -> &mut Self {
             let _ = self.accelerator.insert(accelerator.into());
             self
+        }
+
+        /// Set the handler channel id directly.
+        pub(crate) fn set_handler_channel_id(&mut self, id: usize) -> &mut Self {
+            let _ = self.handler_channel_id.insert(id.into());
+            self
+        }
+    }
+
+    #[derive(derive_more::From)]
+    struct HandlerChannelId(usize);
+    impl Serialize for HandlerChannelId {
+        fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where
+            S: serde::Serializer,
+        {
+            let mut map = serializer.serialize_struct("Channel", 2)?;
+            map.serialize_field("__TAURI_CHANNEL_MARKER__", &true)?;
+            map.serialize_field("id", &self.0)?;
+            map.end()
         }
     }
 }
