@@ -511,7 +511,8 @@ fn Menu() -> impl IntoView {
             item_close.set_id("w_items-item_2");
             let items = vec![item_open.into(), item_close.into()];
 
-            let (menu, mut listeners) = tauri_sys::menu::Menu::with_items(items).await;
+            let (menu, mut listeners) =
+                tauri_sys::menu::Menu::with_id_and_items("tauri-sys_menu_w_items", items).await;
             let mut listener_item_open = listeners.remove(0).unwrap().fuse();
             let mut listener_item_close = listeners.remove(0).unwrap().fuse();
 

@@ -15,37 +15,25 @@ pub struct Menu {
 
 impl Menu {
     pub async fn with_id(id: impl Into<MenuId>) -> Self {
-        #[derive(Serialize)]
-        struct Args {
-            kind: String,
-            options: NewMenuOptions,
-            handler: ChannelId,
-        }
-
-        let channel = core::Channel::new();
-        let options = NewMenuOptions {
-            id: Some(id.into()),
-            items: vec![],
-        };
-
-        let (rid, id) = core::invoke::<(Rid, String)>(
-            "plugin:menu|new",
-            Args {
-                kind: ItemId::Menu.as_str().to_string(),
-                options,
-                handler: ChannelId::from(&channel),
-            },
-        )
-        .await;
-
-        Self {
-            rid,
-            id: id.into(),
-            channel: Some(channel),
-        }
+        let (this, _) = Self::new(Some(id.into()), vec![]).await;
+        this
     }
 
     pub async fn with_items(items: Vec<NewMenuItem>) -> (Self, Vec<Option<core::Channel<String>>>) {
+        Self::new(None, items).await
+    }
+
+    pub async fn with_id_and_items(
+        id: impl Into<MenuId>,
+        items: Vec<NewMenuItem>,
+    ) -> (Self, Vec<Option<core::Channel<String>>>) {
+        Self::new(Some(id.into()), items).await
+    }
+
+    async fn new(
+        id: Option<MenuId>,
+        items: Vec<NewMenuItem>,
+    ) -> (Self, Vec<Option<core::Channel<String>>>) {
         #[derive(Serialize)]
         struct Args {
             kind: String,
@@ -65,7 +53,7 @@ impl Menu {
             })
             .unzip();
 
-        let options = NewMenuOptions { id: None, items };
+        let options = NewMenuOptions { id, items };
         let (rid, id) = core::invoke::<(Rid, String)>(
             "plugin:menu|new",
             Args {
@@ -76,7 +64,6 @@ impl Menu {
         )
         .await;
 
-        log::debug!("1");
         (
             Self {
                 rid,
