@@ -1,6 +1,7 @@
 //! Common functionality
 use serde::{de::DeserializeOwned, Serialize};
 use serde_wasm_bindgen as swb;
+use wasm_bindgen::{prelude::Closure, JsValue};
 
 pub use channel::{Channel, Message};
 
