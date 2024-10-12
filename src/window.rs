@@ -95,7 +95,7 @@ pub(crate) struct WindowLabel {
     label: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Clone, Debug)]
 pub enum DragDropEvent {
     Enter(DragDropPayload),
     Over(DragOverPayload),
@@ -103,7 +103,7 @@ pub enum DragDropEvent {
     Leave,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Clone, Debug)]
 pub struct DragDropPayload {
     paths: Vec<PathBuf>,
     position: dpi::PhysicalPosition,
@@ -119,7 +119,7 @@ impl DragDropPayload {
     }
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Clone, Debug)]
 pub struct DragOverPayload {
     position: dpi::PhysicalPosition,
 }
