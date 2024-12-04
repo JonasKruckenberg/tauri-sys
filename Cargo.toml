@@ -25,11 +25,14 @@ wasm-bindgen-test = "0.3.42"
 all-features = true
 
 [features]
-all = ["core", "dpi", "event", "menu", "window"]
+all = ["core", "dialog", "dpi", "event", "fs", "menu", "path", "window"]
 core = []
+dialog = []
 dpi = []
 event = ["dep:futures"]
+fs = []
 menu = ["core", "window"]
+path = []
 window = ["dpi", "event"]
 
 [workspace]

@@ -92,11 +92,20 @@ pub mod event;
 #[cfg(feature = "core")]
 pub mod core;
 
+#[cfg(feature = "dialog")]
+pub mod dialog;
+
 #[cfg(feature = "dpi")]
 pub mod dpi;
 
+#[cfg(feature = "fs")]
+pub mod fs;
+
 #[cfg(feature = "menu")]
 pub mod menu;
+
+#[cfg(feature = "path")]
+pub mod path;
 
 #[cfg(feature = "window")]
 pub mod window;
@@ -104,32 +113,27 @@ pub mod window;
 pub use error::Error;
 pub(crate) type Result<T> = std::result::Result<T, Error>;
 
-// #[cfg(any(feature = "window"))]
-// pub(crate) mod utils {
-//     pub struct ArrayIterator {
-//         pos: u32,
-//         arr: js_sys::Array,
-//     }
-
-//     impl ArrayIterator {
-//         pub fn new(arr: js_sys::Array) -> Self {
-//             Self { pos: 0, arr }
-//         }
-//     }
-
-//     impl Iterator for ArrayIterator {
-//         type Item = wasm_bindgen::JsValue;
-
-//         fn next(&mut self) -> Option<Self::Item> {
-//             let raw = self.arr.get(self.pos);
-
-//             if raw.is_undefined() {
-//                 None
-//             } else {
-//                 self.pos += 1;
-
-//                 Some(raw)
-//             }
-//         }
-//     }
-// }
+#[cfg(any(feature = "window"))]
+pub(crate) mod utils {
+    pub struct ArrayIterator {
+        pos: u32,
+        arr: js_sys::Array,
+    }
+    impl ArrayIterator {
+        pub fn new(arr: js_sys::Array) -> Self {
+            Self { pos: 0, arr }
+        }
+    }
+    impl Iterator for ArrayIterator {
+        type Item = wasm_bindgen::JsValue;
+        fn next(&mut self) -> Option<Self::Item> {
+            let raw = self.arr.get(self.pos);
+            if raw.is_undefined() {
+                None
+            } else {
+                self.pos += 1;
+                Some(raw)
+            }
+        }
+    }
+}
