@@ -139,7 +139,7 @@ impl Window {
     /// Create a new Window.
     ///
     /// # Arguments
-    /// + `label`: Unique window label. Must be alphanumberic: `a-zA-Z-/:_`.
+    /// + `label`: Unique window label. Must be alphanumeric: `a-zA-Z-/:_`.
     pub fn new(label: impl Into<String>) -> Self {
         Self {
             label: label.into(),
