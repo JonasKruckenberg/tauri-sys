@@ -588,9 +588,12 @@ pub async fn app_log_dir() -> crate::Result<PathBuf> {
 /// # }
 /// ```
 #[inline(always)]
-pub async fn resolve(paths: impl IntoIterator<Item = &str>) -> crate::Result<PathBuf> {
-    let paths = paths.into_iter();
-    let raw = inner::resolve(serde_wasm_bindgen::to_value(&paths.collect::<Vec<_>>())?).await?;
+pub async fn resolve<P: AsRef<Path>>(paths: impl IntoIterator<Item = P>) -> crate::Result<PathBuf> {
+    let paths = paths
+        .into_iter()
+        .map(|p| p.as_ref().to_path_buf())
+        .collect::<Vec<_>>();
+    let raw = inner::resolve(serde_wasm_bindgen::to_value(&paths)?).await?;
 
     Ok(serde_wasm_bindgen::from_value(raw)?)
 }
