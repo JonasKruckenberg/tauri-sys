@@ -326,11 +326,7 @@ pub async fn remove(path: &Path, options: RemoveOptions) -> crate::Result<()> {
         return Err(Error::Utf8(path.to_path_buf()));
     };
 
-    Ok(inner::remove(
-        dir,
-        serde_wasm_bindgen::to_value(&options)?,
-    )
-    .await?)
+    Ok(inner::remove(path, serde_wasm_bindgen::to_value(&options)?).await?)
 }
 
 /// Renames (moves) oldpath to newpath. Paths may be files or directories.
