@@ -172,24 +172,6 @@ async function requestPermissions(plugin) {
     return invoke(`plugin:${plugin}|request_permissions`);
 }
 /**
- * Sends a message to the backend.
- * @example
- * ```typescript
- * import { invoke } from '@tauri-apps/api/core';
- * await invoke('login', { user: 'tauri', password: 'poiwe3h4r5ip3yrhtew9ty' });
- * ```
- *
- * @param cmd The command name.
- * @param args The optional arguments to pass to the command.
- * @param options The request options.
- * @return A promise resolving or rejecting to the backend response.
- *
- * @since 1.0.0
- */
-async function invoke(cmd, args = {}, options) {
-    return window.__TAURI_INTERNALS__.invoke(cmd, args, options);
-}
-/**
  * Convert a device file path to an URL that can be loaded by the webview.
  * Note that `asset:` and `http://asset.localhost` must be added to [`app.security.csp`](https://v2.tauri.app/reference/config/#csp-1) in `tauri.conf.json`.
  * Example CSP value: `"csp": "default-src 'self' ipc: http://ipc.localhost; img-src 'self' asset: http://asset.localhost"` to use the asset protocol on image sources.
@@ -266,6 +248,7 @@ _Resource_rid = new WeakMap();
 function isTauri() {
     return 'isTauri' in window && !!window.isTauri;
 }
+const invoke = window.__TAURI__.core.invoke;
 
 // Copyright 2019-2023 Tauri Programme within The Commons Conservancy
 // SPDX-License-Identifier: Apache-2.0
