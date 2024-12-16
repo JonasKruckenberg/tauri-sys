@@ -14,6 +14,8 @@
 //! ```
 //! It is recommended to allowlist only the APIs you use for optimal bundle size and security.
 
+use crate::Error;
+use std::path::Path;
 use std::path::PathBuf;
 use wasm_bindgen::JsValue;
 
@@ -462,8 +464,11 @@ pub async fn resource_dir() -> crate::Result<PathBuf> {
 /// # }
 /// ```
 #[inline(always)]
-pub async fn resolve_resource(resource_path: &str) -> crate::Result<PathBuf> {
-    let raw = inner::resolveResource(JsValue::from_str(resource_path)).await?;
+pub async fn resolve_resource<P: AsRef<Path>>(resource_path: P) -> crate::Result<PathBuf> {
+    let Some(path) = resource_path.as_ref().to_str() else {
+        return Err(Error::Utf8(resource_path.as_ref().to_path_buf()));
+    };
+    let raw = inner::resolveResource(JsValue::from_str(path)).await?;
 
     Ok(serde_wasm_bindgen::from_value(raw)?)
 }
