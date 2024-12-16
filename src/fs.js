@@ -130,31 +130,6 @@ const SERIALIZE_TO_IPC_FN = '__TAURI_TO_IPC_KEY__';
 function transformCallback(callback, once = false) {
     return window.__TAURI_INTERNALS__.transformCallback(callback, once);
 }
-class PluginListener {
-    constructor(plugin, event, channelId) {
-        this.plugin = plugin;
-        this.event = event;
-        this.channelId = channelId;
-    }
-    async unregister() {
-        return invoke(`plugin:${this.plugin}|remove_listener`, {
-            event: this.event,
-            channelId: this.channelId
-        });
-    }
-}
-/**
- * Adds a listener to a plugin event.
- *
- * @returns The listener object to stop listening to the events.
- *
- * @since 2.0.0
- */
-async function addPluginListener(plugin, event, cb) {
-    const handler = new Channel();
-    handler.onmessage = cb;
-    return invoke(`plugin:${plugin}|registerListener`, { event, handler }).then(() => new PluginListener(plugin, event, handler.id));
-}
 /**
  * Get permission state for a plugin.
  *
