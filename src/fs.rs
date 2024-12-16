@@ -84,6 +84,13 @@ struct FsOptions {
 }
 
 #[derive(Serialize, Clone, PartialEq, Debug)]
+#[serde(rename_all = "camelCase")]
+struct RemoveOptions {
+    pub base_dir: Option<BaseDirectory>,
+    pub recursive: Option<bool>,
+}
+
+#[derive(Serialize, Clone, PartialEq, Debug)]
 struct FsTextFileOption {
     pub contents: String,
     path: PathBuf,
@@ -265,16 +272,14 @@ pub async fn read_dir(path: &Path, dir: BaseDirectory) -> crate::Result<Vec<DirE
 ///
 /// Requires [`allowlist > fs > readDir`](https://tauri.app/v1/api/js/fs) to be enabled.
 pub async fn read_dir_all(path: &Path, dir: BaseDirectory) -> crate::Result<Vec<DirEntry>> {
-    let recursive = Some(true);
     let Some(path) = path.to_str() else {
         return Err(Error::Utf8(path.to_path_buf()));
     };
 
     let raw = inner::readDir(
         path,
-        serde_wasm_bindgen::to_value(&FsDirOptions {
-            dir: Some(dir),
-            recursive,
+        serde_wasm_bindgen::to_value(&ReadDirOptions {
+            base_dir: Some(dir),
         })?,
     )
     .await?;
@@ -307,80 +312,16 @@ pub async fn read_text_file(path: &Path, dir: BaseDirectory) -> crate::Result<St
     Ok(serde_wasm_bindgen::from_value(raw)?)
 }
 
-/// Removes a directory.
-/// If the directory is not empty the promise will be rejected.
-///
-/// # Example
-///
-/// ```rust,no_run
-/// use tauri_sys::fs;
-///
-/// fs::remove_dir(path, BaseDirectory::Download).expect("could not remove directory");
-/// ```
-///
-/// Requires [`allowlist > fs > removeDir`](https://tauri.app/v1/api/js/fs) to be enabled.
-pub async fn remove_dir(dir: &Path, base_dir: BaseDirectory) -> crate::Result<()> {
-    let recursive = Some(false);
-    let Some(dir) = dir.to_str() else {
-        return Err(Error::Utf8(dir.to_path_buf()));
+/// Removes the named file or directory. If the directory is not empty and
+/// the recursive option isn’t set to true, the promise will be rejected.
+pub async fn remove(path: &Path, options: RemoveOptions) -> crate::Result<()> {
+    let Some(path) = path.to_str() else {
+        return Err(Error::Utf8(path.to_path_buf()));
     };
 
-    Ok(inner::removeDir(
+    Ok(inner::remove(
         dir,
-        serde_wasm_bindgen::to_value(&FsDirOptions {
-            dir: Some(base_dir),
-            recursive,
-        })?,
-    )
-    .await?)
-}
-
-/// Removes a directory and its contents.
-///
-/// # Example
-///
-/// ```rust,no_run
-/// use tauri_sys::fs;
-///
-/// fs::remove_dir_all(path, BaseDirectory::Download).expect("could not remove directory");
-/// ```
-///
-/// Requires [`allowlist > fs > removeDir`](https://tauri.app/v1/api/js/fs) to be enabled.
-pub async fn remove_dir_all(dir: &Path, base_dir: BaseDirectory) -> crate::Result<()> {
-    let recursive = Some(true);
-    let Some(dir) = dir.to_str() else {
-        return Err(Error::Utf8(dir.to_path_buf()));
-    };
-
-    Ok(inner::removeDir(
-        dir,
-        serde_wasm_bindgen::to_value(&FsDirOptions {
-            dir: Some(base_dir),
-            recursive,
-        })?,
-    )
-    .await?)
-}
-
-/// Removes a file.
-///
-/// # Example
-///
-/// ```rust,no_run
-/// use tauri_sys::fs;
-///
-/// fs::remove_file(path, BaseDirectory::Download).expect("could not remove file");
-/// ```
-///
-/// Requires [`allowlist > fs > removeFile`](https://tauri.app/v1/api/js/fs) to be enabled.
-pub async fn remove_file(file: &Path, dir: BaseDirectory) -> crate::Result<()> {
-    let Some(file) = file.to_str() else {
-        return Err(Error::Utf8(file.to_path_buf()));
-    };
-
-    Ok(inner::removeFile(
-        file,
-        serde_wasm_bindgen::to_value(&FsOptions { base_dir: Some(dir) })?,
+        serde_wasm_bindgen::to_value(&options)?,
     )
     .await?)
 }
@@ -492,9 +433,7 @@ mod inner {
         #[wasm_bindgen(catch)]
         pub async fn readDir(dir: &str, options: JsValue) -> Result<JsValue, JsValue>;
         #[wasm_bindgen(catch)]
-        pub async fn removeDir(dir: &str, options: JsValue) -> Result<(), JsValue>;
-        #[wasm_bindgen(catch)]
-        pub async fn removeFile(source: &str, options: JsValue) -> Result<(), JsValue>;
+        pub async fn remove(dir: &str, options: JsValue) -> Result<(), JsValue>;
         #[wasm_bindgen(catch)]
         pub async fn renameFile(
             oldPath: &str,
