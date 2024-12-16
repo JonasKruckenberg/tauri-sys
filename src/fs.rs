@@ -91,6 +91,13 @@ struct RemoveOptions {
 }
 
 #[derive(Serialize, Clone, PartialEq, Debug)]
+#[serde(rename_all = "camelCase")]
+struct RenameOptions {
+    pub old_path_base_dir: Option<BaseDirectory>,
+    pub new_path_base_dir: Option<BaseDirectory>,
+}
+
+#[derive(Serialize, Clone, PartialEq, Debug)]
 struct FsTextFileOption {
     pub contents: String,
     path: PathBuf,
@@ -326,21 +333,16 @@ pub async fn remove(path: &Path, options: RemoveOptions) -> crate::Result<()> {
     .await?)
 }
 
-/// Renames a file.
+/// Renames (moves) oldpath to newpath. Paths may be files or directories.
+/// If newpath already exists and is not a directory, rename() replaces it.
+/// OS-specific restrictions may apply when oldpath and newpath are in
+/// different directories.
 ///
-/// # Example
-///
-/// ```rust,no_run
-/// use tauri_sys::fs;
-///
-/// fs::rename_file(old_path, new_path, BaseDirectory::Download).expect("could not rename file");
-/// ```
-///
-/// Requires [`allowlist > fs > renameFile`](https://tauri.app/v1/api/js/fs) to be enabled.
-pub async fn rename_file(
+/// On Unix, this operation does not follow symlinks at either path.
+pub async fn rename(
     old_path: &Path,
     new_path: &Path,
-    dir: BaseDirectory,
+    options: RenameOptions,
 ) -> crate::Result<()> {
     let Some(old_path) = old_path.to_str() else {
         return Err(Error::Utf8(old_path.to_path_buf()));
@@ -350,10 +352,10 @@ pub async fn rename_file(
         return Err(Error::Utf8(new_path.to_path_buf()));
     };
 
-    Ok(inner::renameFile(
+    Ok(inner::rename(
         old_path,
         new_path,
-        serde_wasm_bindgen::to_value(&FsOptions { base_dir: Some(dir) })?,
+        serde_wasm_bindgen::to_value(&options)?,
     )
     .await?)
 }
@@ -435,7 +437,7 @@ mod inner {
         #[wasm_bindgen(catch)]
         pub async fn remove(dir: &str, options: JsValue) -> Result<(), JsValue>;
         #[wasm_bindgen(catch)]
-        pub async fn renameFile(
+        pub async fn rename(
             oldPath: &str,
             newPath: &str,
             options: JsValue,
