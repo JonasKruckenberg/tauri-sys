@@ -130,62 +130,6 @@ const SERIALIZE_TO_IPC_FN = '__TAURI_TO_IPC_KEY__';
 function transformCallback(callback, once = false) {
     return window.__TAURI_INTERNALS__.transformCallback(callback, once);
 }
-class Channel {
-    constructor() {
-        // @ts-expect-error field used by the IPC serializer
-        this.__TAURI_CHANNEL_MARKER__ = true;
-        _Channel_onmessage.set(this, () => {
-            // no-op
-        });
-        _Channel_nextMessageId.set(this, 0);
-        _Channel_pendingMessages.set(this, {});
-        this.id = transformCallback(({ message, id }) => {
-            // the id is used as a mechanism to preserve message order
-            if (id === __classPrivateFieldGet(this, _Channel_nextMessageId, "f")) {
-                __classPrivateFieldSet(this, _Channel_nextMessageId, id + 1, "f");
-                __classPrivateFieldGet(this, _Channel_onmessage, "f").call(this, message);
-                // process pending messages
-                const pendingMessageIds = Object.keys(__classPrivateFieldGet(this, _Channel_pendingMessages, "f"));
-                if (pendingMessageIds.length > 0) {
-                    let nextId = id + 1;
-                    for (const pendingId of pendingMessageIds.sort()) {
-                        // if we have the next message, process it
-                        if (parseInt(pendingId) === nextId) {
-                            // eslint-disable-next-line security/detect-object-injection
-                            const message = __classPrivateFieldGet(this, _Channel_pendingMessages, "f")[pendingId];
-                            // eslint-disable-next-line security/detect-object-injection
-                            delete __classPrivateFieldGet(this, _Channel_pendingMessages, "f")[pendingId];
-                            __classPrivateFieldGet(this, _Channel_onmessage, "f").call(this, message);
-                            // move the id counter to the next message to check
-                            nextId += 1;
-                        }
-                        else {
-                            // we do not have the next message, let's wait
-                            break;
-                        }
-                    }
-                    __classPrivateFieldSet(this, _Channel_nextMessageId, nextId, "f");
-                }
-            }
-            else {
-                __classPrivateFieldGet(this, _Channel_pendingMessages, "f")[id.toString()] = message;
-            }
-        });
-    }
-    set onmessage(handler) {
-        __classPrivateFieldSet(this, _Channel_onmessage, handler, "f");
-    }
-    get onmessage() {
-        return __classPrivateFieldGet(this, _Channel_onmessage, "f");
-    }
-    [(_Channel_onmessage = new WeakMap(), _Channel_nextMessageId = new WeakMap(), _Channel_pendingMessages = new WeakMap(), SERIALIZE_TO_IPC_FN)]() {
-        return `__CHANNEL__:${this.id}`;
-    }
-    toJSON() {
-        // eslint-disable-next-line security/detect-object-injection
-        return this[SERIALIZE_TO_IPC_FN]();
-    }
-}
 class PluginListener {
     constructor(plugin, event, channelId) {
         this.plugin = plugin;
@@ -1039,7 +983,7 @@ async function watch(paths, cb, options) {
             throw new TypeError('Must be a file URL.');
         }
     }
-    const onEvent = new Channel();
+    const onEvent = new window.__TAURI__.core.Channel();
     onEvent.onmessage = cb;
     const rid = await invoke('plugin:fs|watch', {
         paths: watchPaths.map((p) => (p instanceof URL ? p.toString() : p)),
@@ -1067,7 +1011,7 @@ async function watchImmediate(paths, cb, options) {
             throw new TypeError('Must be a file URL.');
         }
     }
-    const onEvent = new Channel();
+    const onEvent = new window.__TAURI__.core.Channel();
     onEvent.onmessage = cb;
     const rid = await invoke('plugin:fs|watch', {
         paths: watchPaths.map((p) => (p instanceof URL ? p.toString() : p)),
