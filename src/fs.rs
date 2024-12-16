@@ -72,8 +72,9 @@ struct FsDirOptions {
 }
 
 #[derive(Serialize, Clone, PartialEq, Debug)]
+#[serde(rename_all = "camelCase")]
 struct ReadDirOptions {
-    pub dir: Option<BaseDirectory>,
+    pub base_dir: Option<BaseDirectory>,
 }
 
 #[derive(Serialize, Clone, PartialEq, Debug)]
@@ -244,7 +245,7 @@ pub async fn read_dir(path: &Path, dir: BaseDirectory) -> crate::Result<Vec<DirE
     let raw = inner::readDir(
         path,
         serde_wasm_bindgen::to_value(&ReadDirOptions {
-            dir: Some(dir),
+            base_dir: Some(dir),
         })?,
     )
     .await?;
