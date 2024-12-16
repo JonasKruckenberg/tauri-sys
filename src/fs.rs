@@ -71,6 +71,11 @@ struct FsDirOptions {
 }
 
 #[derive(Serialize, Clone, PartialEq, Debug)]
+struct ReadDirOptions {
+    pub dir: Option<BaseDirectory>,
+}
+
+#[derive(Serialize, Clone, PartialEq, Debug)]
 #[serde(rename_all = "camelCase")]
 struct FsOptions {
     pub base_dir: Option<BaseDirectory>,
@@ -231,16 +236,14 @@ pub async fn read_binary_file(path: &Path, dir: BaseDirectory) -> crate::Result<
 ///
 /// Requires [`allowlist > fs > readDir`](https://tauri.app/v1/api/js/fs) to be enabled.
 pub async fn read_dir(path: &Path, dir: BaseDirectory) -> crate::Result<Vec<FileEntry>> {
-    let recursive = Some(false);
     let Some(path) = path.to_str() else {
         return Err(Error::Utf8(path.to_path_buf()));
     };
 
     let raw = inner::readDir(
         path,
-        serde_wasm_bindgen::to_value(&FsDirOptions {
+        serde_wasm_bindgen::to_value(&ReadDirOptions {
             dir: Some(dir),
-            recursive,
         })?,
     )
     .await?;
