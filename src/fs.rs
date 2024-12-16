@@ -58,10 +58,11 @@ pub enum BaseDirectory {
 }
 
 #[derive(Deserialize, Clone, PartialEq, Debug)]
-pub struct FileEntry {
-    pub path: PathBuf,
-    pub name: Option<String>,
-    pub children: Option<Vec<FileEntry>>,
+pub struct DirEntry {
+    pub name: PathBuf,
+    pub is_directory: bool,
+    pub is_file: bool,
+    pub is_symlink: bool,
 }
 
 #[derive(Serialize, Clone, PartialEq, Debug)]
@@ -235,7 +236,7 @@ pub async fn read_binary_file(path: &Path, dir: BaseDirectory) -> crate::Result<
 /// ```
 ///
 /// Requires [`allowlist > fs > readDir`](https://tauri.app/v1/api/js/fs) to be enabled.
-pub async fn read_dir(path: &Path, dir: BaseDirectory) -> crate::Result<Vec<FileEntry>> {
+pub async fn read_dir(path: &Path, dir: BaseDirectory) -> crate::Result<Vec<DirEntry>> {
     let Some(path) = path.to_str() else {
         return Err(Error::Utf8(path.to_path_buf()));
     };
@@ -262,7 +263,7 @@ pub async fn read_dir(path: &Path, dir: BaseDirectory) -> crate::Result<Vec<File
 /// ```
 ///
 /// Requires [`allowlist > fs > readDir`](https://tauri.app/v1/api/js/fs) to be enabled.
-pub async fn read_dir_all(path: &Path, dir: BaseDirectory) -> crate::Result<Vec<FileEntry>> {
+pub async fn read_dir_all(path: &Path, dir: BaseDirectory) -> crate::Result<Vec<DirEntry>> {
     let recursive = Some(true);
     let Some(path) = path.to_str() else {
         return Err(Error::Utf8(path.to_path_buf()));
