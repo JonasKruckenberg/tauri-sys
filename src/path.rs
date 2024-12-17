@@ -659,7 +659,10 @@ pub async fn join<P: AsRef<Path>>(paths: impl IntoIterator<Item = P>) -> crate::
 /// # }
 /// ```
 #[inline(always)]
-pub async fn dirname(path: &str) -> crate::Result<PathBuf> {
+pub async fn dirname<P: AsRef<Path>>(path: P) -> crate::Result<PathBuf> {
+    let Some(path) = path.as_ref().to_str() else {
+        return Err(Error::Utf8(path.as_ref().to_path_buf()));
+    };
     let raw = inner::dirname(JsValue::from_str(path)).await?;
 
     Ok(serde_wasm_bindgen::from_value(raw)?)
