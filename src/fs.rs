@@ -85,20 +85,20 @@ struct FsOptions {
 
 #[derive(Serialize, Clone, PartialEq, Debug)]
 #[serde(rename_all = "camelCase")]
-struct RemoveOptions {
+pub struct RemoveOptions {
     pub base_dir: Option<BaseDirectory>,
     pub recursive: Option<bool>,
 }
 
 #[derive(Serialize, Clone, PartialEq, Debug)]
 #[serde(rename_all = "camelCase")]
-struct RenameOptions {
+pub struct RenameOptions {
     pub old_path_base_dir: Option<BaseDirectory>,
     pub new_path_base_dir: Option<BaseDirectory>,
 }
 
 #[derive(Serialize, Clone, PartialEq, Debug)]
-struct FsTextFileOption {
+pub struct FsTextFileOption {
     pub contents: String,
     path: PathBuf,
 }
