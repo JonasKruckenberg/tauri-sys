@@ -668,33 +668,6 @@ pub async fn dirname<P: AsRef<Path>>(path: P) -> crate::Result<PathBuf> {
     Ok(serde_wasm_bindgen::from_value(raw)?)
 }
 
-/// Returns the last portion of a `path`. Trailing directory separators are ignored.
-///
-/// @param ext An optional file extension to be removed from the returned path.
-///
-/// # Example
-///
-/// ```rust,no_run
-/// use tauri_sys::path::{basename, resolve_resource};
-///
-/// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
-/// let resource_path = await resolve_resource("app.conf").await?;
-/// let ext = basename(resource_path).await?;
-/// assert_eq!(ext, "app");
-/// # Ok(())
-/// # }
-/// ```
-#[inline(always)]
-pub async fn basename(path: &str, ext: Option<&str>) -> crate::Result<PathBuf> {
-    let raw = inner::basename(
-        JsValue::from_str(path),
-        ext.map(JsValue::from_str).unwrap_or(JsValue::null()),
-    )
-    .await?;
-
-    Ok(serde_wasm_bindgen::from_value(raw)?)
-}
-
 /// Returns whether the path is absolute or not.
 ///
 /// # Example
@@ -731,8 +704,6 @@ mod inner {
         pub async fn appLogDir() -> Result<JsValue, JsValue>;
         #[wasm_bindgen(catch)]
         pub async fn audioDir() -> Result<JsValue, JsValue>;
-        #[wasm_bindgen(catch)]
-        pub async fn basename(path: JsValue, ext: JsValue) -> Result<JsValue, JsValue>;
         #[wasm_bindgen(catch)]
         pub async fn cacheDir() -> Result<JsValue, JsValue>;
         #[wasm_bindgen(catch)]
