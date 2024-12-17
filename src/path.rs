@@ -634,9 +634,12 @@ pub async fn normalize(path: &str) -> crate::Result<PathBuf> {
 /// # }
 /// ```
 #[inline(always)]
-pub async fn join(paths: impl IntoIterator<Item = &str>) -> crate::Result<PathBuf> {
-    let paths = paths.into_iter();
-    let raw = inner::join(serde_wasm_bindgen::to_value(&paths.collect::<Vec<_>>())?).await?;
+pub async fn join<P: AsRef<Path>>(paths: impl IntoIterator<Item = P>) -> crate::Result<PathBuf> {
+    let paths = paths
+        .into_iter()
+        .map(|p| p.as_ref().to_path_buf())
+        .collect::<Vec<_>>();
+    let raw = inner::join(serde_wasm_bindgen::to_value(&paths)?).await?;
 
     Ok(serde_wasm_bindgen::from_value(raw)?)
 }
