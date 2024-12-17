@@ -668,27 +668,6 @@ pub async fn dirname<P: AsRef<Path>>(path: P) -> crate::Result<PathBuf> {
     Ok(serde_wasm_bindgen::from_value(raw)?)
 }
 
-/// Returns the extension of the `path`.
-///
-/// # Example
-///
-/// ```rust,no_run
-/// use tauri_sys::path::{extname, resolve_resource};
-///
-/// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
-/// let resource_path = await resolve_resource("app.conf").await?;
-/// let ext = extname(resource_path).await?;
-/// assert_eq!(ext, "conf");
-/// # Ok(())
-/// # }
-/// ```
-#[inline(always)]
-pub async fn extname(path: &str) -> crate::Result<PathBuf> {
-    let raw = inner::extname(JsValue::from_str(path)).await?;
-
-    Ok(serde_wasm_bindgen::from_value(raw)?)
-}
-
 /// Returns the last portion of a `path`. Trailing directory separators are ignored.
 ///
 /// @param ext An optional file extension to be removed from the returned path.
@@ -770,8 +749,6 @@ mod inner {
         pub async fn downloadDir() -> Result<JsValue, JsValue>;
         #[wasm_bindgen(catch)]
         pub async fn executableDir() -> Result<JsValue, JsValue>;
-        #[wasm_bindgen(catch)]
-        pub async fn extname(path: JsValue) -> Result<JsValue, JsValue>;
         #[wasm_bindgen(catch)]
         pub async fn fontDir() -> Result<JsValue, JsValue>;
         #[wasm_bindgen(catch)]
