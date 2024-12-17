@@ -668,25 +668,6 @@ pub async fn dirname<P: AsRef<Path>>(path: P) -> crate::Result<PathBuf> {
     Ok(serde_wasm_bindgen::from_value(raw)?)
 }
 
-/// Returns whether the path is absolute or not.
-///
-/// # Example
-///
-/// ```rust,no_run
-/// use tauri_sys::path::is_absolute;
-///
-/// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
-/// assert!(is_absolute("/home/tauri").await?);
-/// # Ok(())
-/// # }
-/// ```
-#[inline(always)]
-pub async fn is_absolute(path: &str) -> crate::Result<bool> {
-    let raw = inner::isAbsolute(JsValue::from_str(path)).await?;
-
-    Ok(serde_wasm_bindgen::from_value(raw)?)
-}
-
 mod inner {
     use wasm_bindgen::prelude::*;
 
@@ -724,8 +705,6 @@ mod inner {
         pub async fn fontDir() -> Result<JsValue, JsValue>;
         #[wasm_bindgen(catch)]
         pub async fn homeDir() -> Result<JsValue, JsValue>;
-        #[wasm_bindgen(catch)]
-        pub async fn isAbsolute(path: JsValue) -> Result<JsValue, JsValue>;
         #[wasm_bindgen(catch)]
         pub async fn join(paths: JsValue) -> Result<JsValue, JsValue>;
         #[wasm_bindgen(catch)]
