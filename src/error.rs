@@ -1,4 +1,3 @@
-use std::path::PathBuf;
 use wasm_bindgen::JsValue;
 
 #[derive(Clone, Eq, PartialEq, Debug, thiserror::Error)]
