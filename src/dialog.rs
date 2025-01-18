@@ -30,6 +30,12 @@ struct DialogFilter<'a> {
     name: &'a str,
 }
 
+// Define a trait to represent the iterator of PathBuf items.
+pub trait PathBufIterator: Iterator<Item = PathBuf> {}
+
+// Implement the trait for the actual iterator type.
+impl<I: Iterator<Item = PathBuf>> PathBufIterator for I {}
+
 /// The file dialog builder.
 ///
 /// Constructs file picker dialogs that can select single/multiple files or directories.
@@ -167,16 +173,17 @@ impl<'a> FileDialogBuilder<'a> {
     /// ```
     ///
     /// Requires [`allowlist > dialog > open`](https://tauri.app/v1/api/config#dialogallowlistconfig.open) to be enabled.
-    pub async fn pick_files(&mut self) -> crate::Result<Option<impl Iterator<Item = PathBuf>>> {
+    pub async fn pick_files(&mut self) -> crate::Result<Option<Box<dyn PathBufIterator>>> {
         self.multiple = true;
-
+    
         let raw = inner::open(serde_wasm_bindgen::to_value(&self)?).await?;
-
+    
         if let Ok(files) = Array::try_from(raw) {
-            let files =
-                ArrayIterator::new(files).map(|raw| serde_wasm_bindgen::from_value(raw).unwrap());
-
-            Ok(Some(files))
+            let files = ArrayIterator::new(files)
+                .map(|raw| serde_wasm_bindgen::from_value(raw).unwrap())
+                .collect::<Vec<PathBuf>>();
+    
+            Ok(Some(Box::new(files.into_iter()) as Box<dyn PathBufIterator>))
         } else {
             Ok(None)
         }
@@ -218,17 +225,18 @@ impl<'a> FileDialogBuilder<'a> {
     /// ```
     ///
     /// Requires [`allowlist > dialog > open`](https://tauri.app/v1/api/config#dialogallowlistconfig.open) to be enabled.
-    pub async fn pick_folders(&mut self) -> crate::Result<Option<impl Iterator<Item = PathBuf>>> {
+    pub async fn pick_folders(&mut self) -> crate::Result<Option<impl PathBufIterator>> {
         self.directory = true;
         self.multiple = true;
-
+    
         let raw = inner::open(serde_wasm_bindgen::to_value(&self)?).await?;
-
+    
         if let Ok(files) = Array::try_from(raw) {
-            let files =
-                ArrayIterator::new(files).map(|raw| serde_wasm_bindgen::from_value(raw).unwrap());
-
-            Ok(Some(files))
+            let files = ArrayIterator::new(files)
+                .map(|raw| serde_wasm_bindgen::from_value(raw).unwrap())
+                .collect::<Vec<PathBuf>>();
+    
+            Ok(Some(Box::new(files.into_iter()) as Box<dyn PathBufIterator>))
         } else {
             Ok(None)
         }
