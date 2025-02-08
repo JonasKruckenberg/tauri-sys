@@ -10,6 +10,6 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "esbuild": "^0.19.0"
+    "esbuild": "^0.25.0"
   }
 }
