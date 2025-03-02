@@ -1,14 +1,13 @@
 mod app;
 
-use app::*;
-use leptos::*;
+use leptos::prelude::*;
 
 fn main() {
     #[cfg(debug_assertions)]
     tracing::enable();
     console_error_panic_hook::set_once();
     mount_to_body(|| {
-        view! { <App/> }
+        view! { <app::App/> }
     })
 }
 

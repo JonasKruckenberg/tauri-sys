@@ -1,5 +1,5 @@
 {
-  "productName": "test-tauri-events",
+  "productName": "test-tauri-sys",
   "version": "0.0.0",
   "identifier": "com.tauri.dev",
   "build": {
