@@ -1,19 +1,18 @@
 [package]
-name = "test-tauri-events"
+name = "test-tauri-sys"
 version = "0.0.0"
-description = "A Tauri App"
+description = "tauri-sys test app"
 authors = ["you"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [build-dependencies]
-# tauri-build = { version = "2.0.0-beta", features = [] }
-tauri-build = { path = "../../tauri/core/tauri-build", features = [] }
+tauri-build = { version = "2.0.6", features = [] }
 
 [dependencies]
-tauri = { path = "../../tauri/core/tauri", features = [] }
-tauri-plugin-shell = { path = "../../plugins-workspace/plugins/shell" }
+tauri = { version = "2.3.1", features = [] }
+tauri-plugin-shell = "2.2.0"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tracing = "0.1.40"
