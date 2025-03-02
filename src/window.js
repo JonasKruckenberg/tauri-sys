@@ -8,8 +8,8 @@ async function invoke(cmd, args = {}) {
 function getCurrent() {
 	return window.__TAURI_INTERNALS__.metadata.currentWindow
 }
-function getAll() {
-	return window.__TAURI_INTERNALS__.metadata.windows
+async function getAll() {
+	return window.__TAURI__.window.getAllWindows()
 }
 async function currentMonitor() {
 	return invoke('plugin:window|current_monitor')

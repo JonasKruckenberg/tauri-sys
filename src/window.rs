@@ -148,8 +148,8 @@ impl Window {
     }
 
     /// Gets the Window associated with the given label.
-    pub fn get_by_label(label: impl AsRef<str>) -> Option<Self> {
-        js_sys::try_iter(&inner::get_all())
+    pub async fn get_by_label(label: impl AsRef<str>) -> Option<Self> {
+        js_sys::try_iter(&inner::get_all().await)
             .unwrap()
             .unwrap()
             .into_iter()
@@ -169,8 +169,8 @@ impl Window {
     }
 
     /// Gets a list of instances of `Window` for all available windows.
-    pub fn get_all() -> Vec<Self> {
-        get_all()
+    pub async fn get_all() -> Vec<Self> {
+        get_all().await
     }
 }
 
@@ -477,16 +477,17 @@ pub fn get_current() -> Window {
     Window::new(label)
 }
 
-pub fn get_all() -> Vec<Window> {
-    js_sys::try_iter(&inner::get_all())
-        .unwrap()
-        .unwrap()
-        .into_iter()
-        .map(|value| {
-            let WindowLabel { label } = serde_wasm_bindgen::from_value(value.unwrap()).unwrap();
-            Window::new(label)
-        })
-        .collect()
+pub async fn get_all() -> Vec<Window> {
+    match js_sys::try_iter(&inner::get_all().await).unwrap() {
+        None => vec![],
+        Some(windows) => windows
+            .into_iter()
+            .map(|value| {
+                let WindowLabel { label } = serde_wasm_bindgen::from_value(value.unwrap()).unwrap();
+                Window::new(label)
+            })
+            .collect(),
+    }
 }
 
 /// # Returns
@@ -556,7 +557,7 @@ mod inner {
         #[wasm_bindgen(js_name = "getCurrent")]
         pub fn get_current() -> JsValue;
         #[wasm_bindgen(js_name = "getAll")]
-        pub fn get_all() -> JsValue;
+        pub async fn get_all() -> JsValue;
         #[wasm_bindgen(js_name = "currentMonitor")]
         pub async fn current_monitor() -> JsValue;
         #[wasm_bindgen(js_name = "primaryMonitor")]
