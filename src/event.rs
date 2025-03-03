@@ -1,11 +1,11 @@
 //! The event system allows you to emit events to the backend and listen to events from it.
 use futures::{
-    channel::{mpsc, oneshot},
     Future, FutureExt, Stream, StreamExt,
+    channel::{mpsc, oneshot},
 };
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use std::fmt::Debug;
-use wasm_bindgen::{prelude::Closure, JsValue};
+use wasm_bindgen::{JsValue, prelude::Closure};
 
 pub const WINDOW_RESIZED: &str = "tauri://resize";
 pub const WINDOW_MOVED: &str = "tauri://move";
@@ -174,7 +174,7 @@ where
 pub async fn listen_to<T>(
     event: &str,
     target: EventTarget,
-) -> crate::Result<impl Stream<Item = Event<T>>>
+) -> crate::Result<impl Stream<Item = Event<T>> + use<T>>
 where
     T: DeserializeOwned + 'static,
 {
@@ -350,8 +350,8 @@ impl<T> Future for Once<T> {
 
 pub(crate) mod inner {
     use wasm_bindgen::{
-        prelude::{wasm_bindgen, Closure},
         JsValue,
+        prelude::{Closure, wasm_bindgen},
     };
 
     #[wasm_bindgen(module = "/src/event.js")]
