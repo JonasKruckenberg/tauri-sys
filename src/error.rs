@@ -1,4 +1,3 @@
-use std::path::PathBuf;
 use wasm_bindgen::JsValue;
 
 #[derive(Clone, Eq, PartialEq, Debug, thiserror::Error)]
@@ -10,9 +9,6 @@ pub enum Error {
     #[cfg(any(feature = "event", feature = "window"))]
     #[error("Oneshot cancelled: {0}")]
     OneshotCanceled(#[from] futures::channel::oneshot::Canceled),
-    #[cfg(feature = "fs")]
-    #[error("Could not convert path to string")]
-    Utf8(PathBuf),
 }
 
 impl From<serde_wasm_bindgen::Error> for Error {

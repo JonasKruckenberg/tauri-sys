@@ -3,7 +3,7 @@ name = "test-tauri-sys"
 version = "0.0.0"
 description = "tauri-sys test app"
 authors = ["you"]
-edition = "2021"
+edition = "2024"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

@@ -1,7 +1,6 @@
 //! Common functionality
-use serde::{de::DeserializeOwned, Serialize};
+use serde::{Serialize, de::DeserializeOwned};
 use serde_wasm_bindgen as swb;
-use wasm_bindgen::{prelude::Closure, JsValue};
 
 pub use channel::{Channel, Message};
 
@@ -41,9 +40,9 @@ pub fn convert_file_src_with_protocol(
 
 mod channel {
     use super::inner;
-    use futures::{channel::mpsc, Stream, StreamExt};
-    use serde::{de::DeserializeOwned, ser::SerializeStruct, Deserialize, Serialize};
-    use wasm_bindgen::{prelude::Closure, JsValue};
+    use futures::{Stream, StreamExt, channel::mpsc};
+    use serde::{Deserialize, Serialize, de::DeserializeOwned, ser::SerializeStruct};
+    use wasm_bindgen::{JsValue, prelude::Closure};
 
     #[derive(derive_more::Deref, Deserialize, Debug)]
     pub struct Message<T> {
@@ -115,8 +114,8 @@ mod channel {
 
 mod inner {
     use wasm_bindgen::{
-        prelude::{wasm_bindgen, Closure},
         JsValue,
+        prelude::{Closure, wasm_bindgen},
     };
 
     #[wasm_bindgen(module = "/src/core.js")]

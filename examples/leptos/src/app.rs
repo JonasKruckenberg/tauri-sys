@@ -157,19 +157,6 @@ fn Window() -> impl IntoView {
 
 #[component]
 fn WindowWindows() -> impl IntoView {
-    // let current_window = Action::new_local(|_| async move {  });
-    // let all_windows = Action::new_local(|_| async move {  });
-
-    // let refresh = move |_| {
-    //     tauri_sys::window::get_current().label().clone()
-    //     tauri_sys::window::get_all().map()
-    //     current_window.dispatch(());
-    //     all_windows.dispatch(());
-    // };
-
-    // current_window.dispatch(());
-    // all_windows.dispatch(());
-
     let (current_window, set_current_window) =
         signal(tauri_sys::window::get_current().label().clone());
 
@@ -182,24 +169,10 @@ fn WindowWindows() -> impl IntoView {
     });
     all_windows.dispatch(());
 
-    // let (all_windows, set_all_windows) = signal(
-    //     tauri_sys::window::get_all()
-    //         .iter()
-    //         .map(|window| window.label().clone())
-    //         .collect::<Vec<_>>(),
-    // );
-
     let refresh = move |_| {
         all_windows.dispatch(());
         let current = tauri_sys::window::get_current();
         set_current_window(current.label().clone());
-
-        // let all = tauri_sys::window::get_all();
-        // set_all_windows(
-        //     all.iter()
-        //         .map(|window| window.label().clone())
-        //         .collect::<Vec<_>>(),
-        // );
     };
 
     view! {
@@ -358,8 +331,6 @@ fn WindowMonitors() -> impl IntoView {
 
 #[component]
 fn WindowEvents() -> impl IntoView {
-    use tauri_sys::window::{DragDropEvent, DragDropPayload, DragOverPayload};
-
     let (count, set_count) = signal(0);
     let (drag_drop, set_drag_drop) = signal(None);
 
@@ -410,7 +381,7 @@ fn WindowEvents() -> impl IntoView {
 
 #[component]
 fn DragDrop(event: tauri_sys::window::DragDropEvent) -> impl IntoView {
-    use tauri_sys::window::{DragDropEvent, DragDropPayload, DragOverPayload};
+    use tauri_sys::window::DragDropEvent;
 
     either!(event,
         DragDropEvent::Enter(payload) => {
@@ -479,73 +450,15 @@ fn Monitor<'a>(monitor: &'a tauri_sys::window::Monitor) -> impl IntoView {
     }
 }
 
-// #[component]
-// fn Menu() -> impl IntoView {
-//     let (event, set_event) = signal::<Option<String>>(None);
-//     let menu = LocalResource::new(
-//         || (),
-//         move |_| async move {
-//             let menu = tauri_sys::menu::Menu::with_id("tauri-sys-menu").await;
-//             let mut item_open = tauri_sys::menu::item::MenuItem::with_id("Open", "open").await;
-//             let mut item_close = tauri_sys::menu::item::MenuItem::with_id("Close", "close").await;
-//             menu.append_item(&item_open).await.unwrap();
-//             menu.append_item(&item_close).await.unwrap();
-
-//             spawn_local(async move {
-//                 let mut listener_item_open = item_open.listen().fuse();
-//                 let mut listener_item_close = item_close.listen().fuse();
-
-//                 loop {
-//                     futures::select! {
-//                         event = listener_item_open.next() => match event{
-//                             None => continue,
-//                             Some(event) => set_event(Some((*event).clone())),
-//                         },
-//                         event = listener_item_close.next() => match event{
-//                             None => continue,
-//                             Some(event) => set_event(Some((*event).clone())),
-//                         },
-//                     }
-//                 }
-//             });
-
-//             Rc::new(menu)
-//         },
-//     );
-
-//     let default_menu = move |e: MouseEvent| {
-//         spawn_local(async move {
-//             let menu = tauri_sys::menu::Menu::default().await;
-//         });
-//     };
-
-//     let open_menu = move |e: MouseEvent| {
-//         let menu = menu.get().unwrap();
-//         spawn_local(async move {
-//             menu.popup().await.unwrap();
-//         });
-//     };
-
-//     view! {
-//         <div
-//             on:mousedown=open_menu
-//             style="margin: auto; width: 50vw; height: 10em; border: 1px black solid; border-radius: 5px;"
-//         >
-//             {event}
-//         </div>
-//     }
-// }
-
 #[component]
 fn Menu() -> impl IntoView {
     let (event_manual, set_event_manual) = signal::<Option<String>>(None);
     let (event_with_items, set_event_with_items) = signal::<Option<String>>(None);
 
-    let default_menu = move |_: MouseEvent| {
-        spawn_local(async move {
-            let menu = tauri_sys::menu::Menu::default().await;
-        });
-    };
+    // NB: Ensure `Menu::default` is working.
+    spawn_local(async move {
+        tauri_sys::menu::Menu::default().await;
+    });
 
     let menu_manual = LocalResource::new(move || async move {
         let menu = tauri_sys::menu::Menu::with_id("tauri-sys-menu").await;

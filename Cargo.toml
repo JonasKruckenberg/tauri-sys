@@ -1,25 +1,25 @@
 [package]
-edition = "2021"
+edition = "2024"
 name = "tauri-sys"
-version = "0.2.0"
+version = "0.2.1"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-derive_more = "0.99.18"
+derive_more = { version = "2.0.1", features = ["deref", "from"] }
 futures = { version = "0.3.30", optional = true }
 js-sys = "0.3.69"
-log = "0.4.21"
-serde = {version = "1.0.203", features = ["derive"]}
+log = "0.4.26"
+serde = { version = "1.0.218", features = ["derive"] }
 serde-wasm-bindgen = "0.6.5"
 serde_repr = "0.1.19"
-thiserror = "1.0.61"
+thiserror = "2.0.11"
 wasm-bindgen = "0.2.92"
 wasm-bindgen-futures = "0.4.42"
 
 [dev-dependencies]
-tauri-sys = {path = ".", features = ["all"]}
-wasm-bindgen-test = "0.3.42"
+tauri-sys = { path = ".", features = ["all"] }
+wasm-bindgen-test = "0.3.50"
 
 [package.metadata.docs.rs]
 all-features = true
@@ -33,4 +33,4 @@ menu = ["core", "window"]
 window = ["dpi", "event"]
 
 [workspace]
-members = ["examples/test", "examples/test/src-tauri"]
+members = ["examples/leptos", "examples/leptos/src-tauri"]

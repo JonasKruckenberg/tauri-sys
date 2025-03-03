@@ -7,15 +7,12 @@ use crate::{
     event::{self, Event},
 };
 use futures::{
-    channel::{
-        mpsc::{self, UnboundedSender},
-        oneshot,
-    },
-    Future, FutureExt, Stream, StreamExt,
+    Stream, StreamExt,
+    channel::mpsc::{self, UnboundedSender},
 };
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use std::{any::Any, collections::HashMap, path::PathBuf};
-use wasm_bindgen::{prelude::Closure, JsValue};
+use wasm_bindgen::{JsValue, prelude::Closure};
 
 /// Events that are emitted right here instead of by the created window.
 const LOCAL_TAURI_EVENTS: &'static [&'static str; 2] = &["tauri://created", "tauri://error"];
@@ -223,11 +220,12 @@ impl Window {
         use futures::future::Either;
 
         let event = event.into();
+        let label = self.label.clone();
         if let Some(listener) = self.handle_tauri_event(event.clone()) {
             Ok(Either::Left(listener))
         } else {
             let listener =
-                event::listen_to(&event, event::EventTarget::Window(self.label.clone())).await?;
+                event::listen_to(event.as_str(), event::EventTarget::Window(label)).await?;
 
             Ok(Either::Right(listener))
         }
@@ -242,7 +240,7 @@ impl Window {
     /// # Returns
     /// A promise resolving to a function to unlisten to the event.
     /// Note that removing the listener is required if your listener goes out of scope e.g. the component is unmounted.
-    pub async fn once(&self, event: impl Into<String>, handler: Closure<dyn FnMut(JsValue)>) {
+    pub async fn once(&self, _event: impl Into<String>, _handler: Closure<dyn FnMut(JsValue)>) {
         todo!();
     }
 
@@ -550,7 +548,7 @@ pub async fn available_monitors() -> Vec<Monitor> {
 //}
 
 mod inner {
-    use wasm_bindgen::{prelude::wasm_bindgen, JsValue};
+    use wasm_bindgen::{JsValue, prelude::wasm_bindgen};
 
     #[wasm_bindgen(module = "/src/window.js")]
     extern "C" {
