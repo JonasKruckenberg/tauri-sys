@@ -64,7 +64,7 @@ These API bindings are not completely on-par with `@tauri-apps/api` yet, but her
 - [x] `core` (partial implementation)
 - [x] `dpi`
 - [x] `event`
-- [ ] `image`
+- [x] `image`
 - [x] `menu` (partial implementation)
 - [ ] `mocks`
 - [ ] `path`
