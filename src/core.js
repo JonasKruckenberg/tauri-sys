@@ -9,8 +9,12 @@ async function invoke(cmd, args = {}) {
 function convertFileSrc(filePath, protocol = 'asset') {
 	return window.__TAURI_INTERNALS__.convertFileSrc(filePath, protocol)
 }
+function isTauri() {
+	return 'isTauri' in window && !!window.isTauri
+}
 export {
 	invoke,
 	convertFileSrc,
 	transformCallback,
+	isTauri,
 }

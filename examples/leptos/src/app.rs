@@ -17,6 +17,11 @@ pub fn App() -> impl IntoView {
             </div>
 
             <div>
+                <h2>"app"</h2>
+                <TauriApp/>
+            </div>
+
+            <div>
                 <h2>"events"</h2>
                 <Events/>
             </div>
@@ -47,6 +52,14 @@ fn Core() -> impl IntoView {
     view! {
         <div>
             <div>
+                "is Tauri? "
+                {if tauri_sys::core::is_tauri() {
+                    "Yes".to_string()
+                } else {
+                    "No".to_string()
+                }}
+            </div>
+            <div>
                 <label>
                     "Convert path"
                     <input
@@ -58,6 +71,138 @@ fn Core() -> impl IntoView {
             </div>
             <div>{converted_path}</div>
         </div>
+    }
+}
+
+#[component]
+fn TauriApp() -> impl IntoView {
+    let app_name = LocalResource::new(tauri_sys::app::get_name);
+    let tauri_version = LocalResource::new(tauri_sys::app::get_tauri_version);
+    let app_version = LocalResource::new(tauri_sys::app::get_version);
+    let default_window_icon = LocalResource::new(tauri_sys::app::default_window_icon);
+    let set_theme = Action::new_local(|theme: &tauri_sys::app::Theme| {
+        let theme = theme.clone();
+        async move {
+            tauri_sys::app::set_theme(theme).await;
+        }
+    });
+
+    let hide = Action::new_local(|_| async move {
+        #[cfg(target_os = "macos")]
+        tauri_sys::app::hide().await.unwrap();
+    });
+
+    view! {
+        <div>
+            <div>
+                "App name: "
+                {move || match app_name.get() {
+                    None => "Loading...".to_string(),
+                    Some(name) => name.to_string(),
+                }}
+            </div>
+            <div>
+                "Tauri version: "
+                {move || match tauri_version.get() {
+                    None => "Loading...".to_string(),
+                    Some(version) => version.to_string(),
+                }}
+            </div>
+            <div>
+                "App version: "
+                {move || match app_version.get() {
+                    None => "Loading...".to_string(),
+                    Some(version) => version.to_string(),
+                }}
+            </div>
+            <div>
+                "Set theme"
+                <button
+                    on:click=move |_| { set_theme.dispatch(tauri_sys::app::Theme::Light); }
+                >
+                    "Light"
+                </button>
+                <button
+                    on:click=move |_| { set_theme.dispatch(tauri_sys::app::Theme::Dark); }
+                >
+                    "Dark"
+                </button>
+                <button
+                    on:click=move |_| { set_theme.dispatch(tauri_sys::app::Theme::System); }
+                >
+                    "System"
+                </button>
+            </div>
+            <div>
+                <button
+                    on:click=move |_| { hide.dispatch(()); }
+                >
+                    "Hide (macOS only)"
+                </button>
+            </div>
+            <div>
+                "Default image"
+                <div>
+                    <Suspense
+                        fallback=move || view! { "Loading" }
+                    >
+                        {move || Suspend::new(async move {
+                            let icon = default_window_icon.await;
+                            match icon {
+                                None => Either::Left("No default image".to_string()),
+                                Some(icon) => Either::Right(view! {
+                                    <DefaultWindowIcon icon />
+                                })
+                            }
+                        })}
+                    </Suspense>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+#[component]
+fn DefaultWindowIcon(icon: tauri_sys::app::Image) -> impl IntoView {
+    let size = LocalResource::new({
+        let icon = icon.clone();
+        move || {
+            let icon = icon.clone();
+            async move { icon.size().await }
+        }
+    });
+    let rgba = LocalResource::new({
+        let icon = icon.clone();
+        move || {
+            let icon = icon.clone();
+            async move { icon.rgba().await }
+        }
+    });
+
+    view! {
+        <Suspense
+            fallback=move || view! { "Loading" }
+        >
+            {move || Suspend::new(async move {
+                let size = size.await;
+                let rgba = rgba.await;
+
+                view! {
+                    <div>
+                        <div>
+                            "Size: "
+                            {size.width()} "x" {size.height()}
+                        </div>
+                        <div>
+                            "RGBA:"
+                            <textarea readonly=true>
+                                {rgba.iter().map(|v| v.to_string()).collect::<Vec<String>>().join(", ")}
+                            </textarea>
+                        </div>
+                    </div>
+                }
+            })}
+        </Suspense>
     }
 }
 

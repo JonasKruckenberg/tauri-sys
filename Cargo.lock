@@ -63,7 +63,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "41058deaa38c9d9dd933d6d238d825227cffa668e2839b52879f6619c63eee3b"
 dependencies = [
  "futures",
- "thiserror 2.0.11",
+ "thiserror 2.0.12",
  "wasm-bindgen-futures",
 ]
 
@@ -325,7 +325,7 @@ dependencies = [
  "semver",
  "serde",
  "serde_json",
- "thiserror 2.0.11",
+ "thiserror 2.0.12",
 ]
 
 [[package]]
@@ -407,7 +407,7 @@ checksum = "0f18d705321923b1a9358e3fc3c57c3b50171196827fc7f5f10b053242aca627"
 dependencies = [
  "serde",
  "serde_json",
- "thiserror 2.0.11",
+ "thiserror 2.0.12",
 ]
 
 [[package]]
@@ -2017,7 +2017,7 @@ dependencies = [
  "server_fn",
  "slotmap",
  "tachys",
- "thiserror 2.0.11",
+ "thiserror 2.0.12",
  "throw_error",
  "typed-builder",
  "typed-builder-macro",
@@ -2034,7 +2034,7 @@ dependencies = [
  "config",
  "regex",
  "serde",
- "thiserror 2.0.11",
+ "thiserror 2.0.12",
  "typed-builder",
 ]
 
@@ -2315,7 +2315,7 @@ dependencies = [
  "once_cell",
  "png",
  "serde",
- "thiserror 2.0.11",
+ "thiserror 2.0.12",
  "windows-sys 0.59.0",
 ]
 
@@ -3146,7 +3146,7 @@ dependencies = [
  "rustc-hash",
  "rustls",
  "socket2",
- "thiserror 2.0.11",
+ "thiserror 2.0.12",
  "tokio",
  "tracing",
 ]
@@ -3165,7 +3165,7 @@ dependencies = [
  "rustls",
  "rustls-pki-types",
  "slab",
- "thiserror 2.0.11",
+ "thiserror 2.0.12",
  "tinyvec",
  "tracing",
  "web-time",
@@ -3320,7 +3320,7 @@ dependencies = [
  "send_wrapper",
  "serde",
  "slotmap",
- "thiserror 2.0.11",
+ "thiserror 2.0.12",
  "web-sys",
 ]
 
@@ -3369,7 +3369,7 @@ checksum = "dd6f9d3d47bdd2ad6945c5015a226ec6155d0bcdfd8f7cd29f86b71f8de99d2b"
 dependencies = [
  "getrandom 0.2.15",
  "libredox",
- "thiserror 2.0.11",
+ "thiserror 2.0.12",
 ]
 
 [[package]]
@@ -3472,7 +3472,7 @@ dependencies = [
  "quote",
  "syn 2.0.98",
  "syn_derive",
- "thiserror 2.0.11",
+ "thiserror 2.0.12",
 ]
 
 [[package]]
@@ -3811,7 +3811,7 @@ dependencies = [
  "serde_json",
  "serde_qs",
  "server_fn_macro_default",
- "thiserror 2.0.11",
+ "thiserror 2.0.12",
  "throw_error",
  "url",
  "wasm-bindgen",
@@ -4241,7 +4241,7 @@ dependencies = [
  "tauri-runtime",
  "tauri-runtime-wry",
  "tauri-utils",
- "thiserror 2.0.11",
+ "thiserror 2.0.12",
  "tokio",
  "tray-icon",
  "url",
@@ -4294,7 +4294,7 @@ dependencies = [
  "sha2",
  "syn 2.0.98",
  "tauri-utils",
- "thiserror 2.0.11",
+ "thiserror 2.0.12",
  "time",
  "url",
  "uuid",
@@ -4349,7 +4349,7 @@ dependencies = [
  "shared_child",
  "tauri",
  "tauri-plugin",
- "thiserror 2.0.11",
+ "thiserror 2.0.12",
  "tokio",
 ]
 
@@ -4367,7 +4367,7 @@ dependencies = [
  "serde",
  "serde_json",
  "tauri-utils",
- "thiserror 2.0.11",
+ "thiserror 2.0.12",
  "url",
  "windows",
 ]
@@ -4401,7 +4401,7 @@ dependencies = [
 
 [[package]]
 name = "tauri-sys"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "derive_more 2.0.1",
  "futures",
@@ -4411,7 +4411,7 @@ dependencies = [
  "serde-wasm-bindgen",
  "serde_repr",
  "tauri-sys",
- "thiserror 2.0.11",
+ "thiserror 2.0.12",
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "wasm-bindgen-test",
@@ -4446,7 +4446,7 @@ dependencies = [
  "serde_json",
  "serde_with",
  "swift-rs",
- "thiserror 2.0.11",
+ "thiserror 2.0.12",
  "toml",
  "url",
  "urlpattern",
@@ -4523,11 +4523,11 @@ dependencies = [
 
 [[package]]
 name = "thiserror"
-version = "2.0.11"
+version = "2.0.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d452f284b73e6d76dd36758a0c8684b1d5be31f92b89d07fd5822175732206fc"
+checksum = "567b8a2dae586314f7be2a752ec7474332959c6460e02bde30d702a66d488708"
 dependencies = [
- "thiserror-impl 2.0.11",
+ "thiserror-impl 2.0.12",
 ]
 
 [[package]]
@@ -4543,9 +4543,9 @@ dependencies = [
 
 [[package]]
 name = "thiserror-impl"
-version = "2.0.11"
+version = "2.0.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "26afc1baea8a989337eeb52b6e72a039780ce45c3edfcc9c5b9d112feeb173c2"
+checksum = "7f7cf42b4507d8ea322120659672cf1b9dbb93f8f2d4ecfd6e51350ff5b17a1d"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4836,7 +4836,7 @@ dependencies = [
  "once_cell",
  "png",
  "serde",
- "thiserror 2.0.11",
+ "thiserror 2.0.12",
  "windows-sys 0.59.0",
 ]
 
@@ -5291,7 +5291,7 @@ version = "0.36.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bfb27fccd3c27f68e9a6af1bcf48c2d82534b8675b83608a4d81446d095a17ac"
 dependencies = [
- "thiserror 2.0.11",
+ "thiserror 2.0.12",
  "windows",
  "windows-core 0.60.1",
 ]
@@ -5787,7 +5787,7 @@ dependencies = [
  "sha2",
  "soup3",
  "tao-macros",
- "thiserror 2.0.11",
+ "thiserror 2.0.12",
  "url",
  "webkit2gtk",
  "webkit2gtk-sys",
