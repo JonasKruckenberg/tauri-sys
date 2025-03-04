@@ -86,14 +86,18 @@
 //! ```
 
 mod error;
-#[cfg(feature = "event")]
-pub mod event;
+
+#[cfg(feature = "app")]
+pub mod app;
 
 #[cfg(feature = "core")]
 pub mod core;
 
 #[cfg(feature = "dpi")]
 pub mod dpi;
+
+#[cfg(feature = "event")]
+pub mod event;
 
 #[cfg(feature = "menu")]
 pub mod menu;

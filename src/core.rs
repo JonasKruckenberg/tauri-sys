@@ -3,6 +3,7 @@ use serde::{Serialize, de::DeserializeOwned};
 use serde_wasm_bindgen as swb;
 
 pub use channel::{Channel, Message};
+pub use resource::Resource;
 
 pub async fn invoke<T>(command: &str, args: impl Serialize) -> T
 where
@@ -36,6 +37,41 @@ pub fn convert_file_src_with_protocol(
     inner::convert_file_src(file_path.as_ref(), protocol.as_ref())
         .as_string()
         .unwrap()
+}
+
+pub fn is_tauri() -> bool {
+    inner::is_tauri()
+}
+
+mod resource {
+    use super::invoke;
+    use serde::Serialize;
+
+    #[derive(Clone)]
+    /// A Rust backed resource.
+    pub struct Resource {
+        rid: u64,
+    }
+
+    impl Resource {
+        pub fn new(rid: u64) -> Self {
+            Self { rid }
+        }
+
+        pub fn rid(&self) -> u64 {
+            self.rid
+        }
+
+        /// Destroy the resource.
+        pub async fn close(self) {
+            #[derive(Serialize)]
+            struct Args {
+                rid: u64,
+            }
+
+            invoke::<()>("plugin:resources|close", Args { rid: self.rid }).await;
+        }
+    }
 }
 
 mod channel {
@@ -127,5 +163,7 @@ mod inner {
         pub fn convert_file_src(filePath: &str, protocol: &str) -> JsValue;
         #[wasm_bindgen(js_name = "transformCallback")]
         pub fn transform_callback(callback: &Closure<dyn FnMut(JsValue)>, once: bool) -> usize;
+        #[wasm_bindgen(js_name = "isTauri")]
+        pub fn is_tauri() -> bool;
     }
 }
