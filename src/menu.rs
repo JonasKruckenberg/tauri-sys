@@ -211,10 +211,7 @@ impl Serialize for ChannelId {
     where
         S: serde::Serializer,
     {
-        let mut map = serializer.serialize_struct("ChannelId", 2)?;
-        map.serialize_field("__TAURI_CHANNEL_MARKER__", &true)?;
-        map.serialize_field("id", &self.id)?;
-        map.end()
+        serializer.serialize_str(&format!("__CHANNEL__:{}", self.id))
     }
 }
 
@@ -341,10 +338,7 @@ pub mod item {
         where
             S: serde::Serializer,
         {
-            let mut map = serializer.serialize_struct("Channel", 2)?;
-            map.serialize_field("__TAURI_CHANNEL_MARKER__", &true)?;
-            map.serialize_field("id", &self.0)?;
-            map.end()
+            serializer.serialize_str(&format!("__CHANNEL__:{}", self.0))
         }
     }
 }
