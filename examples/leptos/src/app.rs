@@ -1,6 +1,6 @@
 use futures::stream::StreamExt;
 use leptos::{
-    either::{either, Either},
+    either::{Either, either},
     ev::MouseEvent,
     prelude::*,
     task::spawn_local,
@@ -398,7 +398,7 @@ fn WindowMonitors() -> impl IntoView {
                             .value()
                             .with(|monitor| either!(monitor,
                                 None => "Loading",
-                                Some(Some(monitor)) => view! { <Monitor monitor/> },
+                                Some(Some(monitor)) => view! { <Monitor monitor=monitor.clone()/> },
                                 Some(None) => "Could not detect monitor.",
                             ))
                     }}
@@ -411,7 +411,7 @@ fn WindowMonitors() -> impl IntoView {
                             .value()
                             .with(|monitor| either!(monitor,
                                 None => "Loading",
-                                Some(Some(monitor)) => view! { <Monitor monitor/> },
+                                Some(Some(monitor)) => view! { <Monitor monitor=monitor.clone()/> },
                                 Some(None) => "Could not detect monitor.",
                             ))
                     }}
@@ -425,7 +425,7 @@ fn WindowMonitors() -> impl IntoView {
                             None => "Loading",
                             Some(monitors) => monitors
                                 .iter()
-                                .map(|monitor| view! { <Monitor monitor/> })
+                                .map(|monitor| view! { <Monitor monitor=monitor.clone()/> })
                                 .collect::<Vec<_>>(),
                         ))
                     }
@@ -440,7 +440,7 @@ fn WindowMonitors() -> impl IntoView {
                             .value()
                             .with(|monitor| either!(monitor,
                                 None => "Enter an `x, y` coordinate.",
-                                Some(Some(monitor)) => view! { <Monitor monitor/> },
+                                Some(Some(monitor)) => view! { <Monitor monitor=monitor.clone()/> },
                                 Some(None) => "Could not detect monitor.",
                             ))
                     }}
@@ -584,7 +584,7 @@ fn DragDrop(event: tauri_sys::window::DragDropEvent) -> impl IntoView {
 }
 
 #[component]
-fn Monitor<'a>(monitor: &'a tauri_sys::window::Monitor) -> impl IntoView {
+fn Monitor(monitor: tauri_sys::window::Monitor) -> impl IntoView {
     view! {
         <div style="display: inline-block; text-align: left;">
             <div>"Name: " {monitor.name().clone()}</div>
