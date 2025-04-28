@@ -1,7 +1,7 @@
 //! # See also
 //! + `tauri::menu`
 use crate::{core, window};
-use serde::{Serialize, ser::SerializeStruct};
+use serde::Serialize;
 use std::collections::HashMap;
 
 type Rid = usize;
@@ -218,7 +218,7 @@ impl Serialize for ChannelId {
 pub mod item {
     use super::{ChannelId, ItemId, MenuId, Rid};
     use crate::core;
-    use serde::{Serialize, ser::SerializeStruct};
+    use serde::Serialize;
 
     #[allow(dead_code)]
     pub struct MenuItem {
