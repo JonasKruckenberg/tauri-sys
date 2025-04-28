@@ -77,24 +77,34 @@ mod resource {
 mod channel {
     use super::inner;
     use futures::{Stream, StreamExt, channel::mpsc};
-    use serde::{Deserialize, Serialize, de::DeserializeOwned, ser::SerializeStruct};
+    use serde::{Deserialize, Serialize, de::DeserializeOwned};
     use wasm_bindgen::{JsValue, prelude::Closure};
 
     #[derive(derive_more::Deref, Deserialize, Debug)]
     pub struct Message<T> {
         index: usize,
+        end: Option<bool>,
 
         #[deref]
-        message: T,
+        message: Option<T>,
     }
 
     impl<T> Message<T> {
         pub fn index(&self) -> usize {
             self.index
         }
+
+        /// # Returns
+        /// If the message's `end` property was set to `true`.
+        /// i.e. Is `Some(true)`.
+        pub fn end(&self) -> bool {
+            match self.end {
+                Some(true) => true,
+                _ => false,
+            }
+        }
     }
 
-    // TODO: Could cause memory leak because handler is never released.
     #[derive(Debug)]
     pub struct Channel<T> {
         id: usize,
@@ -138,9 +148,17 @@ mod channel {
             mut self: std::pin::Pin<&mut Self>,
             cx: &mut std::task::Context<'_>,
         ) -> std::task::Poll<Option<Self::Item>> {
-            self.rx
-                .poll_next_unpin(cx)
-                .map(|item| item.map(|value| value.message))
+            if let std::task::Poll::Ready(Some(item)) = self.rx.poll_next_unpin(cx) {
+                if item.end() {
+                    // TODO: Delete channel from `window`.
+                    // See `core.ts > class Channel > private cleanupCallback`.
+                    std::task::Poll::Ready(None)
+                } else {
+                    std::task::Poll::Ready(item.message)
+                }
+            } else {
+                std::task::Poll::Pending
+            }
         }
     }
 }
