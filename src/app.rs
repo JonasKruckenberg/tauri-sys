@@ -51,7 +51,7 @@ pub async fn hide() {
     inner::hide().await
 }
 
-/// Shwo the app. Does not automatically focus any specific app window.
+/// Show the app. Does not automatically focus any specific app window.
 ///
 /// # Note
 /// + Requires the `core:app:allow-app-show` permission.
