@@ -47,7 +47,7 @@ pub async fn set_theme(theme: Theme) {
 /// # Note
 /// + Requires the `core:app:allow-app-hide` permission.
 #[cfg(target_os = "macos")]
-pub async fn hide() {
+pub async fn hide() -> Result<(), JsValue> {
     inner::hide().await
 }
 
@@ -56,7 +56,7 @@ pub async fn hide() {
 /// # Note
 /// + Requires the `core:app:allow-app-show` permission.
 #[cfg(target_os = "macos")]
-pub async fn show() {
+pub async fn show() -> Result<(), JsValue> {
     inner::show().await
 }
 
