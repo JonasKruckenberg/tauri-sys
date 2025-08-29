@@ -144,11 +144,11 @@ where
         })?,
     )
     .await?;
-    closure.forget();
 
     Ok(Listen {
         rx,
         unlisten: js_sys::Function::from(unlisten),
+        _callback_keep_alive: closure,
     })
 }
 
@@ -189,17 +189,18 @@ where
         serde_wasm_bindgen::to_value(&Options { target })?,
     )
     .await?;
-    closure.forget();
 
     Ok(Listen {
         rx,
         unlisten: js_sys::Function::from(unlisten),
+        _callback_keep_alive: closure,
     })
 }
 
 pub(crate) struct Listen<T> {
     pub rx: mpsc::UnboundedReceiver<T>,
     pub unlisten: js_sys::Function,
+    _callback_keep_alive: Closure<dyn FnMut(JsValue)>,
 }
 
 impl<T> Drop for Listen<T> {
@@ -263,11 +264,11 @@ where
         })?,
     )
     .await?;
-    closure.forget();
 
     let fut = Once {
         rx,
         unlisten: js_sys::Function::from(unlisten),
+        _callback_keep_alive: closure,
     };
 
     fut.await
@@ -314,11 +315,11 @@ where
         serde_wasm_bindgen::to_value(&Options { target })?,
     )
     .await?;
-    closure.forget();
 
     let fut = Once {
         rx,
         unlisten: js_sys::Function::from(unlisten),
+        _callback_keep_alive: closure,
     };
 
     fut.await
@@ -327,6 +328,7 @@ where
 pub(crate) struct Once<T> {
     pub rx: oneshot::Receiver<Event<T>>,
     pub unlisten: js_sys::Function,
+    _callback_keep_alive: Closure<dyn FnMut(JsValue)>,
 }
 
 impl<T> Drop for Once<T> {
