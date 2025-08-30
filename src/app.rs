@@ -25,8 +25,8 @@ pub async fn get_version() -> String {
 
 pub async fn default_window_icon() -> Option<Image> {
     invoke::<Option<u64>>("plugin:app|default_window_icon", ())
-        .await
-        .map(|rid| Image::from_rid(rid))
+    .await
+    .map(|rid| Image::from_rid(rid))
 }
 
 /// Set the apps theme.
@@ -41,6 +41,9 @@ pub async fn set_theme(theme: Theme) {
     };
     inner::set_theme(theme).await;
 }
+
+#[cfg(target_os = "macos")]
+use wasm_bindgen::JsValue;
 
 /// Hide the app.
 ///
