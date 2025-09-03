@@ -2,6 +2,9 @@ use crate::core::invoke;
 
 pub use image::{Image, ImageSize};
 
+#[cfg(target_os = "macos")]
+use wasm_bindgen::JsValue;
+
 #[derive(Clone, Copy)]
 pub enum Theme {
     Light,
@@ -41,9 +44,6 @@ pub async fn set_theme(theme: Theme) {
     };
     inner::set_theme(theme).await;
 }
-
-#[cfg(target_os = "macos")]
-use wasm_bindgen::JsValue;
 
 /// Hide the app.
 ///
