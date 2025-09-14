@@ -2,6 +2,9 @@ use crate::core::invoke;
 
 pub use image::{Image, ImageSize};
 
+#[cfg(target_os = "macos")]
+use wasm_bindgen::JsValue;
+
 #[derive(Clone, Copy)]
 pub enum Theme {
     Light,
@@ -25,8 +28,8 @@ pub async fn get_version() -> String {
 
 pub async fn default_window_icon() -> Option<Image> {
     invoke::<Option<u64>>("plugin:app|default_window_icon", ())
-        .await
-        .map(|rid| Image::from_rid(rid))
+    .await
+    .map(|rid| Image::from_rid(rid))
 }
 
 /// Set the apps theme.
