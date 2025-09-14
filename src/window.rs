@@ -56,6 +56,7 @@ pub(crate) struct DragDropListen {
     pub unlisten_drop: js_sys::Function,
     pub unlisten_over: js_sys::Function,
     pub unlisten_leave: js_sys::Function,
+    _keep_alives:  [Closure::<dyn FnMut(JsValue)>; 4],
 }
 
 impl Drop for DragDropListen {
@@ -330,7 +331,7 @@ impl Window {
     ) -> crate::Result<impl Stream<Item = Event<DragDropEvent>>> {
         let (tx, rx) = mpsc::unbounded::<Event<DragDropEvent>>();
 
-        let closure = {
+        let enter_closure = {
             let tx = tx.clone();
             Closure::<dyn FnMut(JsValue)>::new(move |raw| {
                 let Event { event, id, payload } =
@@ -344,17 +345,16 @@ impl Window {
         };
         let unlisten = event::inner::listen(
             event::DRAG_ENTER,
-            &closure,
+            &enter_closure,
             serde_wasm_bindgen::to_value(&event::Options {
                 target: event::EventTarget::Window(self.label.clone()),
             })?,
         )
         .await?;
-        closure.forget();
 
         let unlisten_enter = js_sys::Function::from(unlisten);
 
-        let closure = {
+        let drop_closure = {
             let tx = tx.clone();
             Closure::<dyn FnMut(JsValue)>::new(move |raw| {
                 let Event { event, id, payload } =
@@ -368,17 +368,16 @@ impl Window {
         };
         let unlisten = event::inner::listen(
             event::DRAG_DROP,
-            &closure,
+            &drop_closure,
             serde_wasm_bindgen::to_value(&event::Options {
                 target: event::EventTarget::Window(self.label.clone()),
             })?,
         )
         .await?;
-        closure.forget();
 
         let unlisten_drop = js_sys::Function::from(unlisten);
 
-        let closure = {
+        let over_closure = {
             let tx = tx.clone();
             Closure::<dyn FnMut(JsValue)>::new(move |raw| {
                 let Event { event, id, payload } =
@@ -392,17 +391,16 @@ impl Window {
         };
         let unlisten = event::inner::listen(
             event::DRAG_OVER,
-            &closure,
+            &over_closure,
             serde_wasm_bindgen::to_value(&event::Options {
                 target: event::EventTarget::Window(self.label.clone()),
             })?,
         )
         .await?;
-        closure.forget();
 
         let unlisten_over = js_sys::Function::from(unlisten);
 
-        let closure = {
+        let leave_closure = {
             let tx = tx.clone();
             Closure::<dyn FnMut(JsValue)>::new(move |raw| {
                 let Event { event, id, .. } =
@@ -416,13 +414,12 @@ impl Window {
         };
         let unlisten = event::inner::listen(
             event::DRAG_LEAVE,
-            &closure,
+            &leave_closure,
             serde_wasm_bindgen::to_value(&event::Options {
                 target: event::EventTarget::Window(self.label.clone()),
             })?,
         )
         .await?;
-        closure.forget();
 
         let unlisten_leave = js_sys::Function::from(unlisten);
 
@@ -432,6 +429,7 @@ impl Window {
             unlisten_drop,
             unlisten_over,
             unlisten_leave,
+            _keep_alives: [enter_closure, drop_closure, over_closure, leave_closure],
         })
     }
 }
