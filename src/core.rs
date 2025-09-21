@@ -109,6 +109,7 @@ mod channel {
     pub struct Channel<T> {
         id: usize,
         rx: mpsc::UnboundedReceiver<Message<T>>,
+        _id_keep_alive: Closure<dyn FnMut(JsValue)>,
     }
 
     impl<T> Channel<T> {
@@ -122,9 +123,8 @@ mod channel {
             });
 
             let id = inner::transform_callback(&closure, false);
-            closure.forget();
 
-            Channel { id, rx }
+            Channel { id, rx, _id_keep_alive: closure }
         }
 
         pub fn id(&self) -> usize {

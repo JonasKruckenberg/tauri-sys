@@ -2,6 +2,9 @@ use crate::core::invoke;
 
 pub use image::{Image, ImageSize};
 
+#[cfg(target_os = "macos")]
+use wasm_bindgen::JsValue;
+
 #[derive(Clone, Copy)]
 pub enum Theme {
     Light,
@@ -25,8 +28,8 @@ pub async fn get_version() -> String {
 
 pub async fn default_window_icon() -> Option<Image> {
     invoke::<Option<u64>>("plugin:app|default_window_icon", ())
-        .await
-        .map(|rid| Image::from_rid(rid))
+    .await
+    .map(|rid| Image::from_rid(rid))
 }
 
 /// Set the apps theme.
@@ -47,7 +50,7 @@ pub async fn set_theme(theme: Theme) {
 /// # Note
 /// + Requires the `core:app:allow-app-hide` permission.
 #[cfg(target_os = "macos")]
-pub async fn hide() {
+pub async fn hide() -> Result<(), JsValue> {
     inner::hide().await
 }
 
@@ -56,7 +59,7 @@ pub async fn hide() {
 /// # Note
 /// + Requires the `core:app:allow-app-show` permission.
 #[cfg(target_os = "macos")]
-pub async fn show() {
+pub async fn show() -> Result<(), JsValue> {
     inner::show().await
 }
 

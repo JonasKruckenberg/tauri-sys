@@ -27,7 +27,7 @@ all-features = true
 [features]
 all = ["app", "core", "dpi", "event", "menu", "window"]
 app = ["core"]
-core = []
+core = ["dep:futures"]
 dpi = []
 event = ["dep:futures"]
 menu = ["core", "window"]
