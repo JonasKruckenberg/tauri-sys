@@ -84,7 +84,7 @@
 //! // in some other task, when we're done with listening to the events
 //! abort_handle.abort();
 //! ```
-
+#![feature(async_fn_track_caller)]
 mod error;
 
 #[cfg(feature = "app")]

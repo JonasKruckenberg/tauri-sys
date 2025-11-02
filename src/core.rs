@@ -5,6 +5,7 @@ use serde_wasm_bindgen as swb;
 pub use channel::{Channel, Message};
 pub use resource::Resource;
 
+#[track_caller]
 pub async fn invoke<T>(command: &str, args: impl Serialize) -> T
 where
     T: DeserializeOwned,
@@ -13,6 +14,7 @@ where
     swb::from_value(value).unwrap()
 }
 
+#[track_caller]
 pub async fn invoke_result<T, E>(command: &str, args: impl Serialize) -> Result<T, E>
 where
     T: DeserializeOwned,

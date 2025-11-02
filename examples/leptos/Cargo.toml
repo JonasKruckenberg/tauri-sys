@@ -5,7 +5,7 @@ edition = "2024"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
-leptos = { version = "0.8.0", features = ["nightly", "csr"] }
+leptos = { version = "0.8.12", features = ["nightly", "csr"] }
 wasm-bindgen = "0.2"
 wasm-bindgen-futures = "0.4"
 js-sys = "0.3"
@@ -14,6 +14,6 @@ serde-wasm-bindgen = "0.6"
 console_error_panic_hook = "0.1.7"
 tauri-sys = { path = "../..", features = ["all"] }
 futures = "0.3"
-tracing = "0.1.40"
-tracing-subscriber = "0.3.18"
+tracing = "0.1.41"
+tracing-subscriber = "0.3.20"
 tracing-web = "0.1.3"
