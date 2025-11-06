@@ -56,7 +56,7 @@ All modules are gated by accordingly named Cargo features. It is recommended you
 - **menu**: Enables the `menu` module. (~20% implemented)
 - **window**: Enables the `windows` module. (~20% implemented)
 
-- **nightly**: Enable nighlty only features such as tracker calling for `invoke` for better error reporting.
+- **nightly**: Enable nightly only features such as tracker calling for `invoke` for better error reporting.
 
 ## Are we Tauri yet?
 
