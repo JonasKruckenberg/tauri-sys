@@ -107,6 +107,8 @@ pub mod menu;
 pub mod window;
 
 pub use error::Error;
+
+#[cfg(any(feature = "event", feature = "window"))]
 pub(crate) type Result<T> = std::result::Result<T, Error>;
 
 // #[cfg(any(feature = "window"))]
