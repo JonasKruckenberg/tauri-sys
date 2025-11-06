@@ -32,6 +32,7 @@ dpi = []
 event = ["dep:futures"]
 menu = ["core", "window"]
 window = ["dpi", "event"]
+nightly = []
 
 [workspace]
 members = ["examples/leptos", "examples/leptos/src-tauri"]
