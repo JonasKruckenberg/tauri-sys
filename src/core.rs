@@ -79,7 +79,9 @@ mod resource {
 mod channel {
     use super::inner;
     use futures::{Stream, StreamExt, channel::mpsc};
+    use send_wrapper::SendWrapper;
     use serde::{Deserialize, Serialize, de::DeserializeOwned};
+    use std::sync::Arc;
     use wasm_bindgen::{JsValue, prelude::Closure};
 
     #[derive(derive_more::Deref, Deserialize, Debug)]
@@ -111,7 +113,7 @@ mod channel {
     pub struct Channel<T> {
         id: usize,
         rx: mpsc::UnboundedReceiver<Message<T>>,
-        _id_keep_alive: Closure<dyn FnMut(JsValue)>,
+        _id_keep_alive: SendWrapper<Closure<dyn FnMut(JsValue)>>,
     }
 
     impl<T> Channel<T> {
@@ -126,7 +128,11 @@ mod channel {
 
             let id = inner::transform_callback(&closure, false);
 
-            Channel { id, rx, _id_keep_alive: closure }
+            Channel {
+                id,
+                rx,
+                _id_keep_alive: SendWrapper::new(closure),
+            }
         }
 
         pub fn id(&self) -> usize {

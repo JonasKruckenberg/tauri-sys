@@ -4406,12 +4406,13 @@ dependencies = [
 
 [[package]]
 name = "tauri-sys"
-version = "0.2.3"
+version = "0.2.4"
 dependencies = [
  "derive_more 2.0.1",
  "futures",
  "js-sys",
  "log",
+ "send_wrapper",
  "serde",
  "serde-wasm-bindgen",
  "serde_repr",
