@@ -120,7 +120,7 @@ pub async fn emit_to<T: Serialize>(
 /// use web_sys::console;
 /// use futures::StreamExt;
 ///
-/// let events = listen::<String>("error", EventTarget::Any);
+/// let events = listen::<String>("error");
 ///
 /// while let Some(event) = events.next().await {
 ///     console::log_1(&format!("Got error in window {}, payload: {}", event.window_label, event.payload).into());
