@@ -81,7 +81,11 @@ mod channel {
     use futures::{Stream, StreamExt, channel::mpsc};
     use send_wrapper::SendWrapper;
     use serde::{Deserialize, Serialize, de::DeserializeOwned};
-    use std::sync::Arc;
+    use std::{
+        collections::BTreeMap,
+        pin::Pin,
+        task::{Context, Poll},
+    };
     use wasm_bindgen::{JsValue, prelude::Closure};
 
     #[derive(derive_more::Deref, Deserialize, Debug)]
@@ -109,10 +113,67 @@ mod channel {
         }
     }
 
+    /// Restores the strict `index` order of incoming messages.
+    ///
+    /// Tauri delivers small channel messages synchronously through
+    /// `webview.eval` but routes large payloads through an asynchronous fetch
+    /// round-trip, so a large message is routinely overtaken by smaller
+    /// messages (or the end-of-channel marker) sent after it. Each message
+    /// carries a per-channel `index` starting at 0; out-of-order arrivals are
+    /// buffered until the gaps fill, matching the `Channel` class in
+    /// `@tauri-apps/api` (`core.ts`).
+    #[derive(Debug)]
+    struct Sequencer<T> {
+        next_index: usize,
+        pending: BTreeMap<usize, Message<T>>,
+    }
+
+    impl<T> Sequencer<T> {
+        fn new() -> Self {
+            Self {
+                next_index: 0,
+                pending: BTreeMap::new(),
+            }
+        }
+
+        /// Polls `rx` until the message with the next expected `index` is
+        /// available, buffering any messages that arrive out of order.
+        fn poll_next(
+            &mut self,
+            rx: &mut (impl Stream<Item = Message<T>> + Unpin),
+            cx: &mut Context<'_>,
+        ) -> Poll<Option<T>> {
+            loop {
+                let item = match self.pending.remove(&self.next_index) {
+                    Some(item) => item,
+                    None => match rx.poll_next_unpin(cx) {
+                        Poll::Ready(Some(item)) if item.index == self.next_index => item,
+                        Poll::Ready(Some(item)) => {
+                            self.pending.insert(item.index, item);
+                            continue;
+                        }
+                        _ => return Poll::Pending,
+                    },
+                };
+
+                self.next_index += 1;
+
+                return if item.end() {
+                    // TODO: Delete channel from `window`.
+                    // See `core.ts > class Channel > private cleanupCallback`.
+                    Poll::Ready(None)
+                } else {
+                    Poll::Ready(item.message)
+                };
+            }
+        }
+    }
+
     #[derive(Debug)]
     pub struct Channel<T> {
         id: usize,
         rx: mpsc::UnboundedReceiver<Message<T>>,
+        sequencer: Sequencer<T>,
         _id_keep_alive: SendWrapper<Closure<dyn FnMut(JsValue)>>,
     }
 
@@ -131,6 +192,7 @@ mod channel {
             Channel {
                 id,
                 rx,
+                sequencer: Sequencer::new(),
                 _id_keep_alive: SendWrapper::new(closure),
             }
         }
@@ -152,21 +214,117 @@ mod channel {
     impl<T> Stream for Channel<T> {
         type Item = T;
 
-        fn poll_next(
-            mut self: std::pin::Pin<&mut Self>,
-            cx: &mut std::task::Context<'_>,
-        ) -> std::task::Poll<Option<Self::Item>> {
-            if let std::task::Poll::Ready(Some(item)) = self.rx.poll_next_unpin(cx) {
-                if item.end() {
-                    // TODO: Delete channel from `window`.
-                    // See `core.ts > class Channel > private cleanupCallback`.
-                    std::task::Poll::Ready(None)
-                } else {
-                    std::task::Poll::Ready(item.message)
-                }
-            } else {
-                std::task::Poll::Pending
+        fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
+            let this = self.get_mut();
+            this.sequencer.poll_next(&mut this.rx, cx)
+        }
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+        use futures::FutureExt;
+
+        fn message(index: usize, message: u32) -> Message<u32> {
+            Message {
+                index,
+                end: None,
+                message: Some(message),
             }
+        }
+
+        fn end(index: usize) -> Message<u32> {
+            Message {
+                index,
+                end: Some(true),
+                message: None,
+            }
+        }
+
+        fn ordered(rx: mpsc::UnboundedReceiver<Message<u32>>) -> impl Stream<Item = u32> + Unpin {
+            let mut sequencer = Sequencer::new();
+            let mut rx = rx;
+            futures::stream::poll_fn(move |cx| sequencer.poll_next(&mut rx, cx))
+        }
+
+        /// Polls the stream once without blocking.
+        fn poll_once(stream: &mut (impl Stream<Item = u32> + Unpin)) -> Poll<Option<u32>> {
+            match stream.next().now_or_never() {
+                Some(item) => Poll::Ready(item),
+                None => Poll::Pending,
+            }
+        }
+
+        #[test]
+        fn in_order_arrival_is_delivered_unchanged() {
+            let (tx, rx) = mpsc::unbounded();
+            let mut stream = ordered(rx);
+
+            for (index, item) in [message(0, 10), message(1, 11), message(2, 12), end(3)]
+                .into_iter()
+                .enumerate()
+            {
+                assert_eq!(item.index(), index);
+                tx.unbounded_send(item).unwrap();
+            }
+
+            assert_eq!(poll_once(&mut stream), Poll::Ready(Some(10)));
+            assert_eq!(poll_once(&mut stream), Poll::Ready(Some(11)));
+            assert_eq!(poll_once(&mut stream), Poll::Ready(Some(12)));
+            assert_eq!(poll_once(&mut stream), Poll::Ready(None));
+        }
+
+        #[test]
+        fn shuffled_arrival_is_delivered_in_index_order() {
+            let (tx, rx) = mpsc::unbounded();
+            let mut stream = ordered(rx);
+
+            for item in [message(2, 12), message(0, 10), message(1, 11), end(3)] {
+                tx.unbounded_send(item).unwrap();
+            }
+
+            assert_eq!(poll_once(&mut stream), Poll::Ready(Some(10)));
+            assert_eq!(poll_once(&mut stream), Poll::Ready(Some(11)));
+            assert_eq!(poll_once(&mut stream), Poll::Ready(Some(12)));
+            assert_eq!(poll_once(&mut stream), Poll::Ready(None));
+        }
+
+        #[test]
+        fn gap_blocks_delivery_until_filled() {
+            let (tx, rx) = mpsc::unbounded();
+            let mut stream = ordered(rx);
+
+            tx.unbounded_send(message(5, 15)).unwrap();
+            assert_eq!(poll_once(&mut stream), Poll::Pending);
+
+            for index in 0..5 {
+                tx.unbounded_send(message(index, 10 + index as u32))
+                    .unwrap();
+            }
+            tx.unbounded_send(end(6)).unwrap();
+
+            for item in 10..=15 {
+                assert_eq!(poll_once(&mut stream), Poll::Ready(Some(item)));
+            }
+            assert_eq!(poll_once(&mut stream), Poll::Ready(None));
+        }
+
+        #[test]
+        fn early_end_does_not_cut_off_earlier_messages() {
+            let (tx, rx) = mpsc::unbounded();
+            let mut stream = ordered(rx);
+
+            tx.unbounded_send(end(3)).unwrap();
+            assert_eq!(poll_once(&mut stream), Poll::Pending);
+
+            for item in [message(2, 12), message(1, 11), message(0, 10)] {
+                tx.unbounded_send(item).unwrap();
+            }
+
+            assert_eq!(poll_once(&mut stream), Poll::Ready(Some(10)));
+            assert_eq!(poll_once(&mut stream), Poll::Ready(Some(11)));
+            assert_eq!(poll_once(&mut stream), Poll::Ready(Some(12)));
+            assert_eq!(poll_once(&mut stream), Poll::Ready(None));
         }
     }
 }
