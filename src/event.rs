@@ -132,14 +132,33 @@ where
     T: DeserializeOwned + 'static,
 {
     let (tx, rx) = mpsc::unbounded::<Event<T>>();
+    let closure = Closure::<dyn FnMut(JsValue)>::new(move |raw| {
+        let raw = js_sys::JSON::stringify(&raw)
+            .ok()
+            .and_then(|raw| raw.as_string());
+        let event = raw.as_deref().map(serde_json::from_str).transpose();
 
-    let closure =
-        Closure::<dyn FnMut(JsValue)>::new(move |raw| match serde_wasm_bindgen::from_value(raw) {
-            Ok(value) => {
-                let _ = tx.unbounded_send(value);
+        match event {
+            Ok(event) => {
+                if let Some(event) = event {
+                    let _ = tx.unbounded_send(event);
+                }
             }
-            Err(err) => log::error!("{err:?}"),
-        });
+            Err(err) => log::error!("could not deserialize event payload: {err}"),
+        }
+    });
+    // let closure = Closure::<dyn FnMut(JsValue)>::new(move |raw: JsValue| {
+    //     let Some(rawstr) = raw.as_string() else {
+    //         tracing::error!("could not convert value to string");
+    //         return;
+    //     };
+    //     match serde_json::from_str(&rawstr) {
+    //         Ok(value) => {
+    //             let _ = tx.unbounded_send(value);
+    //         }
+    //         Err(err) => log::error!("{err:?}"),
+    //     }
+    // });
     let unlisten = inner::listen(
         event,
         &closure,
