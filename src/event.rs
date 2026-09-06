@@ -133,9 +133,13 @@ where
 {
     let (tx, rx) = mpsc::unbounded::<Event<T>>();
 
-    let closure = Closure::<dyn FnMut(JsValue)>::new(move |raw| {
-        let _ = tx.unbounded_send(serde_wasm_bindgen::from_value(raw).unwrap());
-    });
+    let closure =
+        Closure::<dyn FnMut(JsValue)>::new(move |raw| match serde_wasm_bindgen::from_value(raw) {
+            Ok(value) => {
+                let _ = tx.unbounded_send(value);
+            }
+            Err(err) => log::error!("{err:?}"),
+        });
     let unlisten = inner::listen(
         event,
         &closure,
@@ -180,9 +184,13 @@ where
 {
     let (tx, rx) = mpsc::unbounded::<Event<T>>();
 
-    let closure = Closure::<dyn FnMut(JsValue)>::new(move |raw| {
-        let _ = tx.unbounded_send(serde_wasm_bindgen::from_value(raw).unwrap());
-    });
+    let closure =
+        Closure::<dyn FnMut(JsValue)>::new(move |raw| match serde_wasm_bindgen::from_value(raw) {
+            Ok(value) => {
+                let _ = tx.unbounded_send(value);
+            }
+            Err(err) => log::error!("{err:?}"),
+        });
     let unlisten = inner::listen(
         event,
         &closure,
@@ -253,9 +261,13 @@ where
 {
     let (tx, rx) = oneshot::channel::<Event<T>>();
 
-    let closure: Closure<dyn FnMut(JsValue)> = Closure::once(move |raw| {
-        let _ = tx.send(serde_wasm_bindgen::from_value(raw).unwrap());
-    });
+    let closure: Closure<dyn FnMut(JsValue)> =
+        Closure::once(move |raw| match serde_wasm_bindgen::from_value(raw) {
+            Ok(value) => {
+                let _ = tx.send(value);
+            }
+            Err(err) => log::error!("{err:?}"),
+        });
     let unlisten = inner::once(
         event,
         &closure,
@@ -306,9 +318,13 @@ where
 {
     let (tx, rx) = oneshot::channel::<Event<T>>();
 
-    let closure: Closure<dyn FnMut(JsValue)> = Closure::once(move |raw| {
-        let _ = tx.send(serde_wasm_bindgen::from_value(raw).unwrap());
-    });
+    let closure: Closure<dyn FnMut(JsValue)> =
+        Closure::once(move |raw| match serde_wasm_bindgen::from_value(raw) {
+            Ok(value) => {
+                let _ = tx.send(value);
+            }
+            Err(err) => log::error!("{err:?}"),
+        });
     let unlisten = inner::once(
         event,
         &closure,
