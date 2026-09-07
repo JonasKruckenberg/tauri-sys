@@ -8,22 +8,22 @@ pub use resource::Resource;
 #[cfg_attr(feature = "nightly", track_caller)]
 pub async fn invoke<T>(command: &str, args: impl Serialize) -> T
 where
-    T: DeserializeOwned,
+    T: DeserializeOwned + 'static,
 {
     let value = inner::invoke(command, swb::to_value(&args).unwrap()).await;
-    swb::from_value(value).unwrap()
+    crate::from_value(value).unwrap()
 }
 
 #[cfg_attr(feature = "nightly", track_caller)]
 pub async fn invoke_result<T, E>(command: &str, args: impl Serialize) -> Result<T, E>
 where
-    T: DeserializeOwned,
-    E: DeserializeOwned,
+    T: DeserializeOwned + 'static,
+    E: DeserializeOwned + 'static,
 {
     inner::invoke_result(command, swb::to_value(&args).unwrap())
         .await
-        .map(|val| swb::from_value(val).unwrap())
-        .map_err(|err| swb::from_value(err).unwrap())
+        .map(|val| crate::from_value(val).unwrap())
+        .map_err(|err| crate::from_value(err).unwrap())
 }
 
 pub fn convert_file_src(file_path: impl AsRef<str>) -> String {
@@ -81,7 +81,6 @@ mod channel {
     use futures::{Stream, StreamExt, channel::mpsc};
     use send_wrapper::SendWrapper;
     use serde::{Deserialize, Serialize, de::DeserializeOwned};
-    use std::sync::Arc;
     use wasm_bindgen::{JsValue, prelude::Closure};
 
     #[derive(derive_more::Deref, Deserialize, Debug)]
@@ -123,7 +122,7 @@ mod channel {
         {
             let (tx, rx) = mpsc::unbounded::<Message<T>>();
             let closure = Closure::<dyn FnMut(JsValue)>::new(move |raw| {
-                let _ = tx.unbounded_send(serde_wasm_bindgen::from_value(raw).unwrap());
+                let _ = tx.unbounded_send(crate::from_value(raw).unwrap());
             });
 
             let id = inner::transform_callback(&closure, false);

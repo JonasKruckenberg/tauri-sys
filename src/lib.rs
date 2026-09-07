@@ -111,6 +111,17 @@ pub use error::Error;
 #[cfg(any(feature = "event", feature = "window"))]
 pub(crate) type Result<T> = std::result::Result<T, Error>;
 
+fn from_value<'de, T>(obj: wasm_bindgen::JsValue) -> std::result::Result<T, error::Deserialize>
+where
+    T: serde::de::DeserializeOwned + 'static,
+{
+    // must serialize and deserialize to prevent overflowing wasm method table
+    // see https://github.com/wasm-bindgen/wasm-bindgen/issues/5324
+    let raw = js_sys::JSON::stringify(&obj)
+        .map(|raw| raw.as_string().expect("value should be a string"))?;
+    serde_json::from_str(&raw).map_err(Into::into)
+}
+
 // #[cfg(any(feature = "window"))]
 // pub(crate) mod utils {
 //     pub struct ArrayIterator {
