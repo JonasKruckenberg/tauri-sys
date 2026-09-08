@@ -117,7 +117,7 @@ pub async fn emit_to<T: Serialize>(
 ///
 /// # Notes
 ///
-/// + Events that fail to deserailize are ignored.
+/// + Events that fail to deserialize are ignored.
 ///
 /// # Example
 ///
@@ -172,7 +172,7 @@ where
 ///
 /// # Notes
 ///
-/// + Events that fail to deserailize are ignored.
+/// + Events that fail to deserialize are ignored.
 ///
 /// # Example
 ///
@@ -252,7 +252,7 @@ impl<T> Stream for Listen<T> {
 ///
 /// # Notes
 ///
-/// + Events that fail to deserailize are ignored.
+/// + Events that fail to deserialize are ignored.
 ///
 /// # Example
 ///
@@ -316,7 +316,7 @@ where
 ///
 /// # Notes
 ///
-/// + Events that fail to deserailize are ignored.
+/// + Events that fail to deserialize are ignored.
 ///
 /// # Example
 ///
