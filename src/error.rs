@@ -22,3 +22,23 @@ impl From<JsValue> for Error {
         Self::Command(format!("{:?}", e))
     }
 }
+
+#[derive(Debug)]
+pub enum Deserialize {
+    /// Value could not be stringified
+    Stringify(wasm_bindgen::JsValue),
+    /// JSON could not be deserialized
+    Deserialize(serde_json::Error),
+}
+
+impl From<wasm_bindgen::JsValue> for Deserialize {
+    fn from(value: wasm_bindgen::JsValue) -> Self {
+        Self::Stringify(value)
+    }
+}
+
+impl From<serde_json::Error> for Deserialize {
+    fn from(value: serde_json::Error) -> Self {
+        Self::Deserialize(value)
+    }
+}

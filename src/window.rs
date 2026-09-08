@@ -56,7 +56,7 @@ pub(crate) struct DragDropListen {
     pub unlisten_drop: js_sys::Function,
     pub unlisten_over: js_sys::Function,
     pub unlisten_leave: js_sys::Function,
-    _keep_alives:  [Closure::<dyn FnMut(JsValue)>; 4],
+    _keep_alives: [Closure<dyn FnMut(JsValue)>; 4],
 }
 
 impl Drop for DragDropListen {
@@ -335,7 +335,7 @@ impl Window {
             let tx = tx.clone();
             Closure::<dyn FnMut(JsValue)>::new(move |raw| {
                 let Event { event, id, payload } =
-                    serde_wasm_bindgen::from_value::<Event<DragDropPayload>>(raw).unwrap();
+                    crate::from_value::<Event<DragDropPayload>>(raw).unwrap();
                 let _ = tx.unbounded_send(Event {
                     event,
                     id,
@@ -358,7 +358,7 @@ impl Window {
             let tx = tx.clone();
             Closure::<dyn FnMut(JsValue)>::new(move |raw| {
                 let Event { event, id, payload } =
-                    serde_wasm_bindgen::from_value::<Event<DragDropPayload>>(raw).unwrap();
+                    crate::from_value::<Event<DragDropPayload>>(raw).unwrap();
                 let _ = tx.unbounded_send(Event {
                     event,
                     id,
@@ -381,7 +381,7 @@ impl Window {
             let tx = tx.clone();
             Closure::<dyn FnMut(JsValue)>::new(move |raw| {
                 let Event { event, id, payload } =
-                    serde_wasm_bindgen::from_value::<Event<DragOverPayload>>(raw).unwrap();
+                    crate::from_value::<Event<DragOverPayload>>(raw).unwrap();
                 let _ = tx.unbounded_send(Event {
                     event,
                     id,
@@ -403,8 +403,7 @@ impl Window {
         let leave_closure = {
             let tx = tx.clone();
             Closure::<dyn FnMut(JsValue)>::new(move |raw| {
-                let Event { event, id, .. } =
-                    serde_wasm_bindgen::from_value::<Event<()>>(raw).unwrap();
+                let Event { event, id, .. } = crate::from_value::<Event<()>>(raw).unwrap();
                 let _ = tx.unbounded_send(Event {
                     event,
                     id,

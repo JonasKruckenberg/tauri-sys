@@ -7,6 +7,8 @@ use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use std::fmt::Debug;
 use wasm_bindgen::{JsValue, prelude::Closure};
 
+use crate::error;
+
 pub const WINDOW_RESIZED: &str = "tauri://resize";
 pub const WINDOW_MOVED: &str = "tauri://move";
 pub const WINDOW_CLOSE_REQUESTED: &str = "tauri://close-requested";
@@ -113,6 +115,10 @@ pub async fn emit_to<T: Serialize>(
 /// The returned Future will automatically clean up it's underlying event listener when dropped, so no manual unlisten function needs to be called.
 /// See [Differences to the JavaScript API](../index.html#differences-to-the-javascript-api) for details.
 ///
+/// # Notes
+///
+/// + Events that fail to deserialize are ignored.
+///
 /// # Example
 ///
 /// ```rust,no_run
@@ -132,9 +138,16 @@ where
     T: DeserializeOwned + 'static,
 {
     let (tx, rx) = mpsc::unbounded::<Event<T>>();
-
-    let closure = Closure::<dyn FnMut(JsValue)>::new(move |raw| {
-        let _ = tx.unbounded_send(serde_wasm_bindgen::from_value(raw).unwrap());
+    let closure = Closure::<dyn FnMut(JsValue)>::new(move |raw| match crate::from_value(raw) {
+        Ok(event) => {
+            let _ = tx.unbounded_send(event);
+        }
+        Err(error::Deserialize::Stringify(val)) => {
+            log::error!("could not stringify event payload: {val:?}");
+        }
+        Err(error::Deserialize::Deserialize(err)) => {
+            log::error!("could not deserialize event payload: {err}");
+        }
     });
     let unlisten = inner::listen(
         event,
@@ -156,6 +169,10 @@ where
 ///
 /// The returned Future will automatically clean up it's underlying event listener when dropped, so no manual unlisten function needs to be called.
 /// See [Differences to the JavaScript API](../index.html#differences-to-the-javascript-api) for details.
+///
+/// # Notes
+///
+/// + Events that fail to deserialize are ignored.
 ///
 /// # Example
 ///
@@ -179,9 +196,16 @@ where
     T: DeserializeOwned + 'static,
 {
     let (tx, rx) = mpsc::unbounded::<Event<T>>();
-
-    let closure = Closure::<dyn FnMut(JsValue)>::new(move |raw| {
-        let _ = tx.unbounded_send(serde_wasm_bindgen::from_value(raw).unwrap());
+    let closure = Closure::<dyn FnMut(JsValue)>::new(move |raw| match crate::from_value(raw) {
+        Ok(event) => {
+            let _ = tx.unbounded_send(event);
+        }
+        Err(error::Deserialize::Stringify(val)) => {
+            log::error!("could not stringify event payload: {val:?}");
+        }
+        Err(error::Deserialize::Deserialize(err)) => {
+            log::error!("could not deserialize event payload: {err}");
+        }
     });
     let unlisten = inner::listen(
         event,
@@ -226,6 +250,10 @@ impl<T> Stream for Listen<T> {
 /// The returned Future will automatically clean up it's underlying event listener when dropped, so no manual unlisten function needs to be called.
 /// See [Differences to the JavaScript API](../index.html#differences-to-the-javascript-api) for details.
 ///
+/// # Notes
+///
+/// + Events that fail to deserialize are ignored.
+///
 /// # Example
 ///
 /// ```rust,no_run
@@ -252,9 +280,16 @@ where
     T: DeserializeOwned + 'static,
 {
     let (tx, rx) = oneshot::channel::<Event<T>>();
-
-    let closure: Closure<dyn FnMut(JsValue)> = Closure::once(move |raw| {
-        let _ = tx.send(serde_wasm_bindgen::from_value(raw).unwrap());
+    let closure = Closure::<dyn FnMut(JsValue)>::once(move |raw| match crate::from_value(raw) {
+        Ok(event) => {
+            let _ = tx.send(event);
+        }
+        Err(error::Deserialize::Stringify(val)) => {
+            log::error!("could not stringify event payload: {val:?}");
+        }
+        Err(error::Deserialize::Deserialize(err)) => {
+            log::error!("could not deserialize event payload: {err}");
+        }
     });
     let unlisten = inner::once(
         event,
@@ -278,6 +313,10 @@ where
 ///
 /// The returned Future will automatically clean up it's underlying event listener when dropped, so no manual unlisten function needs to be called.
 /// See [Differences to the JavaScript API](../index.html#differences-to-the-javascript-api) for details.
+///
+/// # Notes
+///
+/// + Events that fail to deserialize are ignored.
 ///
 /// # Example
 ///
@@ -305,9 +344,16 @@ where
     T: DeserializeOwned + 'static,
 {
     let (tx, rx) = oneshot::channel::<Event<T>>();
-
-    let closure: Closure<dyn FnMut(JsValue)> = Closure::once(move |raw| {
-        let _ = tx.send(serde_wasm_bindgen::from_value(raw).unwrap());
+    let closure = Closure::<dyn FnMut(JsValue)>::once(move |raw| match crate::from_value(raw) {
+        Ok(event) => {
+            let _ = tx.send(event);
+        }
+        Err(error::Deserialize::Stringify(val)) => {
+            log::error!("could not stringify event payload: {val:?}");
+        }
+        Err(error::Deserialize::Deserialize(err)) => {
+            log::error!("could not deserialize event payload: {err}");
+        }
     });
     let unlisten = inner::once(
         event,
