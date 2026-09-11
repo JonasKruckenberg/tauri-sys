@@ -1,20 +1,17 @@
 {
-  // schedule: [
-  //  'before 5am on the first day of the month',
-  //],
   semanticCommits: 'enabled',
   configMigration: true,
   dependencyDashboard: true,
   customManagers: [
     {
       customType: 'regex',
-      fileMatch: [
-        '^rust-toolchain\\.toml$',
-        'Cargo.toml$',
-        'clippy.toml$',
-        '\\.clippy.toml$',
-        '^\\.github/workflows/ci.yml$',
-        '^\\.github/workflows/rust-next.yml$',
+      managerFilePatterns: [
+        '/^rust-toolchain\\.toml$/',
+        '/Cargo.toml$/',
+        '/clippy.toml$/',
+        '/\\.clippy.toml$/',
+        '/^\\.github/workflows/ci.yml$/',
+        '/^\\.github/workflows/rust-next.yml$/',
       ],
       matchStrings: [
         'MSRV.*?(?<currentValue>\\d+\\.\\d+(\\.\\d+)?)',
@@ -34,15 +31,9 @@
       matchPackageNames: [
         'rust',
       ],
-      minimumReleaseAge: '252 days', // 6 releases * 6 weeks per release * 7 days per week
+      minimumReleaseAge: '252 days',
       internalChecksFilter: 'strict',
     },
-    // Goals:
-    // - Keep version reqs low, ignoring compatible normal/build dependencies
-    // - Take advantage of latest dev-dependencies
-    // - Rollup safe upgrades to reduce CI runner load
-    // - Help keep number of versions down by always using latest breaking change
-    // - Have lockfile and manifest in-sync
     {
       matchManagers: [
         'cargo',
