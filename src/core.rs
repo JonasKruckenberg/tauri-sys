@@ -23,7 +23,20 @@ where
     inner::invoke_result(command, swb::to_value(&args).unwrap())
         .await
         .map(|val| crate::from_value(val).unwrap())
-        .map_err(|err| crate::from_value(err).unwrap())
+        .map_err(|err| {
+            // A torn-down IPC bridge (e.g. a WKWebView closing on macOS while
+            // wasm microtasks still run) rejects an in-flight invoke with a
+            // raw JS value that is not a serialized `E`, so deserializing it
+            // directly can fail. Fall back to treating the rejection as its
+            // string form (which succeeds for the common `E = String`) before
+            // giving up, so teardown noise cannot panic.
+            crate::from_value::<E>(err.clone()).unwrap_or_else(|_| {
+                let text = err.as_string().unwrap_or_else(|| format!("{err:?}"));
+                crate::from_value::<E>(wasm_bindgen::JsValue::from_str(&text)).unwrap_or_else(|_| {
+                    panic!("invoke_result({command:?}) rejection is not a valid E: {text}")
+                })
+            })
+        })
 }
 
 pub fn convert_file_src(file_path: impl AsRef<str>) -> String {
